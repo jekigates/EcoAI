@@ -67,4 +67,10 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.runtime.livedata)
+
+    // Customize the splash screen in your app
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // Navigation with Compose
+    implementation(libs.androidx.navigation.compose)
 }

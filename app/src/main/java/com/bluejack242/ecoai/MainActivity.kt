@@ -6,13 +6,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.bluejack242.ecoai.ui.theme.EcoAITheme
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,24 +27,35 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            Column (
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(text = "Hey look some text")
-                Spacer(modifier = Modifier.padding(top=10.dp))
-                Button (
-                    onClick = {}
+            // State untuk toggle tema
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            EcoAITheme(darkTheme = isDarkTheme) {
+                Surface (
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    Text(text = "A BUTTON")
+                    Column (
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = if (isDarkTheme) "Dark Theme Active" else "Light Theme Active",
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { isDarkTheme = !isDarkTheme }
+                        ) {
+                            Text("Toggle Theme")
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = {}) {
+                            Text("A BUTTON")
+                        }
+                    }
                 }
             }
         }
-
-//        setContentView(R.layout.activity_main)
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
     }
 }
