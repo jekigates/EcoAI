@@ -51,6 +51,15 @@ fun LoginScreen(
             .padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.Top
     ) {
+        // Language Selector
+        LanguageSelector(
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(bottom = 16.dp),
+            backgroundColor = Color(0xFFF5F5F5),
+            textColor = Color.Black
+        )
+        
         // Gambar placeholder
         Box(
             modifier = Modifier
@@ -65,7 +74,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Welcome Back!",
+            text = LanguageManager.getString("welcome_back"),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -75,7 +84,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email address") },
+            label = { Text(LanguageManager.getString("email_address")) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -84,7 +93,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password (8+ characters)") },
+            label = { Text(LanguageManager.getString("password_hint")) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -96,18 +105,17 @@ fun LoginScreen(
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text(
-                text = "Forgotten your password?",
+                text = LanguageManager.getString("forgotten_password"),
                 fontSize = 14.sp,
                 color = Color.Gray
             )
         }
 
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             onClick = { viewModel.login(email, password) {
-                Toast.makeText(context, "Login success", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, LanguageManager.getString("login_success"), Toast.LENGTH_SHORT).show()
                 onLoginSuccess()
             } },
             modifier = Modifier
@@ -116,7 +124,7 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
             shape = RoundedCornerShape(6.dp)
         ) {
-            Text("Log In", color = Color.White, fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("log_in"), color = Color.White, fontWeight = FontWeight.Bold)
         }
         if (error != null) {
             Text(error, color = Color.Red)
@@ -132,11 +140,10 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Don’t have an account?", color = Color(0xFF888888))
+            Text(LanguageManager.getString("dont_have_account"), color = Color(0xFF888888))
             TextButton(onClick = onRegisterClick) {
-                Text("Register", fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(LanguageManager.getString("register"), fontWeight = FontWeight.Bold, color = Color.Black)
             }
         }
-
     }
 }
