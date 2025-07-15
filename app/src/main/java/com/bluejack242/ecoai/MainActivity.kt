@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.bluejack242.ecoai.ui.auth.LandingScreen
 import com.bluejack242.ecoai.ui.theme.EcoAITheme
 
@@ -30,38 +31,33 @@ class MainActivity : AppCompatActivity() {
         setContent {
             // State untuk toggle tema
             var isDarkTheme by remember { mutableStateOf(false) }
-            var showLanding by remember { mutableStateOf(true) }
 
             EcoAITheme(darkTheme = isDarkTheme) {
+                val navController = rememberNavController()
                 Surface (
                     modifier = Modifier
                         .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (showLanding) {
-                        LandingScreen (
-                            onLoginClick = { /* TODO: Navigate to login */ },
-                            onGetStartedClick = { /* TODO: Navigate to register */ }
-                        )
-                    } else {
-                    Column (
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(
-                            text = if (isDarkTheme) "Dark Theme Active" else "Light Theme Active",
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { isDarkTheme = !isDarkTheme }
-                        ) {
-                            Text("Toggle Theme")
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = {}) {
-                            Text("A BUTTON")
-                        }
-                    }}
+//                    Column (
+//                        modifier = Modifier.padding(16.dp)
+//                    ) {
+//                        Text(
+//                            text = if (isDarkTheme) "Dark Theme Active" else "Light Theme Active",
+//                            color = MaterialTheme.colorScheme.onBackground
+//                        )
+//                        Spacer(modifier = Modifier.height(16.dp))
+//                        Button(
+//                            onClick = { isDarkTheme = !isDarkTheme }
+//                        ) {
+//                            Text("Toggle Theme")
+//                        }
+//                        Spacer(modifier = Modifier.height(16.dp))
+//                        Button(onClick = {}) {
+//                            Text("A BUTTON")
+//                        }
+//                    }
+                    AppNavGraph(navController = navController)
                 }
             }
         }
