@@ -9,6 +9,7 @@ import com.bluejack242.ecoai.ui.auth.LoginScreen
 import com.bluejack242.ecoai.ui.auth.RegisterScreen
 import com.bluejack242.ecoai.ui.auth.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bluejack242.ecoai.ui.HomeScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -39,8 +40,10 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-//        composable("home") {
-//            HomeScreen()
-//        }
+        composable("home") {
+            HomeScreen(
+
+            )
+        }
     }
 }

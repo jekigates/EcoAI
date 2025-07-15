@@ -124,18 +124,24 @@ fun RegisterScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+        if (error != null) {
+            Text(error, color = Color.Red)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                if (password != confirmPassword) {
-                    Toast.makeText(context, LanguageManager.getString("password_mismatch"), Toast.LENGTH_SHORT).show()
-                } else if (email != confirmEmail) {
-                    Toast.makeText(context, LanguageManager.getString("email_mismatch"), Toast.LENGTH_SHORT).show()
-                } else {
-                    viewModel.register(firstName, lastName, email, password) {
-                        Toast.makeText(context, LanguageManager.getString("registration_successful"), Toast.LENGTH_SHORT).show()
-                        onRegisterSuccess()
-                    }
+                viewModel.register(
+                    firstName,
+                    lastName,
+                    email,
+                    confirmEmail,
+                    password,
+                    confirmPassword
+                ) {
+                    Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT)
+                        .show()
+                    onRegisterSuccess()
                 }
             },
             modifier = Modifier
@@ -158,9 +164,6 @@ fun RegisterScreen(
             }
         }
 
-        if (error != null) {
-            Text(error, color = Color.Red)
-        }
 
         if (isLoading) {
             CircularProgressIndicator()
