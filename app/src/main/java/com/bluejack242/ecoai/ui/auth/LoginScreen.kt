@@ -28,13 +28,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import androidx.compose.material3.CircularProgressIndicator
 
 @Composable
 fun LoginScreen(
+    viewModel: AuthViewModel = remember { AuthViewModel() },
     onRegisterClick: () -> Unit,
-    onLoginClick: (String, String) -> Unit,
-    onForgotPasswordClick: () -> Unit
+    onForgotPasswordClick: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
+    val error = viewModel.errorMessage.value
+    val isLoading = viewModel.isLoading.value
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -99,7 +106,10 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { onLoginClick(email, password) },
+            onClick = { viewModel.login(email, password) {
+                Toast.makeText(context, "Login success", Toast.LENGTH_SHORT).show()
+                onLoginSuccess()
+            } },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -107,6 +117,13 @@ fun LoginScreen(
             shape = RoundedCornerShape(6.dp)
         ) {
             Text("Log In", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+        if (error != null) {
+            Text(error, color = Color.Red)
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator()
         }
 
         Spacer(modifier = Modifier.height(24.dp))

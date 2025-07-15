@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,15 +24,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.CircularProgressIndicator
+
 
 @Composable
 fun RegisterScreen(
+    viewModel: AuthViewModel,
     onLoginClick: () -> Unit,
-    onRegisterSubmit: (String, String, String, String, String) -> Unit
+    onRegisterSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
+    val error = viewModel.errorMessage.value
+    val isLoading = viewModel.isLoading.value
+
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -110,7 +119,16 @@ fun RegisterScreen(
 
         Button(
             onClick = {
-                onRegisterSubmit(firstName, lastName, email, password, confirmPassword)
+                if (password != confirmPassword) {
+                    Toast.makeText(context, "Password doesn't match", Toast.LENGTH_SHORT).show()
+                } else if (email != confirmEmail) {
+                    Toast.makeText(context, "Email doesn't match", Toast.LENGTH_SHORT).show()
+                } else {
+                    viewModel.register(firstName, lastName, email, password) {
+                        Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
+                        onRegisterSuccess()
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -130,6 +148,14 @@ fun RegisterScreen(
             TextButton(onClick = onLoginClick) {
                 Text("Log In", fontWeight = FontWeight.Bold, color = Color.Black)
             }
+        }
+
+        if (error != null) {
+            Text(error, color = Color.Red)
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator()
         }
     }
 }

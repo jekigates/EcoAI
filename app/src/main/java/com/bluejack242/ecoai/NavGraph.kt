@@ -7,32 +7,40 @@ import androidx.navigation.compose.composable
 import com.bluejack242.ecoai.ui.auth.LandingScreen
 import com.bluejack242.ecoai.ui.auth.LoginScreen
 import com.bluejack242.ecoai.ui.auth.RegisterScreen
+import com.bluejack242.ecoai.ui.auth.AuthViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "landing") {
+    NavHost(navController, startDestination = "landing") {
         composable("landing") {
             LandingScreen(
-                onLoginClick = { navController.navigate("login")},
+                onLoginClick = { navController.navigate("login") },
                 onGetStartedClick = { navController.navigate("register") }
             )
         }
-        composable("login") {
-            LoginScreen(
-                onRegisterClick = { navController.navigate("register") },
-                onLoginClick = { email, password ->
 
-                },
-                onForgotPasswordClick = { /* handle forgot password */ }
+        composable("login") {
+            val authViewModel: AuthViewModel = viewModel()
+            LoginScreen(
+                viewModel = authViewModel,
+                onRegisterClick = { navController.navigate("register") },
+                onLoginSuccess = { navController.navigate("home") },
+                onForgotPasswordClick = {  }
             )
         }
+
         composable("register") {
+            val authViewModel: AuthViewModel = viewModel()
             RegisterScreen(
-                onLoginClick = { navController.navigate("login")},
-                onRegisterSubmit = { fName, lName, email, pass, confirm ->
-                    // handle registration
-                }
+                viewModel = authViewModel,
+                onLoginClick = { navController.navigate("login") },
+                onRegisterSuccess = { navController.navigate("home") }
             )
         }
+
+//        composable("home") {
+//            HomeScreen()
+//        }
     }
 }
