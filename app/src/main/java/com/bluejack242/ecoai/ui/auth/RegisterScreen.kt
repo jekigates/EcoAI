@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
 
-
 @Composable
 fun RegisterScreen(
     viewModel: AuthViewModel,
@@ -53,8 +52,17 @@ fun RegisterScreen(
             .fillMaxSize()
             .padding(horizontal = 24.dp, vertical = 32.dp)
     ) {
+        // Language Selector
+        LanguageSelector(
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(bottom = 16.dp),
+            backgroundColor = Color(0xFFF5F5F5),
+            textColor = Color.Black
+        )
+        
         Text(
-            text = "Register",
+            text = LanguageManager.getString("register"),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
@@ -65,14 +73,14 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text("First name") },
+                label = { Text(LanguageManager.getString("first_name")) },
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text("Last name") },
+                label = { Text(LanguageManager.getString("last_name")) },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -82,7 +90,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email address") },
+            label = { Text(LanguageManager.getString("email_address")) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -91,7 +99,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = confirmEmail,
             onValueChange = { confirmEmail = it },
-            label = { Text("Confirm email address") },
+            label = { Text(LanguageManager.getString("confirm_email")) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -100,7 +108,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password (8+ characters)") },
+            label = { Text(LanguageManager.getString("password_hint")) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -110,7 +118,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm password (8+ characters)") },
+            label = { Text(LanguageManager.getString("confirm_password")) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
@@ -120,12 +128,12 @@ fun RegisterScreen(
         Button(
             onClick = {
                 if (password != confirmPassword) {
-                    Toast.makeText(context, "Password doesn't match", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, LanguageManager.getString("password_mismatch"), Toast.LENGTH_SHORT).show()
                 } else if (email != confirmEmail) {
-                    Toast.makeText(context, "Email doesn't match", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, LanguageManager.getString("email_mismatch"), Toast.LENGTH_SHORT).show()
                 } else {
                     viewModel.register(firstName, lastName, email, password) {
-                        Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, LanguageManager.getString("registration_successful"), Toast.LENGTH_SHORT).show()
                         onRegisterSuccess()
                     }
                 }
@@ -136,7 +144,7 @@ fun RegisterScreen(
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
             shape = RoundedCornerShape(6.dp)
         ) {
-            Text("Create account", color = Color.White, fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("create_account"), color = Color.White, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -144,9 +152,9 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Have an account?", color = Color(0xFF888888))
+            Text(LanguageManager.getString("have_account"), color = Color(0xFF888888))
             TextButton(onClick = onLoginClick) {
-                Text("Log In", fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(LanguageManager.getString("log_in"), fontWeight = FontWeight.Bold, color = Color.Black)
             }
         }
 

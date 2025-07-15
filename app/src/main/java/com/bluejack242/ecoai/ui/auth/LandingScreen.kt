@@ -1,8 +1,6 @@
 package com.bluejack242.ecoai.ui.auth
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,17 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,38 +42,13 @@ fun LandingScreen(
                 .height(600.dp)
         )
 
-        var expanded by remember { mutableStateOf(false) }
-        var selectedLanguage by remember { mutableStateOf("EN") }
-
-        Box(
+        // Language Selector
+        LanguageSelector(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(16.dp).padding(top = 16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .clickable { expanded = true }
-                    .background(Color.White, RoundedCornerShape(4.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text(text = selectedLanguage, fontWeight = FontWeight.Bold)
-            }
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                listOf("EN", "ID").forEach { lang ->
-                    DropdownMenuItem(
-                        text = { Text(lang) },
-                        onClick = {
-                            selectedLanguage = lang
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
+                .padding(16.dp)
+                .padding(top = 16.dp)
+        )
 
         Surface(
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
@@ -96,7 +64,7 @@ fun LandingScreen(
                     .padding(horizontal = 24.dp, vertical = 32.dp)
             ) {
                 Text(
-                    text = "Waste tracking made easy",
+                    text = LanguageManager.getString("waste_tracking_made_easy"),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -110,19 +78,23 @@ fun LandingScreen(
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Get Started", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(
+                        LanguageManager.getString("get_started"), 
+                        color = Color.White, 
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Have an account?",
+                    text = LanguageManager.getString("have_account"),
                     fontSize = 14.sp,
                     color = Color(0xFF888888)
                 )
                 TextButton(onClick = onLoginClick) {
                     Text(
-                        text = "Log In",
+                        text = LanguageManager.getString("log_in"),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
