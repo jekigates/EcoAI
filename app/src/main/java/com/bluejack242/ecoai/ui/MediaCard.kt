@@ -1,40 +1,42 @@
 package com.bluejack242.ecoai.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 
 @Composable
-fun MediaCard(type: String, title: String, username: String, likes: Int) {
+fun MediaCard(
+    imageUrl: String,
+    title: String,
+    username: String,
+    likes: Int
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Box(
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "Media image",
             modifier = Modifier
                 .height(150.dp)
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
                 .background(Color.LightGray),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(type, style = MaterialTheme.typography.bodyLarge, color = Color.Black)
-        }
+            contentScale = ContentScale.Crop
+        )
 
         Text(
             text = title,
@@ -45,11 +47,19 @@ fun MediaCard(type: String, title: String, username: String, likes: Int) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
         ) {
             Text(username, style = MaterialTheme.typography.labelSmall)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp))
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Likes",
+                    modifier = Modifier.size(14.dp),
+                    tint = Color.Red
+                )
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(text = likes.toString(), style = MaterialTheme.typography.labelSmall)
             }
         }
