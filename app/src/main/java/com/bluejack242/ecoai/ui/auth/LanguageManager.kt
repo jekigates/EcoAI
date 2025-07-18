@@ -30,7 +30,11 @@ object LanguageManager {
             "create_account" to "Create account",
             "password_mismatch" to "Password doesn't match",
             "email_mismatch" to "Email doesn't match",
-            "registration_successful" to "Registration successful"
+            "registration_successful" to "Registration successful",
+            // Added for dialog
+            "registration_success" to "Account Created",
+            "verification_link_sent" to "Your account has been successfully created and a verification link has been sent to your email.",
+            "go_to_login" to "Go to Login"
         ),
         "ID" to mapOf(
             // Landing Screen
@@ -56,7 +60,11 @@ object LanguageManager {
             "create_account" to "Buat akun",
             "password_mismatch" to "Kata sandi tidak cocok",
             "email_mismatch" to "Email tidak cocok",
-            "registration_successful" to "Registrasi berhasil"
+            "registration_successful" to "Registrasi berhasil",
+            // Added for dialog
+            "registration_success" to "Akun Berhasil Dibuat",
+            "verification_link_sent" to "Akun Anda berhasil dibuat dan tautan verifikasi telah dikirim ke email Anda.",
+            "go_to_login" to "Ke Halaman Masuk"
         )
     )
     

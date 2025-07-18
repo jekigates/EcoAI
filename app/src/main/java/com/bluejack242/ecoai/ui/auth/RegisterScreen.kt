@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,8 +35,7 @@ import com.bluejack242.ecoai.model.RegisterRequest
 @Composable
 fun RegisterScreen(
     viewModel: AuthViewModel,
-    onLoginClick: () -> Unit,
-    onRegisterSuccess: () -> Unit
+    onLoginClick: () -> Unit
 ) {
     val context = LocalContext.current
     val error = viewModel.errorMessage.value
@@ -47,6 +47,7 @@ fun RegisterScreen(
     var confirmEmail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -140,9 +141,7 @@ fun RegisterScreen(
                     password,
                     confirmPassword)
                 ) {
-                    Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT)
-                        .show()
-                    onRegisterSuccess()
+                    showSuccessDialog = true
                 }
             },
             modifier = Modifier
@@ -168,6 +167,23 @@ fun RegisterScreen(
 
         if (isLoading) {
             CircularProgressIndicator()
+        }
+
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = {}, // Prevent dismiss by outside touch or back
+                title = { Text(LanguageManager.getString("registration_success")) },
+                text = { Text(LanguageManager.getString("verification_link_sent")) },
+                confirmButton = {
+                    Button(onClick = {
+                        showSuccessDialog = false
+                        onLoginClick()
+                    }) {
+                        Text(LanguageManager.getString("go_to_login"))
+                    }
+                },
+                dismissButton = null
+            )
         }
     }
 }

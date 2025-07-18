@@ -37,8 +37,7 @@ fun AppNavGraph(navController: NavHostController) {
             val authViewModel: AuthViewModel = viewModel()
             RegisterScreen(
                 viewModel = authViewModel,
-                onLoginClick = { navController.navigate("login") },
-                onRegisterSuccess = { navController.navigate("home") }
+                onLoginClick = { navController.navigate("login") }
             )
         }
 

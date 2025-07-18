@@ -9,6 +9,7 @@ import com.bluejack242.ecoai.model.RegisterRequest
 import com.bluejack242.ecoai.model.ResetPasswordRequest
 import com.bluejack242.ecoai.utils.PasswordUtil
 import com.bluejack242.ecoai.utils.ValidationUtil
+import com.google.firebase.auth.FirebaseAuth
 
 class AuthViewModel(
     private val repository: AuthRepository = AuthRepository()
@@ -27,11 +28,18 @@ class AuthViewModel(
 
         isLoading.value = true
         repository.login(request.email, request.password) { success, err ->
-            isLoading.value = false
             if (success) {
-                errorMessage.value = null
-                onSuccess()
+                val user = FirebaseAuth.getInstance().currentUser
+                if (user != null && user.isEmailVerified) {
+                    isLoading.value = false
+                    errorMessage.value = null
+                    onSuccess()
+                } else {
+                    isLoading.value = false
+                    errorMessage.value = "Please verify your email before logging in."
+                }
             } else {
+                isLoading.value = false
                 errorMessage.value = "Invalid credentials!"
             }
         }
@@ -52,21 +60,27 @@ class AuthViewModel(
 
         isLoading.value = true
 
-        val hashedPassword = PasswordUtil.hash(request.password)
-
-        repository.register(
-            fName = request.firstName,
-            lName = request.lastName,
-            email = request.email,
-            password = request.password,
-            hashedPassword = hashedPassword
-        ) { success, err ->
-            isLoading.value = false
-            if (success) {
-                errorMessage.value = null
-                onSuccess()
+        repository.checkEmailExists(request.email) { exists ->
+            if (exists) {
+                isLoading.value = false
+                errorMessage.value = "Email is already registered. Please use another email or log in."
             } else {
-                errorMessage.value = "Failed to register account!"
+                val hashedPassword = PasswordUtil.hash(request.password)
+                repository.register(
+                    fName = request.firstName,
+                    lName = request.lastName,
+                    email = request.email,
+                    password = request.password,
+                    hashedPassword = hashedPassword
+                ) { success, err ->
+                    isLoading.value = false
+                    if (success) {
+                        errorMessage.value = null
+                        onSuccess()
+                    } else {
+                        errorMessage.value = err ?: "Failed to register account!"
+                    }
+                }
             }
         }
     }

@@ -89,5 +89,17 @@ class AuthRepository(
         }
     }
 
+    fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
+        auth.fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val signInMethods = task.result?.signInMethods
+                    callback(signInMethods != null && signInMethods.isNotEmpty())
+                } else {
+                    callback(false)
+                }
+            }
+    }
+
 
 }
