@@ -10,6 +10,8 @@ import com.bluejack242.ecoai.ui.auth.RegisterScreen
 import com.bluejack242.ecoai.ui.auth.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluejack242.ecoai.ui.HomeScreen
+import com.bluejack242.ecoai.ui.auth.CreateNewPasswordScreen
+import com.bluejack242.ecoai.ui.auth.ForgotPasswordScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -27,7 +29,7 @@ fun AppNavGraph(navController: NavHostController) {
                 viewModel = authViewModel,
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = { navController.navigate("home") },
-                onForgotPasswordClick = {  }
+                onForgotPasswordClick = { navController.navigate("forgot_password") }
             )
         }
 
@@ -45,5 +47,20 @@ fun AppNavGraph(navController: NavHostController) {
 
             )
         }
+
+        composable("forgot_password") {
+            val authViewModel: AuthViewModel = viewModel()
+            ForgotPasswordScreen(
+                viewModel = authViewModel,
+                navController
+            )
+        }
+
+        composable("create_new_password/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            val authViewModel: AuthViewModel = viewModel()
+            CreateNewPasswordScreen (email = email, viewModel = authViewModel, onSuccess = {navController.navigate("home")})
+        }
+
     }
 }

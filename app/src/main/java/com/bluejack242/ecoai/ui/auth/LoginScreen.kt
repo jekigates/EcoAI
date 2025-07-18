@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import androidx.compose.material3.CircularProgressIndicator
+import com.bluejack242.ecoai.model.LoginRequest
 
 @Composable
 fun LoginScreen(
@@ -114,7 +115,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { viewModel.login(email, password) {
+            onClick = { viewModel.login(LoginRequest(email, password)) {
                 Toast.makeText(context, LanguageManager.getString("login_success"), Toast.LENGTH_SHORT).show()
                 onLoginSuccess()
             } },

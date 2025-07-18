@@ -3,6 +3,10 @@ package com.bluejack242.ecoai.ui.auth
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bluejack242.ecoai.data.AuthRepository
+import com.bluejack242.ecoai.model.LoginRequest
+import com.bluejack242.ecoai.model.ProfileForm
+import com.bluejack242.ecoai.model.RegisterRequest
+import com.bluejack242.ecoai.model.ResetPasswordRequest
 import com.bluejack242.ecoai.utils.PasswordUtil
 import com.bluejack242.ecoai.utils.ValidationUtil
 
@@ -12,16 +16,17 @@ class AuthViewModel(
 
     val isLoading = mutableStateOf(false)
     val errorMessage = mutableStateOf<String?>(null)
+    val email = mutableStateOf<String?>("")
 
-    fun login(email: String, password: String, onSuccess: () -> Unit) {
-        val error = ValidationUtil.validateLogin(email, password)
+    fun login(request: LoginRequest, onSuccess: () -> Unit) {
+        val error = ValidationUtil.validateLogin(request)
         if (error != null) {
             errorMessage.value = error
             return
         }
 
         isLoading.value = true
-        repository.login(email, password) { success, err ->
+        repository.login(request.email, request.password) { success, err ->
             isLoading.value = false
             if (success) {
                 errorMessage.value = null
@@ -34,16 +39,11 @@ class AuthViewModel(
 
 
     fun register(
-        fName: String,
-        lName: String,
-        email: String,
-        confirmEmail: String,
-        password: String,
-        confirmPassword: String,
+        request: RegisterRequest,
         onSuccess: () -> Unit
     ) {
         val error = ValidationUtil.validateRegistration(
-            fName, lName, email, confirmEmail, password, confirmPassword
+            request
         )
         if (error != null) {
             errorMessage.value = error
@@ -52,13 +52,13 @@ class AuthViewModel(
 
         isLoading.value = true
 
-        val hashedPassword = PasswordUtil.hash(password)
+        val hashedPassword = PasswordUtil.hash(request.password)
 
         repository.register(
-            fName = fName,
-            lName = lName,
-            email = email,
-            password = password,
+            fName = request.firstName,
+            lName = request.lastName,
+            email = request.email,
+            password = request.password,
             hashedPassword = hashedPassword
         ) { success, err ->
             isLoading.value = false
@@ -72,13 +72,10 @@ class AuthViewModel(
     }
 
     fun saveProfile(
-        name: String,
-        username: String,
-        bio: String,
-        isUsernameTaken: Boolean,
+        form: ProfileForm,
         onSuccess: () -> Unit
     ) {
-        val error = ValidationUtil.validateProfile(name, username, bio, isUsernameTaken)
+        val error = ValidationUtil.validateProfile(form)
         if (error != null) {
             errorMessage.value = error
             return
@@ -86,6 +83,47 @@ class AuthViewModel(
 
         // Lanjut simpan ke Firestore atau database
         onSuccess()
+    }
+
+    fun sendResetEmail(email: String, onSuccess: () -> Unit) {
+        val error = ValidationUtil.validateEmailOnly(email)
+        if (error != null) {
+            errorMessage.value = error
+            return
+        }
+
+        isLoading.value = true
+        repository.sendPasswordResetEmail(email) { success, err ->
+            isLoading.value = false
+            if (success) {
+                errorMessage.value = null
+                onSuccess()
+            } else {
+                errorMessage.value = err
+            }
+        }
+    }
+
+    fun resetPassword(
+        request: ResetPasswordRequest,
+        onSuccess: () -> Unit
+    ) {
+        val error = ValidationUtil.validatePasswordReset(request)
+        if (error != null) {
+            errorMessage.value = error
+            return
+        }
+
+        isLoading.value = true
+        repository.updatePassword(request.newPassword) { success, err ->
+            isLoading.value = false
+            if (success) {
+                errorMessage.value = null
+                onSuccess()
+            } else {
+                errorMessage.value = err
+            }
+        }
     }
 
 }

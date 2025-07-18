@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
+import com.bluejack242.ecoai.model.RegisterRequest
 
 @Composable
 fun RegisterScreen(
@@ -131,13 +132,13 @@ fun RegisterScreen(
 
         Button(
             onClick = {
-                viewModel.register(
+                viewModel.register(RegisterRequest(
                     firstName,
                     lastName,
                     email,
                     confirmEmail,
                     password,
-                    confirmPassword
+                    confirmPassword)
                 ) {
                     Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT)
                         .show()

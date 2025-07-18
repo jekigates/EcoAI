@@ -1,13 +1,12 @@
 package com.bluejack242.ecoai.data
 
-import com.bluejack242.ecoai.utils.PasswordUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AuthRepository(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-            private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance(),
 ) {
     fun login(email: String, password: String, callback: (Boolean, String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
@@ -62,4 +61,33 @@ class AuthRepository(
                 }
             }
     }
+
+    fun sendPasswordResetEmail(email: String, callback: (Boolean, String?) -> Unit) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    callback(true, null)
+                } else {
+                    callback(false, task.exception?.localizedMessage ?: "Failed to send reset email.")
+                }
+            }
+    }
+
+    fun updatePassword(newPassword: String, callback: (Boolean, String?) -> Unit) {
+        val user = auth.currentUser
+        if (user != null) {
+            user.updatePassword(newPassword)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        callback(true, null)
+                    } else {
+                        callback(false, task.exception?.localizedMessage ?: "Failed to update password.")
+                    }
+                }
+        } else {
+            callback(false, "User not logged in.")
+        }
+    }
+
+
 }
