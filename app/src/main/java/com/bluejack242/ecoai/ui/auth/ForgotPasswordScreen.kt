@@ -10,6 +10,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 
 @Composable
 fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController) {
@@ -23,14 +25,26 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(32.dp))
-
-        Text(
-            text = "Forgot Password",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleLarge
-        )
-
+        Spacer(Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp), // typical app bar height
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Forgot Password",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
+            IconButton(
+                onClick = { navController.navigate("login") },
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+        }
         Spacer(Modifier.height(24.dp))
 
         OutlinedTextField(

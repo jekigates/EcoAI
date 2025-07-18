@@ -39,19 +39,7 @@ fun HomeScreen(
     val tabs = listOf("Following", "For You")
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {},
-                actions = {
-                    repeat(3) {
-                        IconButton(onClick = { /* future action */ }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
-            )
-        },
+        // Remove topBar so tabs are at the very top
         bottomBar = {
             BottomNavigationBar(
                 navController = navController as NavHostController,
