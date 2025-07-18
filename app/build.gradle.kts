@@ -81,4 +81,13 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+    // Coil untuk load gambar
+    implementation ("io.coil-kt:coil-compose:2.1.0")
+
+// Accompanist Pager untuk carousel
+    implementation ("com.google.accompanist:accompanist-pager:0.28.0")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+
 }
