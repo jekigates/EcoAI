@@ -26,6 +26,8 @@ import coil.compose.AsyncImage
 import com.bluejack242.ecoai.model.MediaType
 import com.bluejack242.ecoai.ui.viewmodel.HomeViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.foundation.clickable
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +43,7 @@ fun HomeScreen(
 
     val db = FirebaseFirestore.getInstance()
     val creatorInfoCache = remember { mutableStateMapOf<String, Pair<String, String?>>() } // userId -> (fullName, profilePictureUrl)
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     Scaffold(
         // Remove topBar so tabs are at the very top
@@ -95,14 +98,19 @@ fun HomeScreen(
                             }
                         }
                     }
-
-                    MediaCard(
-                        imageUrl = firstMedia?.url ?: "No media",
-                        title = post.headline,
-                        fullName = creatorInfo?.first ?: "...",
-                        profilePictureUrl = creatorInfo?.second,
-                        likes = post.likes ?: 0
-                    )
+                    val liked = userId != null && post.likedBy.contains(userId)
+                    Box(modifier = Modifier.clickable {
+                        (navController as? NavHostController)?.navigate("post_detail/${post.id}")
+                    }) {
+                        MediaCard(
+                            imageUrl = firstMedia?.url ?: "No media",
+                            title = post.headline,
+                            fullName = creatorInfo?.first ?: "...",
+                            profilePictureUrl = creatorInfo?.second,
+                            likes = post.likes ?: 0,
+                            liked = liked
+                        )
+                    }
                 }
             }
         }

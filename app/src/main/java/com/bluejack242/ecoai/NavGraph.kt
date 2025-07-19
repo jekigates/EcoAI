@@ -85,5 +85,10 @@ fun AppNavGraph(navController: NavHostController) {
             com.bluejack242.ecoai.ui.EditProfileScreen(navController)
         }
 
+        composable("post_detail/{postId}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            com.bluejack242.ecoai.ui.PostDetailScreen(postId = postId, navController = navController)
+        }
+
     }
 }

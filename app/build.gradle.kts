@@ -89,5 +89,6 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-pager:0.28.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.composables:icons-lucide:1.0.0")
 
 }

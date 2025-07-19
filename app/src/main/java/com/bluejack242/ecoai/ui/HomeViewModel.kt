@@ -16,6 +16,7 @@ data class Post(
     val caption: String = "",
     val media: List<MediaItem> = emptyList(),
     val likes: Int = 0,
+    val likedBy: List<String> = emptyList(),
     val createdAt: com.google.firebase.Timestamp? = null,
     val username: String = ""
 )
@@ -46,6 +47,7 @@ class HomeViewModel : ViewModel() {
                                     type = MediaType.valueOf((media["type"] as? String) ?: "IMAGE")
                                 )
                             }
+                            val likedBy = (document.get("likedBy") as? List<*>)?.map { it.toString() } ?: emptyList()
                             Post(
                                 id = document.id,
                                 userId = document.getString("userId") ?: "",
@@ -53,6 +55,7 @@ class HomeViewModel : ViewModel() {
                                 caption = document.getString("caption") ?: "",
                                 media = mediaItems,
                                 likes = document.getLong("likes")?.toInt() ?: 0,
+                                likedBy = likedBy,
                                 createdAt = document.getTimestamp("createdAt")
                             )
                         } catch (e: Exception) {

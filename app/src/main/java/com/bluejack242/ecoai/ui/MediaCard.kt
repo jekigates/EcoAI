@@ -25,7 +25,8 @@ fun MediaCard(
     title: String,
     fullName: String,
     profilePictureUrl: String?,
-    likes: Int
+    likes: Int,
+    liked: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -78,10 +79,10 @@ fun MediaCard(
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
+                    imageVector = if (liked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Likes",
                     modifier = Modifier.size(14.dp),
-                    tint = Color.Gray
+                    tint = if (liked) Color.Red else Color.Gray
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = likes.toString(), style = MaterialTheme.typography.labelSmall)
