@@ -13,10 +13,15 @@ import com.bluejack242.ecoai.ui.HomeScreen
 import com.bluejack242.ecoai.ui.auth.CreateNewPasswordScreen
 import com.bluejack242.ecoai.ui.auth.ForgotPasswordScreen
 import com.bluejack242.ecoai.ui.view.CreatePostScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
-    NavHost(navController, startDestination = "landing") {
+    // Check if user is logged in
+    val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
+    val startDestination = if (isLoggedIn) "home" else "landing"
+
+    NavHost(navController, startDestination = startDestination) {
         composable("landing") {
             LandingScreen(
                 onLoginClick = { navController.navigate("login") },

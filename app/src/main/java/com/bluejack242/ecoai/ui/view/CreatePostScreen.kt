@@ -3,7 +3,6 @@ package com.bluejack242.ecoai.ui.view
 // AndroidX Compose
 import android.net.Uri
 import android.widget.Toast
-import android.widget.VideoView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -49,16 +48,20 @@ fun CreatePostScreen(
     val isPosting by viewModel.isPosting.collectAsState()
 
     // Launcher for picking media
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            val isVideo = it.toString().contains("video")
-            viewModel.uploadMedia(context, it, isVideo) { error ->
-                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            if (post.mediaList.count { it.type == MediaType.IMAGE } < 10) {
+                viewModel.uploadMedia(context, it, false) { error ->
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Toast.makeText(context, "Maximum 10 images allowed", Toast.LENGTH_SHORT).show()
             }
         } ?: run {
-            Toast.makeText(context, "No media selected", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show()
         }
     }
+    val imageCount = post.mediaList.count { it.type == MediaType.IMAGE }
 
     Column(
         Modifier
@@ -101,26 +104,23 @@ fun CreatePostScreen(
                     modifier = Modifier.fillMaxSize()
                 ) { index ->
                     val media = post.mediaList[index]
-                    if (media.type == MediaType.IMAGE) {
+                    Box(Modifier.fillMaxSize()) {
                         AsyncImage(
                             model = media.url,
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
-                    } else {
-                        AndroidView(
-                            factory = {
-                                VideoView(it).apply {
-                                    setVideoURI(Uri.parse(media.url))
-                                    setOnPreparedListener { player ->
-                                        player.isLooping = true
-                                        start()
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        IconButton(
+                            onClick = { viewModel.removeMediaAt(index) },
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Remove image",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
                 HorizontalPagerIndicator(
@@ -154,21 +154,19 @@ fun CreatePostScreen(
         )
         Spacer(Modifier.height(16.dp))
 
-        // Add Media Button
+        // Add Image Button only
         Button(
-            onClick = { launcher.launch("image/*,video/*") },
-            enabled = !isUploading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
+            onClick = { imageLauncher.launch("image/*") },
+            enabled = !isUploading && imageCount < 10,
+            modifier = Modifier.fillMaxWidth().height(50.dp),
             colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50))
         ) {
-            Text(color = Color.White, text =  if (isUploading) "Uploading..." else "Add Media")
+            Text(color = Color.White, text = if (isUploading) "Uploading..." else "Add Image (${imageCount}/10)")
         }
 
         Spacer(Modifier.height(16.dp))
 
-        // Post Button
+        // Update Post Button enable logic: must have at least 1 image
         Button(
             onClick = {
                 viewModel.createPost(
@@ -181,7 +179,7 @@ fun CreatePostScreen(
                     }
                 )
             },
-            enabled = !isPosting && post.headline.isNotBlank() && post.mediaList.isNotEmpty() && post.caption.isNotBlank(),
+            enabled = !isPosting && post.headline.isNotBlank() && post.mediaList.isNotEmpty() && post.mediaList.size <= 10 && post.caption.isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

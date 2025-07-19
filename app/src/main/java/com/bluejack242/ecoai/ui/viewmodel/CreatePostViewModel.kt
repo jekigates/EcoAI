@@ -60,6 +60,15 @@ class CreatePostViewModel : ViewModel() {
         }
     }
 
+    fun removeMediaAt(index: Int) {
+        val currentPost = _postRequest.value
+        if (index in currentPost.mediaList.indices) {
+            val updatedList = currentPost.mediaList.toMutableList()
+            updatedList.removeAt(index)
+            _postRequest.value = currentPost.copy(mediaList = updatedList)
+        }
+    }
+
     fun createPost(onSuccess: () -> Unit, onError: (String) -> Unit) {
         _isPosting.value = true
         viewModelScope.launch {
