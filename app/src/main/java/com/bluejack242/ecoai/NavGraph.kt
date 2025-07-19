@@ -77,5 +77,13 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
+        composable("profile") {
+            com.bluejack242.ecoai.ui.ProfileScreen(navController = navController, currentRoute = "profile")
+        }
+
+        composable("edit_profile") {
+            com.bluejack242.ecoai.ui.EditProfileScreen(navController)
+        }
+
     }
 }

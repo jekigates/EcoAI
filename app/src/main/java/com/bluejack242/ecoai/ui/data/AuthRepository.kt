@@ -16,10 +16,11 @@ class AuthRepository(
     }
 
     fun register(
-        fName: String,
-        lName: String,
+        fullName: String,
         email: String,
         password: String,
+        confirmEmail: String,
+        confirmPassword: String,
         hashedPassword: String,
         callback: (Boolean, String?) -> Unit
     ) {
@@ -29,7 +30,7 @@ class AuthRepository(
                     val user = auth.currentUser
                     user?.updateProfile(
                         UserProfileChangeRequest.Builder()
-                            .setDisplayName("$fName $lName")
+                            .setDisplayName(fullName)
                             .build()
                     )?.addOnCompleteListener {
                         user.sendEmailVerification()
@@ -44,7 +45,7 @@ class AuthRepository(
                     val userMap = hashMapOf(
                         "uid" to user?.uid,
                         "email" to email,
-                        "displayName" to "$fName $lName",
+                        "fullName" to fullName,
                         "password_hash" to hashedPassword
                     )
 

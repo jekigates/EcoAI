@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,12 +16,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Person
 
 @Composable
 fun MediaCard(
     imageUrl: String,
     title: String,
-    username: String,
+    fullName: String,
+    profilePictureUrl: String?,
     likes: Int
 ) {
     Column(
@@ -51,13 +55,33 @@ fun MediaCard(
                 .fillMaxWidth()
                 .padding(top = 4.dp)
         ) {
-            Text(username, style = MaterialTheme.typography.labelSmall)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (!profilePictureUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = profilePictureUrl,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE0E0E0))
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profile Picture",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(fullName, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.Favorite,
+                    imageVector = Icons.Outlined.FavoriteBorder,
                     contentDescription = "Likes",
                     modifier = Modifier.size(14.dp),
-                    tint = Color.Red
+                    tint = Color.Gray
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = likes.toString(), style = MaterialTheme.typography.labelSmall)

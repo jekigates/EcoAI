@@ -1,8 +1,7 @@
 package com.bluejack242.ecoai.model
 
 data class RegisterRequest(
-    val firstName: String,
-    val lastName: String,
+    val fullName: String,
     val email: String,
     val confirmEmail: String,
     val password: String,

@@ -30,10 +30,13 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun fetchPosts() {
-        viewModelScope.launch {
-            firestore.collection("posts")
-                .get()
-                .addOnSuccessListener { result ->
+        firestore.collection("posts")
+            .addSnapshotListener { result, error ->
+                if (error != null) {
+                    // Handle error (e.g., log it or show a Toast in UI)
+                    return@addSnapshotListener
+                }
+                if (result != null) {
                     val postList = result.mapNotNull { document ->
                         try {
                             val mediaList = document.get("media") as? List<Map<String, Any>> ?: emptyList()
@@ -50,8 +53,7 @@ class HomeViewModel : ViewModel() {
                                 caption = document.getString("caption") ?: "",
                                 media = mediaItems,
                                 likes = document.getLong("likes")?.toInt() ?: 0,
-                                createdAt = document.getTimestamp("createdAt"),
-                                username = document.getString("username") ?: "Unknown"
+                                createdAt = document.getTimestamp("createdAt")
                             )
                         } catch (e: Exception) {
                             null
@@ -59,9 +61,6 @@ class HomeViewModel : ViewModel() {
                     }
                     _posts.value = postList
                 }
-                .addOnFailureListener { e ->
-                    // Handle error (e.g., log it or show a Toast in UI)
-                }
-        }
+            }
     }
 }

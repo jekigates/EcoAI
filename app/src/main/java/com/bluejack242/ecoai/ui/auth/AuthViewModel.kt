@@ -67,10 +67,11 @@ class AuthViewModel(
             } else {
                 val hashedPassword = PasswordUtil.hash(request.password)
                 repository.register(
-                    fName = request.firstName,
-                    lName = request.lastName,
+                    fullName = request.fullName,
                     email = request.email,
                     password = request.password,
+                    confirmEmail = request.confirmEmail,
+                    confirmPassword = request.confirmPassword,
                     hashedPassword = hashedPassword
                 ) { success, err ->
                     isLoading.value = false

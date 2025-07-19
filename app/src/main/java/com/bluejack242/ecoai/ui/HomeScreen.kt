@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bluejack242.ecoai.model.MediaType
 import com.bluejack242.ecoai.ui.viewmodel.HomeViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,9 @@ fun HomeScreen(
 
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Following", "For You")
+
+    val db = FirebaseFirestore.getInstance()
+    val creatorInfoCache = remember { mutableStateMapOf<String, Pair<String, String?>>() } // userId -> (fullName, profilePictureUrl)
 
     Scaffold(
         // Remove topBar so tabs are at the very top
@@ -80,10 +84,23 @@ fun HomeScreen(
                 items(posts) { post ->
                     val firstMedia = post.media.firstOrNull()
 
+                    // Fetch creator info if not cached
+                    val creatorInfo = creatorInfoCache[post.userId]
+                    LaunchedEffect(post.userId) {
+                        if (creatorInfo == null && post.userId.isNotBlank()) {
+                            db.collection("users").document(post.userId).get().addOnSuccessListener { doc ->
+                                val fullName = doc.getString("fullName") ?: "Unknown"
+                                val profilePictureUrl = doc.getString("profilePictureUrl")
+                                creatorInfoCache[post.userId] = fullName.take(30) to profilePictureUrl
+                            }
+                        }
+                    }
+
                     MediaCard(
                         imageUrl = firstMedia?.url ?: "No media",
                         title = post.headline,
-                        username = post.username ?: "Unknown",
+                        fullName = creatorInfo?.first ?: "...",
+                        profilePictureUrl = creatorInfo?.second,
                         likes = post.likes ?: 0
                     )
                 }

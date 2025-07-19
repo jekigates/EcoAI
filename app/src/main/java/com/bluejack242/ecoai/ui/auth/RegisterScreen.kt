@@ -41,8 +41,7 @@ fun RegisterScreen(
     val error = viewModel.errorMessage.value
     val isLoading = viewModel.isLoading.value
 
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var confirmEmail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -71,22 +70,12 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Row {
-            OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
-                label = { Text(LanguageManager.getString("first_name")) },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text(LanguageManager.getString("last_name")) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
+        OutlinedTextField(
+            value = fullName,
+            onValueChange = { fullName = it },
+            label = { Text("Full Name") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
@@ -134,8 +123,7 @@ fun RegisterScreen(
         Button(
             onClick = {
                 viewModel.register(RegisterRequest(
-                    firstName,
-                    lastName,
+                    fullName,
                     email,
                     confirmEmail,
                     password,
