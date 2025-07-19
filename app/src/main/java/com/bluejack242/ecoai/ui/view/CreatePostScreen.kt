@@ -137,11 +137,19 @@ fun CreatePostScreen(
         Spacer(Modifier.height(16.dp))
 
         // Headline
+        val headlineSupportingText = "${post.headline.length}/50"
         OutlinedTextField(
             value = post.headline,
-            onValueChange = viewModel::updateHeadline,
-            label = { Text("Headline") },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                if (it.length <= 50) viewModel.updateHeadline(it)
+            },
+            label = { Text("Headline (optional)") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            // Use trailingIcon for char count, since supportingText is not available in Material 2
+            trailingIcon = {
+                Text(headlineSupportingText)
+            }
         )
         Spacer(Modifier.height(8.dp))
 
@@ -149,8 +157,9 @@ fun CreatePostScreen(
         OutlinedTextField(
             value = post.caption,
             onValueChange = viewModel::updateCaption,
-            label = { Text("Caption and tags") },
-            modifier = Modifier.fillMaxWidth()
+            label = { Text("Caption and tags (optional)") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = false
         )
         Spacer(Modifier.height(16.dp))
 
@@ -179,7 +188,7 @@ fun CreatePostScreen(
                     }
                 )
             },
-            enabled = !isPosting && post.headline.isNotBlank() && post.mediaList.isNotEmpty() && post.mediaList.size <= 10 && post.caption.isNotBlank(),
+            enabled = !isPosting && post.mediaList.isNotEmpty() && post.mediaList.size <= 10,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

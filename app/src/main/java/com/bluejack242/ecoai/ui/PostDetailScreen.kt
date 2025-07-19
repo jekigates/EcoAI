@@ -8,6 +8,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,12 +32,32 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.statusBarsPadding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.platform.LocalContext
+import android.app.DownloadManager
+import android.content.Context
+import android.os.Environment
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import androidx.compose.foundation.clickable
+import com.composables.icons.lucide.Download
+import androidx.core.net.toUri
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailScreen(postId: String, navController: NavHostController) {
     val db = FirebaseFirestore.getInstance()
     val user = FirebaseAuth.getInstance().currentUser
     val userId = user?.uid
+    val context = LocalContext.current
 
     var isLoading by remember { mutableStateOf(true) }
     var post by remember { mutableStateOf<Map<String, Any>?>(null) }
@@ -44,6 +67,19 @@ fun PostDetailScreen(postId: String, navController: NavHostController) {
     var isSaved by remember { mutableStateOf(false) }
     var likeCount by remember { mutableIntStateOf(0) }
     var saveCount by remember { mutableIntStateOf(0) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState()
+    var currentPagerIndex by remember { mutableIntStateOf(0) }
+    var showPagerIndicator by remember { mutableStateOf(false) }
+    var pagerIndicatorJob by remember { mutableStateOf<Job?>(null) }
+
+    // Move mediaList declaration here so it's accessible everywhere in the composable
+    val mediaList = (post?.get("media") as? List<*>)?.mapNotNull {
+        it as? Map<*, *>
+    }?.map { map ->
+        map.mapKeys { it.key.toString() }.mapValues { it.value?.toString() ?: "" }
+    } ?: emptyList()
 
     // Fetch post and creator info, and like/save state
     LaunchedEffect(postId, userId) {
@@ -186,57 +222,104 @@ fun PostDetailScreen(postId: String, navController: NavHostController) {
                     ) {
                         Text(if (isFollowing) "Unfollow" else "Follow", color = Color.White, fontSize = 14.sp)
                     }
+                } else {
+                    IconButton(onClick = { showBottomSheet = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
                 }
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
         // Post photo(s)
-        val mediaList = (post?.get("media") as? List<*>)?.mapNotNull {
-            it as? Map<*, *>
-        }?.map { map ->
-            map.mapKeys { it.key.toString() }.mapValues { it.value?.toString() ?: "" }
-        } ?: emptyList()
         if (mediaList.isNotEmpty()) {
             val pagerState = rememberPagerState(pageCount = { mediaList.size })
-            Column {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(Color.LightGray)
-                ) { index ->
-                    val media = mediaList[index]
-                    AsyncImage(
-                        model = media["url"],
-                        contentDescription = "Post Image",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+            currentPagerIndex = pagerState.currentPage
+            // Show/hide pagination indicator on page change
+            LaunchedEffect(pagerState.currentPage) {
+                showPagerIndicator = true
+                pagerIndicatorJob?.cancel()
+                pagerIndicatorJob = CoroutineScope(Dispatchers.Main).launch {
+                    delay(1500)
+                    showPagerIndicator = false
                 }
-                // Pager indicator
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    repeat(mediaList.size) { i ->
-                        Box(
-                            Modifier
-                                .size(if (pagerState.currentPage == i) 10.dp else 8.dp)
-                                .padding(2.dp)
-                                .background(
-                                    if (pagerState.currentPage == i) Color(0xFF4CAF50) else Color.LightGray,
-                                    shape = CircleShape
-                                )
+            }
+            Column {
+                Box(Modifier) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(Color.LightGray)
+                    ) { index ->
+                        val media = mediaList[index]
+                        Box(Modifier.fillMaxSize()) {
+                            AsyncImage(
+                                model = media["url"],
+                                contentDescription = "Post Image",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                    // Pagination indicator at top right, only if more than 1 photo and while sliding
+                    if (mediaList.size > 1 && showPagerIndicator) {
+                        Text(
+                            text = "${pagerState.currentPage + 1}/${mediaList.size}",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(12.dp)
+                                .background(Color(0x80000000), shape = CircleShape)
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
                         )
+                    }
+                    // Dots indicator only if more than 1 photo
+                    if (mediaList.size > 1) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                                .align(Alignment.BottomCenter),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            repeat(mediaList.size) { i ->
+                                Box(
+                                    Modifier
+                                        .size(if (pagerState.currentPage == i) 10.dp else 8.dp)
+                                        .padding(2.dp)
+                                        .background(
+                                            if (pagerState.currentPage == i) Color(0xFF4CAF50) else Color.LightGray,
+                                            shape = CircleShape
+                                        )
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
+        // Created date
+        val createdAt = post?.get("createdAt")
+        val createdDateString = remember(createdAt) {
+            (createdAt as? com.google.firebase.Timestamp)?.let {
+                val date = Date(it.seconds * 1000)
+                SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(date)
+            } ?: ""
+        }
+        if (createdDateString.isNotBlank()) {
+            Text(
+                text = createdDateString,
+                fontSize = 13.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
         // Headline
         Text(
             text = post?.get("headline") as? String ?: "",
@@ -277,5 +360,72 @@ fun PostDetailScreen(postId: String, navController: NavHostController) {
             }
             Text(text = saveCount.toString(), fontSize = 14.sp, color = Color.Gray)
         }
+    }
+    // BottomSheet for self post
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = bottomSheetState
+        ) {
+            Column(Modifier.fillMaxWidth()) {
+                // Download photo
+                ListItem(
+                    headlineContent = { Text("Download photo") },
+                    leadingContent = { Icon(Lucide.Download, contentDescription = null) },
+                    modifier = Modifier.clickable {
+                        showBottomSheet = false
+                        val url = mediaList.getOrNull(currentPagerIndex)?.get("url")
+                        if (url != null) {
+                            val request = DownloadManager.Request(url.toUri())
+                                .setTitle("ecoai_image.jpg")
+                                .setDescription("Downloading image...")
+                                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "ecoai_image.jpg")
+                                .setAllowedOverMetered(true)
+                                .setAllowedOverRoaming(true)
+                            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                            dm.enqueue(request)
+                        }
+                    }
+                )
+                // Edit
+                ListItem(
+                    headlineContent = { Text("Edit") },
+                    leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
+                    modifier = Modifier.clickable {
+                        showBottomSheet = false
+                        // TODO: Edit action
+                    }
+                )
+                // Delete
+                ListItem(
+                    headlineContent = { Text("Delete") },
+                    leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
+                    modifier = Modifier.clickable {
+                        showBottomSheet = false
+                        showDeleteDialog = true
+                    }
+                )
+            }
+        }
+    }
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    // Delete post logic
+                    db.collection("posts").document(postId).delete().addOnSuccessListener {
+                        navController.popBackStack()
+                    }
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 } 
