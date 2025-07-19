@@ -50,6 +50,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -328,9 +331,24 @@ fun PostDetailScreen(postId: String, navController: NavHostController) {
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        // Caption
+        // Caption with styled hashtags
+        val captionText = post?.get("caption") as? String ?: ""
+        val hashtagRegex = Regex("#[A-Za-z0-9_]+")
+        val annotatedCaption = buildAnnotatedString {
+            var lastIndex = 0
+            for (match in hashtagRegex.findAll(captionText)) {
+                val start = match.range.first
+                val end = match.range.last + 1
+                if (start > lastIndex) append(captionText.substring(lastIndex, start))
+                withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
+                    append(captionText.substring(start, end))
+                }
+                lastIndex = end
+            }
+            if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
+        }
         Text(
-            text = post?.get("caption") as? String ?: "",
+            text = annotatedCaption,
             fontSize = 16.sp,
             modifier = Modifier.padding(horizontal = 16.dp)
         )

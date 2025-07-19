@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,6 +46,12 @@ fun HomeScreen(
     val creatorInfoCache = remember { mutableStateMapOf<String, Pair<String, String?>>() } // userId -> (fullName, profilePictureUrl)
     val userId = FirebaseAuth.getInstance().currentUser?.uid
 
+    val (navigateToSearch, setNavigateToSearch) = remember { mutableStateOf(false) }
+    if (navigateToSearch) {
+        (navController as? NavHostController)?.navigate("search")
+        setNavigateToSearch(false)
+    }
+
     Scaffold(
         // Remove topBar so tabs are at the very top
         bottomBar = {
@@ -68,10 +75,38 @@ fun HomeScreen(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
                         text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTab == index) Color(0xFF388E3C) else Color.Gray
-                            )
+                            if (index == 0) {
+                                // Following tab: right-aligned text
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = title,
+                                        color = if (selectedTab == index) Color(0xFF388E3C) else Color.Gray
+                                    )
+                                }
+                            } else {
+                                // For You tab: left-aligned text, right-aligned search icon
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = title,
+                                        color = if (selectedTab == index) Color(0xFF388E3C) else Color.Gray,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { setNavigateToSearch(true) }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Search,
+                                            contentDescription = "Search",
+                                            tint = if (selectedTab == index) Color(0xFF388E3C) else Color.Gray,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     )
                 }

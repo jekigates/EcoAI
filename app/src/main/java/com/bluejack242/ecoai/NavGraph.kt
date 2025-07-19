@@ -14,6 +14,7 @@ import com.bluejack242.ecoai.ui.auth.CreateNewPasswordScreen
 import com.bluejack242.ecoai.ui.auth.ForgotPasswordScreen
 import com.bluejack242.ecoai.ui.view.CreatePostScreen
 import com.google.firebase.auth.FirebaseAuth
+import com.bluejack242.ecoai.ui.SearchScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -88,6 +89,10 @@ fun AppNavGraph(navController: NavHostController) {
         composable("post_detail/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
             com.bluejack242.ecoai.ui.PostDetailScreen(postId = postId, navController = navController)
+        }
+
+        composable("search") {
+            SearchScreen(navController = navController, currentRoute = "search")
         }
 
     }
