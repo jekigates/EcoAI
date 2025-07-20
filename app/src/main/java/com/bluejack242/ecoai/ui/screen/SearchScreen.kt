@@ -19,13 +19,14 @@ import coil.compose.AsyncImage
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import androidx.compose.foundation.clickable
 
 @Composable
 fun SearchScreen(navController: NavHostController, currentRoute: String = "search") {
     val db = FirebaseFirestore.getInstance()
     var searchText by remember { mutableStateOf("") }
     var topTags by remember { mutableStateOf(listOf<String>()) }
-    var tagPosts by remember { mutableStateOf(mapOf<String, List<String>>()) } // tag -> list of post thumbnail urls
+    var tagPosts by remember { mutableStateOf(mapOf<String, List<Pair<String, String>>>()) } // tag -> list of (postId, thumbnailUrl)
     var isLoading by remember { mutableStateOf(true) }
 
     // Fetch top tags and posts
@@ -34,8 +35,9 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
         // Fetch all posts and extract tags
         val postsSnapshot = db.collection("posts").get().await()
         val tagCount = mutableMapOf<String, Int>()
-        val tagToPosts = mutableMapOf<String, MutableList<Pair<String, Int>>>() // tag -> list of (postId, likes)
+        val tagToPosts = mutableMapOf<String, MutableList<Triple<String, String, Int>>>() // tag -> list of (postId, thumbnailUrl, likes)
         for (doc in postsSnapshot) {
+            val postId = doc.id
             val caption = doc.getString("caption") ?: ""
             val likes = doc.getLong("likes")?.toInt() ?: 0
             val media = doc.get("media") as? List<Map<String, Any>>
@@ -44,13 +46,13 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
             for (tag in tagRegex.findAll(caption).map { it.value }) {
                 tagCount[tag] = (tagCount[tag] ?: 0) + 1
                 val postList = tagToPosts.getOrPut(tag) { mutableListOf() }
-                postList.add(Pair(thumbnail, likes))
+                postList.add(Triple(postId, thumbnail, likes))
             }
         }
         val sortedTags = tagCount.entries.sortedByDescending { it.value }.take(5).map { it.key }
         topTags = sortedTags
         tagPosts = sortedTags.associateWith { tag ->
-            tagToPosts[tag]?.sortedByDescending { it.second }?.take(5)?.map { it.first } ?: emptyList()
+            tagToPosts[tag]?.sortedByDescending { it.third }?.take(5)?.map { it.first to it.second } ?: emptyList()
         }
         isLoading = false
     }
@@ -109,16 +111,20 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            tagPosts[tag]?.forEach { thumbnailUrl ->
+                            tagPosts[tag]?.forEach { (postId, thumbnailUrl) ->
                                 if (thumbnailUrl.isNotBlank()) {
-                                    AsyncImage(
-                                        model = thumbnailUrl,
-                                        contentDescription = "Post Thumbnail",
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(Color.LightGray)
-                                    )
+                                    Box(Modifier
+                                        .size(80.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color.LightGray)
+                                        .clickable { navController.navigate("post_detail/$postId") }
+                                    ) {
+                                        AsyncImage(
+                                            model = thumbnailUrl,
+                                            contentDescription = "Post Thumbnail",
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
                                 }
                             }
                         }

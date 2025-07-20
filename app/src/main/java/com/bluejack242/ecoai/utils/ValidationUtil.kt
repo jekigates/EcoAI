@@ -62,4 +62,11 @@ object ValidationUtil {
         return null
     }
 
+    fun validatePost(headline: String, mediaCount: Int): String? {
+        if (mediaCount < 1) return "At least 1 image is required."
+        if (mediaCount > 10) return "Maximum 10 images allowed."
+        if (headline.length > 50) return "Headline must be at most 50 characters."
+        return null
+    }
+
 }

@@ -186,7 +186,7 @@ fun CreatePostScreen(
                     }
                 )
             },
-            enabled = !isPosting && post.mediaList.isNotEmpty() && post.mediaList.size <= 10,
+            enabled = !isPosting,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

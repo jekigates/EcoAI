@@ -12,21 +12,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
+import com.bluejack242.ecoai.ui.component.MediaCard
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.foundation.clickable
 
 @Composable
 fun ProfileScreen(navController: NavHostController, currentRoute: String = "profile") {
     val user = FirebaseAuth.getInstance().currentUser
     val db = FirebaseFirestore.getInstance()
-    val context = LocalContext.current
 
     var isProfileLoaded by remember { mutableStateOf(false) }
     var displayName by remember { mutableStateOf("") }
@@ -48,8 +52,41 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
         }
     }
 
-    val tabs = listOf("Posts", "Saved", "Liked")
-    var selectedTab by remember { mutableStateOf(0) }
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    var ownPosts by remember { mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList()) }
+    var likedPosts by remember { mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList()) }
+    var savedPosts by remember { mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList()) }
+    var isLoadingPosts by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableIntStateOf(0) }
+
+    fun fetchPostsForTab(tab: Int) {
+        isLoadingPosts = true
+        val db = FirebaseFirestore.getInstance()
+        when (tab) {
+            0 -> {
+                db.collection("posts").whereEqualTo("userId", userId).get().addOnSuccessListener { result ->
+                    ownPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
+                    isLoadingPosts = false
+                }
+            }
+            1 -> {
+                db.collection("posts").whereArrayContains("likedBy", userId ?: "").get().addOnSuccessListener { result ->
+                    likedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
+                    isLoadingPosts = false
+                }
+            }
+            2 -> {
+                db.collection("posts").whereArrayContains("savedBy", userId ?: "").get().addOnSuccessListener { result ->
+                    savedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
+                    isLoadingPosts = false
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(selectedTab) {
+        fetchPostsForTab(selectedTab)
+    }
 
     Scaffold(
         bottomBar = {
@@ -153,7 +190,7 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                 Spacer(modifier = Modifier.height(16.dp))
                 // Tabs
                 TabRow(selectedTabIndex = selectedTab) {
-                    tabs.forEachIndexed { index, title ->
+                    listOf("Posts", "Saved", "Liked").forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
@@ -163,9 +200,105 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                 }
                 // Tab content
                 when (selectedTab) {
-                    0 -> ProfilePostsTab()
-                    1 -> ProfileSavedTab()
-                    2 -> ProfileLikedTab()
+                    0 -> {
+                        if (isLoadingPosts) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                        } else {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(ownPosts, key = { it.first }) { (postId, post) ->
+                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { fullName }
+                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { profilePictureUrl ?: "" }
+                                    val likes = (post["likes"] as? Long)?.toInt() ?: 0
+                                    val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
+                                    val liked = userId != null && likedBy.contains(userId)
+                                    Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
+                                        MediaCard(
+                                            imageUrl = firstMedia,
+                                            title = post["headline"] as? String ?: "",
+                                            fullName = creatorName,
+                                            profilePictureUrl = profilePictureUrl,
+                                            likes = likes,
+                                            liked = liked
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    1 -> {
+                        if (isLoadingPosts) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                        } else {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(likedPosts, key = { it.first }) { (postId, post) ->
+                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { fullName }
+                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { profilePictureUrl ?: "" }
+                                    val likes = (post["likes"] as? Long)?.toInt() ?: 0
+                                    val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
+                                    val liked = userId != null && likedBy.contains(userId)
+                                    Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
+                                        MediaCard(
+                                            imageUrl = firstMedia,
+                                            title = post["headline"] as? String ?: "",
+                                            fullName = creatorName,
+                                            profilePictureUrl = profilePictureUrl,
+                                            likes = likes,
+                                            liked = liked
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    2 -> {
+                        if (isLoadingPosts) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                        } else {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(savedPosts, key = { it.first }) { (postId, post) ->
+                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { fullName }
+                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { profilePictureUrl ?: "" }
+                                    val likes = (post["likes"] as? Long)?.toInt() ?: 0
+                                    val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
+                                    val liked = userId != null && likedBy.contains(userId)
+                                    Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
+                                        MediaCard(
+                                            imageUrl = firstMedia,
+                                            title = post["headline"] as? String ?: "",
+                                            fullName = creatorName,
+                                            profilePictureUrl = profilePictureUrl,
+                                            likes = likes,
+                                            liked = liked
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

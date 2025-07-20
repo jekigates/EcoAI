@@ -9,7 +9,7 @@ import com.bluejack242.ecoai.model.MediaItem
 import com.bluejack242.ecoai.model.MediaType
 import com.bluejack242.ecoai.model.PostRequest
 import com.bluejack242.ecoai.utils.CloudinaryService
-import com.google.firebase.Timestamp
+import com.bluejack242.ecoai.utils.ValidationUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,22 +70,25 @@ class CreatePostViewModel : ViewModel() {
     }
 
     fun createPost(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val post = _postRequest.value
+        val validationError = ValidationUtil.validatePost(post.headline, post.mediaList.size)
+        if (validationError != null) {
+            onError(validationError)
+            return
+        }
         _isPosting.value = true
         viewModelScope.launch {
             try {
                 val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
-                val post = _postRequest.value
-
                 val data = mapOf(
                     "userId" to userId,
                     "headline" to post.headline,
                     "caption" to post.caption,
-                    "media" to post.mediaList.map {
-                        mapOf("url" to it.url, "type" to it.type.name)
+                    "media" to post.mediaList.map { mediaItem ->
+                        mapOf("url" to mediaItem.url, "type" to mediaItem.type.name)
                     },
-                    "createdAt" to Timestamp.now()
+                    "createdAt" to com.google.firebase.Timestamp.now()
                 )
-
                 firestore.collection("posts").add(data)
                     .addOnSuccessListener { onSuccess() }
                     .addOnFailureListener { e -> onError("Failed to save post: ${e.message}") }
