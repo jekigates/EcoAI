@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.viewmodel
+package com.bluejack242.ecoai.viewmodel
 
 import android.content.Context
 import android.net.Uri
@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.bluejack242.ecoai.model.MediaItem
 import com.bluejack242.ecoai.model.MediaType
 import com.bluejack242.ecoai.model.PostRequest
-import com.bluejack242.ecoai.ui.utils.CloudinaryService
+import com.bluejack242.ecoai.utils.CloudinaryService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

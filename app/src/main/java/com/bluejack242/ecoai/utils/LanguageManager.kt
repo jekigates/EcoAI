@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.auth
+package com.bluejack242.ecoai.utils
 
 import androidx.compose.runtime.mutableStateOf
 

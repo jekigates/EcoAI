@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.utils
+package com.bluejack242.ecoai.utils
 
 import android.content.Context
 import android.net.Uri

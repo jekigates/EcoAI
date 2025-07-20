@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.auth
+package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bluejack242.ecoai.R
+import com.bluejack242.ecoai.utils.LanguageManager
+import com.bluejack242.ecoai.ui.component.LanguageSelector
 
 @Composable
 fun LandingScreen(
@@ -78,7 +80,7 @@ fun LandingScreen(
                         .height(48.dp)
                 ) {
                     Text(
-                        LanguageManager.getString("get_started"), 
+                        LanguageManager.getString("get_started"),
                         color = Color.White, 
                         fontWeight = FontWeight.Bold
                     )

@@ -4,17 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.bluejack242.ecoai.ui.auth.LandingScreen
-import com.bluejack242.ecoai.ui.auth.LoginScreen
-import com.bluejack242.ecoai.ui.auth.RegisterScreen
-import com.bluejack242.ecoai.ui.auth.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bluejack242.ecoai.ui.HomeScreen
-import com.bluejack242.ecoai.ui.auth.CreateNewPasswordScreen
-import com.bluejack242.ecoai.ui.auth.ForgotPasswordScreen
-import com.bluejack242.ecoai.ui.view.CreatePostScreen
+import com.bluejack242.ecoai.ui.screen.CreateNewPasswordScreen
+import com.bluejack242.ecoai.ui.screen.CreatePostScreen
+import com.bluejack242.ecoai.ui.screen.EditProfileScreen
+import com.bluejack242.ecoai.ui.screen.ForgotPasswordScreen
+import com.bluejack242.ecoai.ui.screen.HomeScreen
+import com.bluejack242.ecoai.ui.screen.LandingScreen
+import com.bluejack242.ecoai.ui.screen.LoginScreen
+import com.bluejack242.ecoai.ui.screen.PostDetailScreen
+import com.bluejack242.ecoai.ui.screen.ProfileScreen
+import com.bluejack242.ecoai.ui.screen.RegisterScreen
+import com.bluejack242.ecoai.ui.screen.SearchScreen
+import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.bluejack242.ecoai.ui.SearchScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -24,7 +27,7 @@ fun AppNavGraph(navController: NavHostController) {
 
     NavHost(navController, startDestination = startDestination) {
         composable("landing") {
-            LandingScreen(
+            LandingScreen (
                 onLoginClick = { navController.navigate("login") },
                 onGetStartedClick = { navController.navigate("register") }
             )
@@ -32,7 +35,7 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable("login") {
             val authViewModel: AuthViewModel = viewModel()
-            LoginScreen(
+            LoginScreen (
                 viewModel = authViewModel,
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = { navController.navigate("home") },
@@ -42,7 +45,7 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable("register") {
             val authViewModel: AuthViewModel = viewModel()
-            RegisterScreen(
+            RegisterScreen (
                 viewModel = authViewModel,
                 onLoginClick = { navController.navigate("login") }
             )
@@ -66,7 +69,7 @@ fun AppNavGraph(navController: NavHostController) {
         composable("create_new_password/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             val authViewModel: AuthViewModel = viewModel()
-            CreateNewPasswordScreen(
+            CreateNewPasswordScreen (
                 email = email,
                 viewModel = authViewModel,
                 onSuccess = { navController.navigate("home") })
@@ -79,16 +82,16 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable("profile") {
-            com.bluejack242.ecoai.ui.ProfileScreen(navController = navController, currentRoute = "profile")
+            ProfileScreen(navController = navController, currentRoute = "profile")
         }
 
         composable("edit_profile") {
-            com.bluejack242.ecoai.ui.EditProfileScreen(navController)
+            EditProfileScreen(navController)
         }
 
         composable("post_detail/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
-            com.bluejack242.ecoai.ui.PostDetailScreen(postId = postId, navController = navController)
+            PostDetailScreen(postId = postId, navController = navController)
         }
 
         composable("search") {

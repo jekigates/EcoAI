@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.auth
+package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import com.bluejack242.ecoai.viewmodel.AuthViewModel
 
 @Composable
 fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController) {

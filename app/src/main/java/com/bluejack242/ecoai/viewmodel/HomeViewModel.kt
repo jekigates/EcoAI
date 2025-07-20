@@ -1,13 +1,11 @@
-package com.bluejack242.ecoai.ui.viewmodel
+package com.bluejack242.ecoai.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.bluejack242.ecoai.model.MediaItem
 import com.bluejack242.ecoai.model.MediaType
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 data class Post(
     val id: String = "",

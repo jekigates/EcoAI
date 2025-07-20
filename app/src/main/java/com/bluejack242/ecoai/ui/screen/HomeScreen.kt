@@ -1,33 +1,25 @@
-package com.bluejack242.ecoai.ui
+package com.bluejack242.ecoai.ui.screen
 
-import android.net.Uri
-import android.widget.VideoView
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import com.bluejack242.ecoai.model.MediaType
-import com.bluejack242.ecoai.ui.viewmodel.HomeViewModel
+import com.bluejack242.ecoai.viewmodel.HomeViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.clickable
+import com.bluejack242.ecoai.ui.component.BottomNavigationBar
+import com.bluejack242.ecoai.ui.component.MediaCard
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)

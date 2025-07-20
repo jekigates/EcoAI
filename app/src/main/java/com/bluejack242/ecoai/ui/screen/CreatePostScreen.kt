@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.view
+package com.bluejack242.ecoai.ui.screen
 
 // AndroidX Compose
 import android.net.Uri
@@ -20,12 +20,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.bluejack242.ecoai.model.MediaItem
 import com.bluejack242.ecoai.model.MediaType
-import com.bluejack242.ecoai.ui.viewmodel.CreatePostViewModel
+import com.bluejack242.ecoai.viewmodel.CreatePostViewModel
 
 // Accompanist Pager
 import com.google.accompanist.pager.ExperimentalPagerApi

@@ -1,14 +1,11 @@
-package com.bluejack242.ecoai.ui.auth
+package com.bluejack242.ecoai.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +28,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
 import com.bluejack242.ecoai.model.RegisterRequest
+import com.bluejack242.ecoai.utils.LanguageManager
+import com.bluejack242.ecoai.ui.component.LanguageSelector
+import com.bluejack242.ecoai.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreen(

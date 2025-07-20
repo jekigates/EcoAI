@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui
+package com.bluejack242.ecoai.ui.screen
 
 import android.net.Uri
 import android.widget.Toast
@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +25,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.bluejack242.ecoai.ui.utils.CloudinaryService
+import com.bluejack242.ecoai.utils.CloudinaryService
 import kotlinx.coroutines.launch
 
 @Composable

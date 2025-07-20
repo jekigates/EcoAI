@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.state
+package com.bluejack242.ecoai.state
 
 sealed class UiState<out T> {
     object Loading : UiState<Nothing>()

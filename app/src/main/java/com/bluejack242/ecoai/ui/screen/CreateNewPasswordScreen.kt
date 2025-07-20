@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.auth
+package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.bluejack242.ecoai.model.ResetPasswordRequest
+import com.bluejack242.ecoai.viewmodel.AuthViewModel
 
 @Composable
 fun CreateNewPasswordScreen(

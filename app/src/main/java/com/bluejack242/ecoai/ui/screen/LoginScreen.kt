@@ -1,4 +1,4 @@
-package com.bluejack242.ecoai.ui.auth
+package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +32,9 @@ import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import androidx.compose.material3.CircularProgressIndicator
 import com.bluejack242.ecoai.model.LoginRequest
+import com.bluejack242.ecoai.utils.LanguageManager
+import com.bluejack242.ecoai.ui.component.LanguageSelector
+import com.bluejack242.ecoai.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
