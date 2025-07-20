@@ -131,6 +131,12 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                 val profilePictureUrl = viewModel.creator?.get("profilePictureUrl") as? String
                 val creatorUid = viewModel.creator?.get("uid") as? String ?: ""
                 val isSelf = viewModel.userId == creatorUid
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable {
+                        if (creatorUid.isNotBlank()) navController.navigate("user_profile/$creatorUid")
+                    }
+                ) {
                 if (!profilePictureUrl.isNullOrBlank()) {
                     AsyncImage(
                         model = profilePictureUrl,
@@ -150,6 +156,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text((viewModel.creator?.get("fullName") as? String)?.take(30) ?: "Unknown", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
                 Spacer(modifier = Modifier.weight(1f))
                 if (!isSelf) {
                     Button(
@@ -251,35 +258,35 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         // Headline
         val headline = viewModel.post?.get("headline") as? String ?: ""
         if (headline.isNotBlank()) {
-            Text(
+        Text(
                 text = headline,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         }
         val captionText = viewModel.post?.get("caption") as? String ?: ""
         if (captionText.isNotBlank()) {
-            val hashtagRegex = Regex("#[A-Za-z0-9_]+")
-            val annotatedCaption = buildAnnotatedString {
-                var lastIndex = 0
-                for (match in hashtagRegex.findAll(captionText)) {
-                    val start = match.range.first
-                    val end = match.range.last + 1
-                    if (start > lastIndex) append(captionText.substring(lastIndex, start))
-                    withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
-                        append(captionText.substring(start, end))
-                    }
-                    lastIndex = end
+        val hashtagRegex = Regex("#[A-Za-z0-9_]+")
+        val annotatedCaption = buildAnnotatedString {
+            var lastIndex = 0
+            for (match in hashtagRegex.findAll(captionText)) {
+                val start = match.range.first
+                val end = match.range.last + 1
+                if (start > lastIndex) append(captionText.substring(lastIndex, start))
+                withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
+                    append(captionText.substring(start, end))
                 }
-                if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
+                lastIndex = end
             }
-            Text(
-                text = annotatedCaption,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
+        }
+        Text(
+            text = annotatedCaption,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
             Spacer(modifier = Modifier.height(16.dp))
         }
         // Comments section
@@ -317,28 +324,36 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     }
                     Row(
                         verticalAlignment = Alignment.Top,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
                     ) {
-                        if (!commenterProfilePic.isNullOrBlank()) {
-                            AsyncImage(
-                                model = commenterProfilePic,
-                                contentDescription = "Profile Picture",
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFE0E0E0))
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Profile Picture",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                        Spacer(Modifier.width(10.dp))
-                        Column(Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                if (userIdOfComment.isNotBlank()) navController.navigate("user_profile/$userIdOfComment")
+                            }
+                        ) {
+                            if (!commenterProfilePic.isNullOrBlank()) {
+                                AsyncImage(
+                                    model = commenterProfilePic,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFFE0E0E0))
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Profile Picture",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                            Spacer(Modifier.width(10.dp))
                             Text(commenterName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Gray)
+                        }
+                        Column(Modifier.weight(1f)) {
                             Text(text, fontSize = 16.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(createdDateString, fontSize = 13.sp, color = Color.Gray)
@@ -357,7 +372,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                                     imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                     contentDescription = "Like comment",
                                     tint = if (liked) Color.Red else Color.Gray,
-                                    modifier = Modifier
+            modifier = Modifier
                                         .size(20.dp)
                                         .clickable { toggleCommentLike(commentId, liked) }
                                 )
@@ -376,10 +391,10 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         ) {
             Row(
                 Modifier
-                    .fillMaxWidth()
+                .fillMaxWidth()
                     .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -401,10 +416,10 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     )
                 }
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = { viewModel.toggleLike(postId) }) {
-                    Icon(
-                        imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Like",
+            IconButton(onClick = { viewModel.toggleLike(postId) }) {
+                Icon(
+                    imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = "Like",
                         tint = if (viewModel.isLiked) Color.Red else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
@@ -420,9 +435,9 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                 Text(text = comments.size.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
                 Spacer(Modifier.width(8.dp))
                 IconButton(onClick = { viewModel.toggleSave(postId) }) {
-                    Icon(
-                        imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
-                        contentDescription = "Save",
+                Icon(
+                    imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
+                    contentDescription = "Save",
                         tint = if (viewModel.isSaved) Color(0xFF4CAF50) else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )

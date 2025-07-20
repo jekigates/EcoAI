@@ -16,6 +16,7 @@ import com.bluejack242.ecoai.ui.screen.PostDetailScreen
 import com.bluejack242.ecoai.ui.screen.ProfileScreen
 import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
+import com.bluejack242.ecoai.ui.screen.UserProfileScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -96,6 +97,11 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable("search") {
             SearchScreen(navController = navController, currentRoute = "search")
+        }
+
+        composable("user_profile/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            UserProfileScreen(userId = userId, navController = navController)
         }
 
     }
