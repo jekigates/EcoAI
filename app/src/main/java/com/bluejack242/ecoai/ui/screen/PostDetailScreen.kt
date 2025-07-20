@@ -39,6 +39,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import com.bluejack242.ecoai.viewmodel.PostDetailViewModel
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.draw.alpha
+import com.composables.icons.lucide.MessageCircle
+import com.composables.icons.lucide.ArrowUp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +61,54 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
     }
 
     val mediaList = viewModel.getMediaList()
+
+    // Comments state
+    var commentInput by remember { mutableStateOf("") }
+    var comments by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var isLoadingComments by remember { mutableStateOf(true) }
+    val userId = viewModel.userId
+    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+    // Fetch comments
+    LaunchedEffect(postId) {
+        isLoadingComments = true
+        db.collection("posts").document(postId).collection("comments")
+            .addSnapshotListener { snapshot, _ ->
+                comments = snapshot?.documents?.mapNotNull { it.data?.plus("id" to it.id) } ?: emptyList()
+                isLoadingComments = false
+            }
+    }
+
+    // Add comment
+    fun addComment() {
+        val trimmed = commentInput.trim()
+        if (trimmed.isNotEmpty() && userId != null) {
+            db.collection("posts").document(postId).collection("comments")
+                .add(mapOf(
+                    "userId" to userId,
+                    "text" to trimmed,
+                    "createdAt" to com.google.firebase.Timestamp.now(),
+                    "likedBy" to emptyList<String>()
+                ))
+            commentInput = ""
+        }
+    }
+
+    // Like/unlike comment
+    fun toggleCommentLike(commentId: String, liked: Boolean) {
+        if (userId == null) return
+        val ref = db.collection("posts").document(postId).collection("comments").document(commentId)
+        db.runTransaction { tx ->
+            val snap = tx.get(ref)
+            val likedBy = (snap.get("likedBy") as? List<*>)?.map { it.toString() }?.toMutableList() ?: mutableListOf()
+            if (liked) likedBy.remove(userId) else likedBy.add(userId)
+            tx.update(ref, "likedBy", likedBy)
+        }
+    }
+
+    // Bottom bar state
+    var showCommentSheet by remember { mutableStateOf(false) }
+    val emojiList = listOf("🍋", "🥰", "🤣", "👍", "❤️", "😂", "🥺", "✨")
 
     Column(
         modifier = Modifier
@@ -197,59 +249,257 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
             Spacer(modifier = Modifier.height(4.dp))
         }
         // Headline
-        Text(
-            text = viewModel.post?.get("headline") as? String ?: "",
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        // Caption with styled hashtags
-        val captionText = viewModel.post?.get("caption") as? String ?: ""
-        val hashtagRegex = Regex("#[A-Za-z0-9_]+")
-        val annotatedCaption = buildAnnotatedString {
-            var lastIndex = 0
-            for (match in hashtagRegex.findAll(captionText)) {
-                val start = match.range.first
-                val end = match.range.last + 1
-                if (start > lastIndex) append(captionText.substring(lastIndex, start))
-                withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
-                    append(captionText.substring(start, end))
-                }
-                lastIndex = end
-            }
-            if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
+        val headline = viewModel.post?.get("headline") as? String ?: ""
+        if (headline.isNotBlank()) {
+            Text(
+                text = headline,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
-        Text(
-            text = annotatedCaption,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        // Like/Save buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        val captionText = viewModel.post?.get("caption") as? String ?: ""
+        if (captionText.isNotBlank()) {
+            val hashtagRegex = Regex("#[A-Za-z0-9_]+")
+            val annotatedCaption = buildAnnotatedString {
+                var lastIndex = 0
+                for (match in hashtagRegex.findAll(captionText)) {
+                    val start = match.range.first
+                    val end = match.range.last + 1
+                    if (start > lastIndex) append(captionText.substring(lastIndex, start))
+                    withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
+                        append(captionText.substring(start, end))
+                    }
+                    lastIndex = end
+                }
+                if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
+            }
+            Text(
+                text = annotatedCaption,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        // Comments section
+        Text("${comments.size} comments", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        if (isLoadingComments) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        } else if (comments.isEmpty()) {
+            Text("No comments yet", color = Color.Gray, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        } else {
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                comments.forEach { comment ->
+                    val commentId = comment["id"] as String
+                    val text = comment["text"] as? String ?: ""
+                    val likedBy = comment["likedBy"] as? List<*> ?: emptyList<Any>()
+                    val liked = userId != null && likedBy.contains(userId)
+                    val likeCount = likedBy.size
+                    val userIdOfComment = comment["userId"] as? String ?: ""
+                    var commenterName by remember(commentId) { mutableStateOf("") }
+                    var commenterProfilePic by remember(commentId) { mutableStateOf<String?>(null) }
+                    val createdAt = comment["createdAt"] as? com.google.firebase.Timestamp
+                    val createdDateString = remember(createdAt) {
+                        createdAt?.let {
+                            val date = java.util.Date(it.seconds * 1000)
+                            java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault()).format(date)
+                        } ?: ""
+                    }
+                    // Fetch commenter info
+                    LaunchedEffect(userIdOfComment) {
+                        if (userIdOfComment.isNotBlank()) {
+                            db.collection("users").document(userIdOfComment).get().addOnSuccessListener { doc ->
+                                commenterName = doc.getString("fullName") ?: ""
+                                commenterProfilePic = doc.getString("profilePictureUrl")
+                            }
+                        }
+                    }
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    ) {
+                        if (!commenterProfilePic.isNullOrBlank()) {
+                            AsyncImage(
+                                model = commenterProfilePic,
+                                contentDescription = "Profile Picture",
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFE0E0E0))
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile Picture",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(commenterName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Gray)
+                            Text(text, fontSize = 16.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(createdDateString, fontSize = 13.sp, color = Color.Gray)
+                                Spacer(Modifier.width(12.dp))
+                                Text("Reply", fontSize = 13.sp, color = Color.Gray, modifier = Modifier.alpha(0f)) // hidden, for layout
+                            }
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.White,
+                                shadowElevation = 2.dp,
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                    contentDescription = "Like comment",
+                                    tint = if (liked) Color.Red else Color.Gray,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clickable { toggleCommentLike(commentId, liked) }
+                                )
+                            }
+                            Text(likeCount.toString(), fontSize = 13.sp, color = Color.Gray)
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.weight(1f))
+        // Bottom bar
+        Surface(
+            tonalElevation = 2.dp,
+            shadowElevation = 2.dp
         ) {
-            IconButton(onClick = { viewModel.toggleLike(postId) }) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .background(Color(0xFFF0F0F0), shape = CircleShape)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .clickable { showCommentSheet = true }
+                ) {
+                    BasicTextField(
+                        value = commentInput,
+                        onValueChange = { commentInput = it },
+                        singleLine = true,
+                        enabled = false,
+                        decorationBox = { innerTextField ->
+                            Box(Modifier.fillMaxWidth()) {
+                                if (commentInput.isEmpty()) Text("Add comment...", color = Color.Gray)
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { viewModel.toggleLike(postId) }) {
+                    Icon(
+                        imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Like",
+                        tint = if (viewModel.isLiked) Color.Red else Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Text(text = viewModel.likeCount.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
+                Spacer(Modifier.width(8.dp))
                 Icon(
-                    imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = "Like",
-                    tint = if (viewModel.isLiked) Color.Red else Color.Gray
+                    imageVector = Lucide.MessageCircle,
+                    contentDescription = "Comments",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(24.dp)
                 )
+                Text(text = comments.size.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { viewModel.toggleSave(postId) }) {
+                    Icon(
+                        imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
+                        contentDescription = "Save",
+                        tint = if (viewModel.isSaved) Color(0xFF4CAF50) else Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Text(text = viewModel.saveCount.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
             }
-            Text(text = viewModel.likeCount.toString(), fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = { viewModel.toggleSave(postId) }) {
-                Icon(
-                    imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
-                    contentDescription = "Save",
-                    tint = if (viewModel.isSaved) Color(0xFF4CAF50) else Color.Gray
+        }
+    }
+    // Comment modal bottom sheet
+    if (showCommentSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showCommentSheet = false },
+            sheetState = rememberModalBottomSheetState()
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Emoji row
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    emojiList.forEach { emoji ->
+                        Text(
+                            text = emoji,
+                            fontSize = 28.sp,
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .clickable { commentInput += emoji }
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                // Large text area
+                BasicTextField(
+                    value = commentInput,
+                    onValueChange = { commentInput = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .background(Color(0xFFF0F0F0), shape = CircleShape)
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    maxLines = 4,
+                    decorationBox = { innerTextField ->
+                        Box(Modifier.fillMaxSize()) {
+                            if (commentInput.isEmpty()) Text("Add comment...", color = Color.Gray)
+                            innerTextField()
+                        }
+                    }
                 )
+                Spacer(Modifier.height(12.dp))
+                // Arrow up icon button
+                Box(
+                    Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    IconButton(
+                        onClick = {
+                            addComment()
+                            showCommentSheet = false
+                        },
+                        enabled = commentInput.isNotBlank(),
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(Color.Yellow, shape = CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Lucide.ArrowUp,
+                            contentDescription = "Send",
+                            tint = Color.Black,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
             }
-            Text(text = viewModel.saveCount.toString(), fontSize = 14.sp, color = Color.Gray)
         }
     }
     // BottomSheet for self post
