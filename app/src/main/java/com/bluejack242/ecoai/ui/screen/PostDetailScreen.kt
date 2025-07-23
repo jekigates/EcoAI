@@ -428,7 +428,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     )
                 }
                 Spacer(Modifier.width(8.dp))
-            IconButton(onClick = { viewModel.toggleLike(postId, currentUserId.toString()) }) {
+            IconButton(onClick = { viewModel.toggleLike(postId) }) {
                 Icon(
                     imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = "Like",

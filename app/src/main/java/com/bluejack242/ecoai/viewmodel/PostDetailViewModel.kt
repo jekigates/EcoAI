@@ -70,8 +70,9 @@ class PostDetailViewModel : ViewModel() {
         }
     }
 
-    fun toggleLike(postId: String, creatorId: String) {
+    fun toggleLike(postId: String) {
         if (userId == null) return
+        val creatorUid = creator?.get("uid") as? String ?: ""
         val postRef = db.collection("posts").document(postId)
         db.runTransaction { transaction ->
             val snapshot = transaction.get(postRef)
@@ -82,8 +83,8 @@ class PostDetailViewModel : ViewModel() {
             } else {
                 likedBy.add(userId)
                 sendNotificationWithType(
-                    fromUserId = likedBy.toString(),
-                    toUserId = creatorId.toString(),
+                    fromUserId = userId.toString(),
+                    toUserId = creatorUid.toString(),
                     type = "like",
                     postId = postId
                 )
@@ -129,8 +130,8 @@ class PostDetailViewModel : ViewModel() {
                 batch.update(currentUserRef, "following", FieldValue.arrayUnion(creatorId))
                 batch.update(creatorRef, "followers", FieldValue.arrayUnion(userId))
                 sendNotificationWithType(
-                    fromUserId = userId,
-                    toUserId = creatorId,
+                    fromUserId = creatorId,
+                    toUserId = userId,
                     type = "follow"
                 )
 

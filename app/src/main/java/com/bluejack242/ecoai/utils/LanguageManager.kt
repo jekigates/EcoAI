@@ -47,7 +47,9 @@ object LanguageManager {
             "time_days_ago" to "%d days ago",
             "time_weeks_ago" to "%d weeks ago",
             "time_months_ago" to "%d months ago",
-            "time_years_ago" to "%d years ago"
+            "time_years_ago" to "%d years ago",
+            "no_notifications" to "No notifications yet"
+
 
 
         ),
@@ -92,7 +94,9 @@ object LanguageManager {
             "time_days_ago" to "%d hari yang lalu",
             "time_weeks_ago" to "%d minggu yang lalu",
             "time_months_ago" to "%d bulan yang lalu",
-            "time_years_ago" to "%d tahun yang lalu"
+            "time_years_ago" to "%d tahun yang lalu",
+
+            "no_notifications" to "Belum ada notifikasi"
 
         )
     )

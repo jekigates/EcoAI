@@ -53,7 +53,7 @@ fun NotificationCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = fromUser.profilePicUrl,
+                model = fromUser.profilePictureUrl,
                 contentDescription = "User Profile Picture",
                 modifier = Modifier
                     .size(40.dp)
@@ -65,7 +65,7 @@ fun NotificationCard(
 
             Column {
                 Text(
-                    text = "${fromUser.displayName} $actionMessage",
+                    text = "${fromUser.username} $actionMessage",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
