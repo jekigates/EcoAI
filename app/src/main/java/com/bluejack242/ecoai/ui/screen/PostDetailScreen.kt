@@ -41,12 +41,15 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import com.bluejack242.ecoai.viewmodel.PostDetailViewModel
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.draw.alpha
+import com.bluejack242.ecoai.utils.sendNotificationWithType
 import com.composables.icons.lucide.MessageCircle
 import com.composables.icons.lucide.ArrowUp
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailScreen(postId: String, navController: NavHostController, viewModel: PostDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val context = LocalContext.current
     // Load post on first composition
     LaunchedEffect(postId) {
@@ -82,6 +85,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
     // Add comment
     fun addComment() {
         val trimmed = commentInput.trim()
+        val creatorUid = viewModel.creator?.get("uid") as? String ?: ""
         if (trimmed.isNotEmpty() && userId != null) {
             db.collection("posts").document(postId).collection("comments")
                 .add(mapOf(
@@ -91,6 +95,13 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     "likedBy" to emptyList<String>()
                 ))
             commentInput = ""
+            sendNotificationWithType(
+                fromUserId = userId,
+                toUserId = creatorUid,
+                type = "comment",
+                postId = postId
+            )
+
         }
     }
 
@@ -103,6 +114,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
             val likedBy = (snap.get("likedBy") as? List<*>)?.map { it.toString() }?.toMutableList() ?: mutableListOf()
             if (liked) likedBy.remove(userId) else likedBy.add(userId)
             tx.update(ref, "likedBy", likedBy)
+
         }
     }
 
@@ -416,7 +428,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     )
                 }
                 Spacer(Modifier.width(8.dp))
-            IconButton(onClick = { viewModel.toggleLike(postId) }) {
+            IconButton(onClick = { viewModel.toggleLike(postId, currentUserId.toString()) }) {
                 Icon(
                     imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = "Like",

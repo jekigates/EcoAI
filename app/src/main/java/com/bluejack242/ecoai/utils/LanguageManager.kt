@@ -34,7 +34,22 @@ object LanguageManager {
             // Added for dialog
             "registration_success" to "Account Created",
             "verification_link_sent" to "Your account has been successfully created and a verification link has been sent to your email.",
-            "go_to_login" to "Go to Login"
+            "go_to_login" to "Go to Login",
+
+            // Notification
+            "notif_like" to "liked your post",
+            "notif_comment" to "commented on your post",
+            "notif_follow" to "started following you",
+
+            "time_just_now" to "just now",
+            "time_minutes_ago" to "%d minutes ago",
+            "time_hours_ago" to "%d hours ago",
+            "time_days_ago" to "%d days ago",
+            "time_weeks_ago" to "%d weeks ago",
+            "time_months_ago" to "%d months ago",
+            "time_years_ago" to "%d years ago"
+
+
         ),
         "ID" to mapOf(
             // Landing Screen
@@ -64,7 +79,21 @@ object LanguageManager {
             // Added for dialog
             "registration_success" to "Akun Berhasil Dibuat",
             "verification_link_sent" to "Akun Anda berhasil dibuat dan tautan verifikasi telah dikirim ke email Anda.",
-            "go_to_login" to "Ke Halaman Masuk"
+            "go_to_login" to "Ke Halaman Masuk",
+
+            // Notification
+            "notif_like" to "menyukai postingan kamu",
+            "notif_comment" to "mengomentari postingan kamu",
+            "notif_follow" to "mulai mengikuti kamu",
+
+            "time_just_now" to "baru saja",
+            "time_minutes_ago" to "%d menit yang lalu",
+            "time_hours_ago" to "%d jam yang lalu",
+            "time_days_ago" to "%d hari yang lalu",
+            "time_weeks_ago" to "%d minggu yang lalu",
+            "time_months_ago" to "%d bulan yang lalu",
+            "time_years_ago" to "%d tahun yang lalu"
+
         )
     )
     

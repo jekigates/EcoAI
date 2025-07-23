@@ -12,6 +12,7 @@ import com.bluejack242.ecoai.ui.screen.ForgotPasswordScreen
 import com.bluejack242.ecoai.ui.screen.HomeScreen
 import com.bluejack242.ecoai.ui.screen.LandingScreen
 import com.bluejack242.ecoai.ui.screen.LoginScreen
+import com.bluejack242.ecoai.ui.screen.NotificationScreen
 import com.bluejack242.ecoai.ui.screen.PostDetailScreen
 import com.bluejack242.ecoai.ui.screen.ProfileScreen
 import com.bluejack242.ecoai.ui.screen.RegisterScreen
@@ -102,6 +103,10 @@ fun AppNavGraph(navController: NavHostController) {
         composable("user_profile/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             UserProfileScreen(userId = userId, navController = navController)
+        }
+
+        composable("notifications") {
+            NotificationScreen(navController, currentRoute = "notifications")
         }
 
     }

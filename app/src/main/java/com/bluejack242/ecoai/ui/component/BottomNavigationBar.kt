@@ -35,10 +35,10 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String) 
             label = { Text("Create") }
         )
         NavigationBarItem(
-            selected = currentRoute == "inbox",
-            onClick = { navController.navigate("inbox") },
-            icon = { Icon(Icons.Default.Email, contentDescription = "Inbox") },
-            label = { Text("Inbox") }
+            selected = currentRoute == "notifications",
+            onClick = { navController.navigate("notifications") },
+            icon = { Icon(Icons.Default.Email, contentDescription = "Notification") },
+            label = { Text("Notification") }
         )
         NavigationBarItem(
             selected = currentRoute == "profile",

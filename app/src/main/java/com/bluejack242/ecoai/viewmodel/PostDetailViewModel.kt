@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.runtime.mutableIntStateOf
+import com.bluejack242.ecoai.utils.sendNotificationWithType
 
 class PostDetailViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
@@ -69,7 +70,7 @@ class PostDetailViewModel : ViewModel() {
         }
     }
 
-    fun toggleLike(postId: String) {
+    fun toggleLike(postId: String, creatorId: String) {
         if (userId == null) return
         val postRef = db.collection("posts").document(postId)
         db.runTransaction { transaction ->
@@ -77,14 +78,22 @@ class PostDetailViewModel : ViewModel() {
             val likedBy = (snapshot.get("likedBy") as? List<*>)?.map { it.toString() }?.toMutableList() ?: mutableListOf()
             if (likedBy.contains(userId)) {
                 likedBy.remove(userId)
+
             } else {
                 likedBy.add(userId)
+                sendNotificationWithType(
+                    fromUserId = likedBy.toString(),
+                    toUserId = creatorId.toString(),
+                    type = "like",
+                    postId = postId
+                )
             }
             transaction.update(postRef, "likedBy", likedBy)
             transaction.update(postRef, "likes", likedBy.size)
         }.addOnSuccessListener {
             isLiked = !isLiked
             likeCount += if (isLiked) 1 else -1
+
         }
     }
 
@@ -100,6 +109,7 @@ class PostDetailViewModel : ViewModel() {
                 savedBy.add(userId)
             }
             transaction.update(postRef, "savedBy", savedBy)
+
         }.addOnSuccessListener {
             isSaved = !isSaved
             saveCount += if (isSaved) 1 else -1
@@ -118,6 +128,12 @@ class PostDetailViewModel : ViewModel() {
             } else {
                 batch.update(currentUserRef, "following", FieldValue.arrayUnion(creatorId))
                 batch.update(creatorRef, "followers", FieldValue.arrayUnion(userId))
+                sendNotificationWithType(
+                    fromUserId = userId,
+                    toUserId = creatorId,
+                    type = "follow"
+                )
+
             }
         }.addOnSuccessListener {
             isFollowing = !isFollowing
