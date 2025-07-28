@@ -1,11 +1,14 @@
 package com.bluejack242.ecoai.ui.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,7 +44,8 @@ fun RegisterScreen(
     val error = viewModel.errorMessage.value
     val isLoading = viewModel.isLoading.value
 
-    var fullName by remember { mutableStateOf("") }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var confirmEmail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -70,12 +74,25 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = { Text("Full Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = firstName,
+                onValueChange = { firstName = it },
+                label = { Text("First Name") },
+                modifier = Modifier.weight(1f)
+            )
+
+            OutlinedTextField(
+                value = lastName,
+                onValueChange = { lastName = it },
+                label = { Text("Last Name") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
@@ -123,7 +140,8 @@ fun RegisterScreen(
         Button(
             onClick = {
                 viewModel.register(RegisterRequest(
-                    fullName,
+                    firstName,
+                    lastName,
                     email,
                     confirmEmail,
                     password,

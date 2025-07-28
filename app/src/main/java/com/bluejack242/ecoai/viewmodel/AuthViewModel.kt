@@ -65,9 +65,10 @@ class AuthViewModel(
                 isLoading.value = false
                 errorMessage.value = "Email is already registered. Please use another email or log in."
             } else {
+                val fullName = "${request.firstName} ${request.lastName}"
                 val hashedPassword = PasswordUtil.hash(request.password)
                 repository.register(
-                    fullName = request.fullName,
+                    fullName = fullName,
                     email = request.email,
                     password = request.password,
                     confirmEmail = request.confirmEmail,
