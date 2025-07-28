@@ -85,11 +85,24 @@ fun NotificationScreen(
                 }
 
                 notifications.isEmpty() -> {
-                    Text(
-                        text = LanguageManager.getString("no_notifications"),
-                        color = Color.Gray,
-                        modifier = Modifier.padding(top = 32.dp)
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Notifikasi",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+
+                        Text(
+                            text = LanguageManager.getString("no_notifications"),
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 32.dp)
+                        )
+                    }
                 }
 
                 else -> {
@@ -98,6 +111,17 @@ fun NotificationScreen(
                             .fillMaxSize()
                             .padding(horizontal = 8.dp)
                     ) {
+                        // Header
+                        item {
+                            Text(
+                                text = "Notifikasi",
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+
                         items(
                             notifications,
                             key = { it.fromUserId + it.createdAt.toDate().time }
@@ -127,7 +151,7 @@ fun NotificationScreen(
                                             .padding(16.dp),
                                         contentAlignment = Alignment.CenterStart
                                     ) {
-                                        Text("Memuat data pengguna...", color = Color.Gray)
+                                        Text("Loading...", color = Color.Gray)
                                     }
                                 }
                             }
@@ -137,6 +161,7 @@ fun NotificationScreen(
             }
         }
     }
+
 }
 
 suspend fun fetchUserById(userId: String): User? {

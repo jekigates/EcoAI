@@ -27,11 +27,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import com.bluejack242.ecoai.viewmodel.ProfileViewModel
 import com.bluejack242.ecoai.ui.component.ProfileCount
 
 @Composable
-fun ProfileScreen(navController: NavHostController, currentRoute: String = "profile", viewModel: ProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun ProfileScreen(
+    navController: NavHostController,
+    currentRoute: String = "profile",
+    viewModel: ProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     var selectedTab by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) { viewModel.fetchProfile() }
     LaunchedEffect(selectedTab) { viewModel.fetchPostsForTab(selectedTab) }
@@ -92,7 +97,11 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("@${viewModel.username}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                        Text(
+                            "@${viewModel.username}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
                         Text(viewModel.fullName.take(30), fontSize = 16.sp, color = Color.Gray)
                     }
                     IconButton(onClick = { navController.navigate("settings") }) {
@@ -105,9 +114,9 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    ProfileCount("Following", 123)
-                    ProfileCount("Followers", 456)
-                    ProfileCount("Likes", 789)
+                    ProfileCount("Following", viewModel.following.size)
+                    ProfileCount("Followers", viewModel.followers.size)
+                    ProfileCount("Likes", viewModel.likes)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 // Bio
@@ -133,21 +142,46 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                     Text("Edit Profile", color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+
                 // Tabs
-                TabRow(selectedTabIndex = selectedTab) {
+                val selectedColor = Color(0xFF388E3C)
+                val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = selectedColor,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            color = selectedColor
+                        )
+                    },
+                    divider = {}
+                ) {
                     listOf("Posts", "Saved", "Liked").forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            text = { Text(title) }
+                            text = {
+                                Text(
+                                    title,
+                                    color = if (selectedTab == index) selectedColor else unselectedColor
+                                )
+                            }
                         )
                     }
                 }
+
+
                 // Tab content
                 when (selectedTab) {
                     0 -> {
                         if (viewModel.isLoadingPosts) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                            Box(
+                                Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) { CircularProgressIndicator() }
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
@@ -157,13 +191,21 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(viewModel.ownPosts, key = { it.first }) { (postId, post) ->
-                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { viewModel.fullName }
-                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
+                                    val mediaList =
+                                        post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia =
+                                        mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty()
+                                        .ifBlank { viewModel.fullName }
+                                    val profilePictureUrl =
+                                        (post["profilePictureUrl"] as? String).orEmpty()
+                                            .ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                    val liked = FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(FirebaseAuth.getInstance().currentUser?.uid)
+                                    val liked =
+                                        FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(
+                                            FirebaseAuth.getInstance().currentUser?.uid
+                                        )
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -178,9 +220,13 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                             }
                         }
                     }
+
                     1 -> {
                         if (viewModel.isLoadingPosts) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                            Box(
+                                Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) { CircularProgressIndicator() }
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
@@ -190,13 +236,21 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(viewModel.likedPosts, key = { it.first }) { (postId, post) ->
-                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { viewModel.fullName }
-                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
+                                    val mediaList =
+                                        post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia =
+                                        mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty()
+                                        .ifBlank { viewModel.fullName }
+                                    val profilePictureUrl =
+                                        (post["profilePictureUrl"] as? String).orEmpty()
+                                            .ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                    val liked = FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(FirebaseAuth.getInstance().currentUser?.uid)
+                                    val liked =
+                                        FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(
+                                            FirebaseAuth.getInstance().currentUser?.uid
+                                        )
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -211,9 +265,13 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                             }
                         }
                     }
+
                     2 -> {
                         if (viewModel.isLoadingPosts) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                            Box(
+                                Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) { CircularProgressIndicator() }
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
@@ -223,13 +281,21 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(viewModel.savedPosts, key = { it.first }) { (postId, post) ->
-                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { viewModel.fullName }
-                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
+                                    val mediaList =
+                                        post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia =
+                                        mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty()
+                                        .ifBlank { viewModel.fullName }
+                                    val profilePictureUrl =
+                                        (post["profilePictureUrl"] as? String).orEmpty()
+                                            .ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                    val liked = FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(FirebaseAuth.getInstance().currentUser?.uid)
+                                    val liked =
+                                        FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(
+                                            FirebaseAuth.getInstance().currentUser?.uid
+                                        )
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,

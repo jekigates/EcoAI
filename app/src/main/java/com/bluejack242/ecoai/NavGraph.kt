@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bluejack242.ecoai.ui.screen.AddWasteScreen
 import com.bluejack242.ecoai.ui.screen.CreateNewPasswordScreen
 import com.bluejack242.ecoai.ui.screen.CreatePostScreen
 import com.bluejack242.ecoai.ui.screen.EditProfileScreen
@@ -17,8 +18,9 @@ import com.bluejack242.ecoai.ui.screen.PostDetailScreen
 import com.bluejack242.ecoai.ui.screen.ProfileScreen
 import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
+import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.ui.screen.UserProfileScreen
-import com.bluejack242.ecoai.ui.screens.SettingsScreen
+import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -29,7 +31,7 @@ fun NavGraph(navController: NavHostController,
              isNotificationEnabled: Boolean,
              onNotificationChange: (Boolean) -> Unit,
              onLogout: () -> Unit) {
-    // Check if user is logged in
+
     val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
     val startDestination = if (isLoggedIn) "home" else "landing"
 
@@ -123,6 +125,13 @@ fun NavGraph(navController: NavHostController,
                 isNotificationEnabled = isNotificationEnabled,
                 onNotificationChange = onNotificationChange,
                 onLogout = onLogout
+            )
+        }
+
+        composable("add_waste") {
+            AddWasteScreen(
+                onCameraClick = { /* handle */ },
+                onGalleryClick = { /* handle */ }
             )
         }
     }

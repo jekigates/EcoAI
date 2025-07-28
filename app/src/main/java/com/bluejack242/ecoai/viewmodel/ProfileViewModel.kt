@@ -17,6 +17,9 @@ class ProfileViewModel : ViewModel() {
     var bio by mutableStateOf("")
     var profilePictureUrl by mutableStateOf<String?>(null)
     var fullName by mutableStateOf("")
+    var followers by mutableStateOf<List<String>>(emptyList())
+    var following by mutableStateOf<List<String>>(emptyList())
+    var likes by mutableStateOf(0)
 
     var ownPosts by mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList())
     var likedPosts by mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList())
@@ -24,6 +27,7 @@ class ProfileViewModel : ViewModel() {
     var isLoadingPosts by mutableStateOf(false)
 
     fun fetchProfile() {
+        isLoadingPosts = true
         if (userId != null) {
             db.collection("users").document(userId).get().addOnSuccessListener { doc ->
                 fullName = doc.getString("fullName") ?: ""
@@ -31,6 +35,12 @@ class ProfileViewModel : ViewModel() {
                 bio = doc.getString("bio") ?: ""
                 profilePictureUrl = doc.getString("profilePictureUrl")
                 isProfileLoaded = true
+                followers = (doc.get("followers") as? List<String>) ?: emptyList()
+                following = (doc.get("following") as? List<String>) ?: emptyList()
+                db.collection("posts").whereEqualTo("userId", userId).get().addOnSuccessListener { posts ->
+                    likes = posts.documents.sumOf { (it.get("likes") as? Long)?.toInt() ?: 0 }
+                    isLoadingPosts = false
+                }
             }
         }
     }
