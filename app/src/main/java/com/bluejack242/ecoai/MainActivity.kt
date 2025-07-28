@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.bluejack242.ecoai.ui.theme.EcoAITheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,37 +22,32 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            // State untuk toggle tema
             var isDarkTheme by remember { mutableStateOf(false) }
+            var isNotificationEnabled by remember { mutableStateOf(true) }
 
             EcoAITheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
-                Surface (
-                    modifier = Modifier
-                        .fillMaxSize(),
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    Column (
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        Text(
-//                            text = if (isDarkTheme) "Dark Theme Active" else "Light Theme Active",
-//                            color = MaterialTheme.colorScheme.onBackground
-//                        )
-//                        Spacer(modifier = Modifier.height(16.dp))
-//                        Button(
-//                            onClick = { isDarkTheme = !isDarkTheme }
-//                        ) {
-//                            Text("Toggle Theme")
-//                        }
-//                        Spacer(modifier = Modifier.height(16.dp))
-//                        Button(onClick = {}) {
-//                            Text("A BUTTON")
-//                        }
-//                    }
-                    AppNavGraph(navController = navController)
+                    NavGraph(
+                        navController = navController,
+                        isDarkTheme = isDarkTheme,
+                        onThemeChange = { isDarkTheme = it },
+                        isNotificationEnabled = isNotificationEnabled,
+                        onNotificationChange = { isNotificationEnabled = it },
+                        onLogout = {
+                            FirebaseAuth.getInstance().signOut()
+                            navController.navigate("landing") {
+                                popUpTo("landing") { inclusive = true }
+                            }
+                        }
+                    )
                 }
             }
         }
+
     }
 }

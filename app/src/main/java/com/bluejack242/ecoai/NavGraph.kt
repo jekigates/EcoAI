@@ -18,11 +18,17 @@ import com.bluejack242.ecoai.ui.screen.ProfileScreen
 import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
 import com.bluejack242.ecoai.ui.screen.UserProfileScreen
+import com.bluejack242.ecoai.ui.screens.SettingsScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun NavGraph(navController: NavHostController,
+             isDarkTheme: Boolean,
+             onThemeChange: (Boolean) -> Unit,
+             isNotificationEnabled: Boolean,
+             onNotificationChange: (Boolean) -> Unit,
+             onLogout: () -> Unit) {
     // Check if user is logged in
     val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
     val startDestination = if (isLoggedIn) "home" else "landing"
@@ -109,5 +115,15 @@ fun AppNavGraph(navController: NavHostController) {
             NotificationScreen(navController, currentRoute = "notifications")
         }
 
+        composable("settings") {
+            SettingsScreen(
+                navController = navController,
+                isDarkTheme = isDarkTheme,
+                onThemeChange = onThemeChange,
+                isNotificationEnabled = isNotificationEnabled,
+                onNotificationChange = onNotificationChange,
+                onLogout = onLogout
+            )
+        }
     }
 }

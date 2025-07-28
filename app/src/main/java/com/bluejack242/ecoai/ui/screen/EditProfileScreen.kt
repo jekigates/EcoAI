@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -44,14 +45,12 @@ fun EditProfileScreen(navController: NavHostController) {
     var isProfileLoaded by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
 
-    // Image picker launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             profilePictureUri = uri
         }
     }
 
-    // Fetch user profile from Firestore on first composition
     LaunchedEffect(user?.uid) {
         if (user != null && !isProfileLoaded) {
             db.collection("users").document(user.uid).get().addOnSuccessListener { doc ->
@@ -88,7 +87,7 @@ fun EditProfileScreen(navController: NavHostController) {
                 onClick = { navController.popBackStack() },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
         }
         Spacer(Modifier.height(24.dp))

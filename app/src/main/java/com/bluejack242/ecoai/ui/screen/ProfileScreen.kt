@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.Settings
 import com.bluejack242.ecoai.viewmodel.ProfileViewModel
 import com.bluejack242.ecoai.ui.component.ProfileCount
 
@@ -94,8 +95,8 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                         Text("@${viewModel.username}", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                         Text(viewModel.fullName.take(30), fontSize = 16.sp, color = Color.Gray)
                     }
-                    IconButton(onClick = { navController.navigate("edit_profile") }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Profile")
+                    IconButton(onClick = { navController.navigate("settings") }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -122,17 +123,14 @@ fun ProfileScreen(navController: NavHostController, currentRoute: String = "prof
                 // Logout button
                 Button(
                     onClick = {
-                        FirebaseAuth.getInstance().signOut()
-                        navController.navigate("landing") {
-                            popUpTo("landing") { inclusive = true }
-                        }
+                        navController.navigate("edit_profile")
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB71C1C))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
                 ) {
-                    Text("Logout", color = Color.White)
+                    Text("Edit Profile", color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 // Tabs
