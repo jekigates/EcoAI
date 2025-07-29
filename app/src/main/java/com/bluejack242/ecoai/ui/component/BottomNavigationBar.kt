@@ -24,7 +24,7 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String) 
         )
         NavigationBarItem(
             selected = currentRoute == "progress",
-            onClick = { navController.navigate("add_waste") },
+            onClick = { navController.navigate("progress") },
             icon = { Icon(Icons.Default.DateRange, contentDescription = "Progress") },
             label = { Text("Progress") }
         )

@@ -1,39 +1,182 @@
 package com.bluejack242.ecoai.ui.screen
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.navigation.NavHostController
+import com.bluejack242.ecoai.viewmodel.WasteViewModel
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun AddWasteScreen(
-    onCameraClick: () -> Unit,
-    onGalleryClick: () -> Unit
+    viewModel: WasteViewModel,
+    navController: NavHostController
 ) {
-    Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        IconButton(onClick = onCameraClick) {
-            Icon(Icons.Filled.PhotoCamera, contentDescription = "Camera", tint = Color(0xFF388E3C))
+    val context = LocalContext.current
+    var wasteName by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+    val handleImageSelected: (Uri) -> Unit = handleImageSelected@{ uri ->
+        if (wasteName.isBlank()) {
+            errorMessage = "Please enter waste name"
+            return@handleImageSelected
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        IconButton(onClick = onGalleryClick) {
-            Icon(Icons.Filled.PhotoLibrary, contentDescription = "Gallery", tint = Color(0xFF388E3C))
+
+        isLoading = true
+        coroutineScope.launch {
+            try {
+                viewModel.addWasteItemWithImage(
+                    context,
+                    wasteName,
+                    10,
+                    uri,
+                    onSuccess = {
+                        isLoading = false
+                        navController.navigateUp()
+                    },
+                    uploadedBy = userId
+                )
+
+            } catch (e: Exception) {
+                Log.e("AddWasteScreen", "Error addWasteItem: ${e.message}", e)
+                errorMessage = "Terjadi error: ${e.localizedMessage}"
+                isLoading = false
+            }
+        }
+    }
+
+    // camera launcher
+    var tempUri: Uri? by remember { mutableStateOf(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempUri != null) {
+            handleImageSelected(tempUri!!)
+        }
+    }
+
+    // gallery launcher
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { handleImageSelected(it) }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            tempUri?.let { cameraLauncher.launch(it) }
+        } else {
+            errorMessage = "Camera permission denied"
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Add Waste") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(
+                    value = wasteName,
+                    onValueChange = { wasteName = it },
+                    label = { Text("Waste Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = errorMessage.contains("name")
+                )
+
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colors.error,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        if (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            val imageFile = File.createTempFile("photo_", ".jpg", context.cacheDir)
+                            tempUri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider",
+                                imageFile
+                            )
+                            tempUri?.let { cameraLauncher.launch(it) }
+                        } else {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Camera, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open Camera")
+                }
+
+
+                OutlinedButton(
+                    onClick = { galleryLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Image, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open Gallery")
+                }
+            }
         }
     }
 }
-

@@ -16,12 +16,15 @@ import com.bluejack242.ecoai.ui.screen.LoginScreen
 import com.bluejack242.ecoai.ui.screen.NotificationScreen
 import com.bluejack242.ecoai.ui.screen.PostDetailScreen
 import com.bluejack242.ecoai.ui.screen.ProfileScreen
+import com.bluejack242.ecoai.ui.screen.ProgressScreen
 import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
 import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.ui.screen.UserProfileScreen
 import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
+import com.bluejack242.ecoai.viewmodel.ProgressViewModel
+import com.bluejack242.ecoai.viewmodel.WasteViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -129,9 +132,25 @@ fun NavGraph(navController: NavHostController,
         }
 
         composable("add_waste") {
+            val viewModel: WasteViewModel = viewModel()
             AddWasteScreen(
-                onCameraClick = { /* handle */ },
-                onGalleryClick = { /* handle */ }
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        composable("progress") {
+            val viewModel: ProgressViewModel = viewModel()
+
+            ProgressScreen(
+                navController = navController,
+                onAddWasteClick = {
+                    navController.navigate("add_waste")
+                },
+                onItemClick = { itemId ->
+                    navController.navigate("detail/$itemId")
+                },
+                viewModel = viewModel
             )
         }
     }
