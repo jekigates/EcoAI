@@ -45,10 +45,12 @@ fun EditProfileScreen(navController: NavHostController) {
     var isProfileLoaded by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
 
+    var fullNameError by remember { mutableStateOf<String?>(null) }
+    var usernameError by remember { mutableStateOf<String?>(null) }
+    var bioError by remember { mutableStateOf<String?>(null) }
+
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            profilePictureUri = uri
-        }
+        if (uri != null) profilePictureUri = uri
     }
 
     LaunchedEffect(user?.uid) {
@@ -68,182 +70,132 @@ fun EditProfileScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Top bar with back button and title
         Spacer(Modifier.height(16.dp))
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Edit Profile",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.Black
-            )
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
+            Text("Edit Profile", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+            IconButton(onClick = { navController.popBackStack() }, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
         }
+
         Spacer(Modifier.height(24.dp))
-        // Profile picture
+        // Profile Picture
         Box(
-            modifier = Modifier
-                .size(100.dp)
-                .align(Alignment.CenterHorizontally)
-                .clip(CircleShape)
-                .background(Color(0xFFE0E0E0))
+            modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
+                .clip(CircleShape).background(Color(0xFFE0E0E0))
                 .clickable { imagePickerLauncher.launch("image/*") },
             contentAlignment = Alignment.Center
         ) {
-            when {
-                profilePictureUri != null -> {
-                    AsyncImage(
-                        model = profilePictureUri,
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier.size(100.dp)
-                    )
-                    // Pencil overlay
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
-                !profilePictureUrl.isNullOrBlank() -> {
-                    AsyncImage(
-                        model = profilePictureUrl,
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier.size(100.dp)
-                    )
-                    // Pencil overlay
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
-                else -> {
-                    // Gray circle with pencil
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-            }
+            AsyncImage(model = profilePictureUri ?: profilePictureUrl, contentDescription = null)
         }
+
         Spacer(Modifier.height(24.dp))
-        // Full Name
+
+        // Full name
         OutlinedTextField(
             value = fullName,
-            onValueChange = { if (it.length <= 30) fullName = it },
+            onValueChange = { fullName = it },
             label = { Text("Full Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            isError = fullNameError != null
         )
-        Text(
-            text = "${fullName.length}/30",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            fontSize = 12.sp,
-            color = if (fullName.length == 30) Color.Red else Color.Gray
-        )
+        if (fullNameError != null) {
+            Text(fullNameError!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
+        }
+
         Spacer(Modifier.height(12.dp))
         // Username
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            isError = usernameError != null
         )
+        if (usernameError != null) {
+            Text(usernameError!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
+        }
+
         Spacer(Modifier.height(12.dp))
         // Bio
         OutlinedTextField(
             value = bio,
-            onValueChange = { if (it.length <= 80) bio = it },
+            onValueChange = { bio = it },
             label = { Text("Bio") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            isError = bioError != null,
             maxLines = 3
         )
-        Text(
-            text = "${bio.length}/80",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            fontSize = 12.sp,
-            color = if (bio.length == 80) Color.Red else Color.Gray
-        )
+        if (bioError != null) {
+            Text(bioError!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
+        }
+
         Spacer(Modifier.height(24.dp))
-        // Save button
         Button(
             onClick = {
-                if (user == null) return@Button
+                fullNameError = null
+                usernameError = null
+                bioError = null
+
+                var valid = true
+                if (fullName.length < 4) {
+                    fullNameError = "Name must be at least 4 characters long"
+                    valid = false
+                }
+                if (bio.trim().split("\\s+".toRegex()).size < 3) {
+                    bioError = "Bio must be at least 3 words long"
+                    valid = false
+                }
+
+                if (!valid || user == null) return@Button
+
                 isSaving = true
-                coroutineScope.launch {
-                    var uploadedUrl: String? = profilePictureUrl
-                    if (profilePictureUri != null) {
-                        val result = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
-                        result.onSuccess { url ->
-                            uploadedUrl = url
-                        }
-                        result.onFailure {
-                            Toast.makeText(context, "Failed to upload image: ${it.message}", Toast.LENGTH_SHORT).show()
+                db.collection("users").whereEqualTo("username", username).get()
+                    .addOnSuccessListener { result ->
+                        val usernameTaken = result.any { it.id != user.uid }
+                        if (usernameTaken) {
+                            usernameError = "Username is already taken"
                             isSaving = false
-                            return@launch
+                        } else {
+                            coroutineScope.launch {
+                                var uploadedUrl: String? = profilePictureUrl
+                                if (profilePictureUri != null) {
+                                    val result = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
+                                    result.onSuccess { url -> uploadedUrl = url }
+                                    result.onFailure {
+                                        Toast.makeText(context, "Failed to upload image: ${it.message}", Toast.LENGTH_SHORT).show()
+                                        isSaving = false
+                                        return@launch
+                                    }
+                                }
+                                val userMap = hashMapOf(
+                                    "fullName" to fullName,
+                                    "username" to username,
+                                    "bio" to bio,
+                                    "profilePictureUrl" to (uploadedUrl ?: "")
+                                )
+                                db.collection("users").document(user.uid)
+                                    .update(userMap as Map<String, Any>)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(context, "Profile updated!", Toast.LENGTH_SHORT).show()
+                                        navController.popBackStack()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(context, "Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                isSaving = false
+                            }
                         }
                     }
-                    val userMap = hashMapOf(
-                        "fullName" to fullName,
-                        "username" to username,
-                        "bio" to bio,
-                        "profilePictureUrl" to (uploadedUrl ?: "")
-                    )
-                    db.collection("users").document(user.uid)
-                        .update(userMap as Map<String, Any>)
-                        .addOnSuccessListener {
-                            Toast.makeText(context, "Profile updated!", Toast.LENGTH_SHORT).show()
-                            navController.popBackStack()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(context, "Failed to update profile: ${it.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    isSaving = false
-                }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
             enabled = !isSaving
         ) {
             Text(if (isSaving) "Saving..." else "Save", color = Color.White)
         }
     }
-} 
+}

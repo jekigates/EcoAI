@@ -34,7 +34,7 @@ fun WasteDetailScreen(
 ) {
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         AsyncImage(
-            model = item.imageRes, 
+            model = item.imageRes,
             contentDescription = item.name,
             modifier = Modifier
                 .fillMaxWidth()
