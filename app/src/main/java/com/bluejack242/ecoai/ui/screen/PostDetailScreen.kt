@@ -48,7 +48,11 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostDetailScreen(postId: String, navController: NavHostController, viewModel: PostDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun PostDetailScreen(
+    postId: String,
+    navController: NavHostController,
+    viewModel: PostDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val context = LocalContext.current
     // Load post on first composition
@@ -77,7 +81,8 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         isLoadingComments = true
         db.collection("posts").document(postId).collection("comments")
             .addSnapshotListener { snapshot, _ ->
-                comments = snapshot?.documents?.mapNotNull { it.data?.plus("id" to it.id) } ?: emptyList()
+                comments =
+                    snapshot?.documents?.mapNotNull { it.data?.plus("id" to it.id) } ?: emptyList()
                 isLoadingComments = false
             }
     }
@@ -88,12 +93,14 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         val creatorUid = viewModel.creator?.get("uid") as? String ?: ""
         if (trimmed.isNotEmpty() && userId != null) {
             db.collection("posts").document(postId).collection("comments")
-                .add(mapOf(
-                    "userId" to userId,
-                    "text" to trimmed,
-                    "createdAt" to com.google.firebase.Timestamp.now(),
-                    "likedBy" to emptyList<String>()
-                ))
+                .add(
+                    mapOf(
+                        "userId" to userId,
+                        "text" to trimmed,
+                        "createdAt" to com.google.firebase.Timestamp.now(),
+                        "likedBy" to emptyList<String>()
+                    )
+                )
             commentInput = ""
             sendNotificationWithType(
                 fromUserId = userId,
@@ -111,7 +118,8 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         val ref = db.collection("posts").document(postId).collection("comments").document(commentId)
         db.runTransaction { tx ->
             val snap = tx.get(ref)
-            val likedBy = (snap.get("likedBy") as? List<*>)?.map { it.toString() }?.toMutableList() ?: mutableListOf()
+            val likedBy = (snap.get("likedBy") as? List<*>)?.map { it.toString() }?.toMutableList()
+                ?: mutableListOf()
             if (liked) likedBy.remove(userId) else likedBy.add(userId)
             tx.update(ref, "likedBy", likedBy)
 
@@ -149,36 +157,48 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                         if (creatorUid.isNotBlank()) navController.navigate("user_profile/$creatorUid")
                     }
                 ) {
-                if (!profilePictureUrl.isNullOrBlank()) {
-                    AsyncImage(
-                        model = profilePictureUrl,
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFE0E0E0))
+                    if (!profilePictureUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = profilePictureUrl,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0E0E0))
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile Picture",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        (viewModel.creator?.get("fullName") as? String)?.take(30) ?: "Unknown",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile Picture",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text((viewModel.creator?.get("fullName") as? String)?.take(30) ?: "Unknown", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 if (!isSelf) {
                     Button(
                         onClick = { viewModel.toggleFollow() },
                         shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(containerColor = if (viewModel.isFollowing) Color.Gray else Color(0xFF4CAF50)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (viewModel.isFollowing) Color.Gray else Color(
+                                0xFF4CAF50
+                            )
+                        ),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text(if (viewModel.isFollowing) "Unfollow" else "Follow", color = Color.White, fontSize = 14.sp)
+                        Text(
+                            if (viewModel.isFollowing) "Unfollow" else "Follow",
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
                     }
                 } else {
                     IconButton(onClick = { viewModel.showBottomSheet = true }) {
@@ -270,43 +290,55 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         // Headline
         val headline = viewModel.post?.get("headline") as? String ?: ""
         if (headline.isNotBlank()) {
-        Text(
+            Text(
                 text = headline,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
         val captionText = viewModel.post?.get("caption") as? String ?: ""
         if (captionText.isNotBlank()) {
-        val hashtagRegex = Regex("#[A-Za-z0-9_]+")
-        val annotatedCaption = buildAnnotatedString {
-            var lastIndex = 0
-            for (match in hashtagRegex.findAll(captionText)) {
-                val start = match.range.first
-                val end = match.range.last + 1
-                if (start > lastIndex) append(captionText.substring(lastIndex, start))
-                withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
-                    append(captionText.substring(start, end))
+            val hashtagRegex = Regex("#[A-Za-z0-9_]+")
+            val annotatedCaption = buildAnnotatedString {
+                var lastIndex = 0
+                for (match in hashtagRegex.findAll(captionText)) {
+                    val start = match.range.first
+                    val end = match.range.last + 1
+                    if (start > lastIndex) append(captionText.substring(lastIndex, start))
+                    withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
+                        append(captionText.substring(start, end))
+                    }
+                    lastIndex = end
                 }
-                lastIndex = end
+                if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
             }
-            if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
-        }
-        Text(
-            text = annotatedCaption,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+            Text(
+                text = annotatedCaption,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
         // Comments section
-        Text("${comments.size} comments", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        Text(
+            "${comments.size} comments",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         if (isLoadingComments) {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            Box(
+                Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) { CircularProgressIndicator() }
         } else if (comments.isEmpty()) {
-            Text("No comments yet", color = Color.Gray, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            Text(
+                "No comments yet",
+                color = Color.Gray,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
         } else {
             Column(Modifier.padding(horizontal = 16.dp)) {
                 comments.forEach { comment ->
@@ -322,16 +354,18 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     val createdDateString = remember(createdAt) {
                         createdAt?.let {
                             val date = java.util.Date(it.seconds * 1000)
-                            java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault()).format(date)
+                            java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault())
+                                .format(date)
                         } ?: ""
                     }
                     // Fetch commenter info
                     LaunchedEffect(userIdOfComment) {
                         if (userIdOfComment.isNotBlank()) {
-                            db.collection("users").document(userIdOfComment).get().addOnSuccessListener { doc ->
-                                commenterName = doc.getString("fullName") ?: ""
-                                commenterProfilePic = doc.getString("profilePictureUrl")
-                            }
+                            db.collection("users").document(userIdOfComment).get()
+                                .addOnSuccessListener { doc ->
+                                    commenterName = doc.getString("fullName") ?: ""
+                                    commenterProfilePic = doc.getString("profilePictureUrl")
+                                }
                         }
                     }
                     Row(
@@ -363,14 +397,24 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                                 )
                             }
                             Spacer(Modifier.width(10.dp))
-                            Text(commenterName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Gray)
+                            Text(
+                                commenterName,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = Color.Gray
+                            )
                         }
                         Column(Modifier.weight(1f)) {
                             Text(text, fontSize = 16.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(createdDateString, fontSize = 13.sp, color = Color.Gray)
                                 Spacer(Modifier.width(12.dp))
-                                Text("Reply", fontSize = 13.sp, color = Color.Gray, modifier = Modifier.alpha(0f)) // hidden, for layout
+                                Text(
+                                    "Reply",
+                                    fontSize = 13.sp,
+                                    color = Color.Gray,
+                                    modifier = Modifier.alpha(0f)
+                                )
                             }
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -384,7 +428,7 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                                     imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                     contentDescription = "Like comment",
                                     tint = if (liked) Color.Red else Color.Gray,
-            modifier = Modifier
+                                    modifier = Modifier
                                         .size(20.dp)
                                         .clickable { toggleCommentLike(commentId, liked) }
                                 )
@@ -403,10 +447,10 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
         ) {
             Row(
                 Modifier
-                .fillMaxWidth()
+                    .fillMaxWidth()
                     .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -421,22 +465,30 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                         enabled = false,
                         decorationBox = { innerTextField ->
                             Box(Modifier.fillMaxWidth()) {
-                                if (commentInput.isEmpty()) Text("Add comment...", color = Color.Gray)
+                                if (commentInput.isEmpty()) Text(
+                                    "Add comment...",
+                                    color = Color.Gray
+                                )
                                 innerTextField()
                             }
                         }
                     )
                 }
                 Spacer(Modifier.width(8.dp))
-            IconButton(onClick = { viewModel.toggleLike(postId) }) {
-                Icon(
-                    imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = "Like",
+                IconButton(onClick = { viewModel.toggleLike(postId) }) {
+                    Icon(
+                        imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Like",
                         tint = if (viewModel.isLiked) Color.Red else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
                 }
-                Text(text = viewModel.likeCount.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
+                Text(
+                    text = viewModel.likeCount.toString(),
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     imageVector = Lucide.MessageCircle,
@@ -444,17 +496,27 @@ fun PostDetailScreen(postId: String, navController: NavHostController, viewModel
                     tint = Color.Gray,
                     modifier = Modifier.size(24.dp)
                 )
-                Text(text = comments.size.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
+                Text(
+                    text = comments.size.toString(),
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
                 Spacer(Modifier.width(8.dp))
                 IconButton(onClick = { viewModel.toggleSave(postId) }) {
-                Icon(
-                    imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
-                    contentDescription = "Save",
+                    Icon(
+                        imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
+                        contentDescription = "Save",
                         tint = if (viewModel.isSaved) Color(0xFF4CAF50) else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
                 }
-                Text(text = viewModel.saveCount.toString(), fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(start = 2.dp))
+                Text(
+                    text = viewModel.saveCount.toString(),
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
             }
         }
     }

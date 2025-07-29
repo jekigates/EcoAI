@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
@@ -15,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bluejack242.ecoai.viewmodel.ProgressViewModel
 import com.bluejack242.ecoai.ui.component.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 
@@ -58,11 +60,25 @@ fun ProgressScreen(
         Column(
             Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(paddingValues)
                 .padding(16.dp)
+                .statusBarsPadding()
         ) {
-            // Title
-            Text("Progress", style = MaterialTheme.typography.h4)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .background(Color.White),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Progress",
+                    style = MaterialTheme.typography.h5,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
 
             Spacer(Modifier.height(8.dp))
 

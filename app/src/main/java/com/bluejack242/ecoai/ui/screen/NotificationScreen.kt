@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -46,7 +47,8 @@ fun NotificationScreen(
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, _ ->
                 isLoading = false
-                val temp = snapshot?.documents?.mapNotNull { it.toObject(Notification::class.java) } ?: emptyList()
+                val temp = snapshot?.documents?.mapNotNull { it.toObject(Notification::class.java) }
+                    ?: emptyList()
                 notifications = temp
 
                 // Fetch related users
@@ -90,8 +92,9 @@ fun NotificationScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Notifikasi",
+                            text = LanguageManager.getString("notification"),
                             style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
@@ -114,8 +117,9 @@ fun NotificationScreen(
                         // Header
                         item {
                             Text(
-                                text = "Notifikasi",
+                                text = LanguageManager.getString("notification"),
                                 style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp)

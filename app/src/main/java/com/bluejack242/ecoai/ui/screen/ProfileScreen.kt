@@ -109,13 +109,22 @@ fun ProfileScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                // Counts (dummy for now)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    ProfileCount("Following", viewModel.following.size)
-                    ProfileCount("Followers", viewModel.followers.size)
+                    ProfileCount("Following", viewModel.following.size) {
+                        if (viewModel.following.isNotEmpty()) {
+                            val ids = viewModel.following.joinToString(",")
+                            navController.navigate("following_list/$ids")
+                        }
+                    }
+                    ProfileCount("Followers", viewModel.followers.size) {
+                        if (viewModel.followers.isNotEmpty()) {
+                            val ids = viewModel.followers.joinToString(",")
+                            navController.navigate("followers_list/$ids")
+                        }
+                    }
                     ProfileCount("Likes", viewModel.likes)
                 }
                 Spacer(modifier = Modifier.height(16.dp))

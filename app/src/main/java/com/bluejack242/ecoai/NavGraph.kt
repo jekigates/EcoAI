@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bluejack242.ecoai.ui.screen.UserListScreen
 import com.bluejack242.ecoai.ui.screen.AddWasteScreen
 import com.bluejack242.ecoai.ui.screen.CreateNewPasswordScreen
 import com.bluejack242.ecoai.ui.screen.CreatePostScreen
@@ -21,7 +22,6 @@ import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
 import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.ui.screen.UserProfileScreen
-import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.bluejack242.ecoai.viewmodel.ProgressViewModel
 import com.bluejack242.ecoai.viewmodel.WasteViewModel
@@ -151,6 +151,23 @@ fun NavGraph(navController: NavHostController,
                     navController.navigate("detail/$itemId")
                 },
                 viewModel = viewModel
+            )
+        }
+        composable("followers_list/{userIds}") { backStackEntry ->
+            val userIds = backStackEntry.arguments?.getString("userIds")?.split(",") ?: emptyList()
+            UserListScreen(
+                title = "Followers",
+                userIds = userIds,
+                navController = navController
+            )
+        }
+
+        composable("following_list/{userIds}") { backStackEntry ->
+            val userIds = backStackEntry.arguments?.getString("userIds")?.split(",") ?: emptyList()
+            UserListScreen(
+                title = "Following",
+                userIds = userIds,
+                navController = navController
             )
         }
     }
