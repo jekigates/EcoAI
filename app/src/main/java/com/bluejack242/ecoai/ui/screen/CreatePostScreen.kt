@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bluejack242.ecoai.model.MediaType
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.CreatePostViewModel
 
 // Accompanist Pager
@@ -50,13 +51,13 @@ fun CreatePostScreen(
         uri?.let {
             if (post.mediaList.count { it.type == MediaType.IMAGE } < 10) {
                 viewModel.uploadMedia(context, it, false) { error ->
-                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, LanguageManager.getString("error_uploading_image"), Toast.LENGTH_LONG).show()
                 }
             } else {
-                Toast.makeText(context, "Maximum 10 images allowed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, LanguageManager.getString("max_images_reached"), Toast.LENGTH_SHORT).show()
             }
         } ?: run {
-            Toast.makeText(context, "No image selected", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, LanguageManager.getString("no_image_selected"), Toast.LENGTH_SHORT).show()
         }
     }
     val imageCount = post.mediaList.count { it.type == MediaType.IMAGE }
@@ -74,9 +75,9 @@ fun CreatePostScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Default.Close, contentDescription = "Back")
+                Icon(Icons.Default.Close, contentDescription = LanguageManager.getString("back"))
             }
-            Text("Create New Post", fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("create_new_post"), fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(48.dp)) // Placeholder for alignment
         }
 
@@ -90,7 +91,7 @@ fun CreatePostScreen(
         ) {
             if (post.mediaList.isEmpty()) {
                 Text(
-                    "No media yet",
+                    LanguageManager.getString("no_media_yet"),
                     color = Color.Black,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -115,7 +116,7 @@ fun CreatePostScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Remove image",
+                                contentDescription = LanguageManager.getString("remove_image"),
                                 tint = Color.White
                             )
                         }
@@ -141,7 +142,7 @@ fun CreatePostScreen(
             onValueChange = {
                 if (it.length <= 50) viewModel.updateHeadline(it)
             },
-            label = { Text("Headline (optional)") },
+            label = { Text(LanguageManager.getString("headline_optional")) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             // Use trailingIcon for char count, since supportingText is not available in Material 2
@@ -155,7 +156,7 @@ fun CreatePostScreen(
         OutlinedTextField(
             value = post.caption,
             onValueChange = viewModel::updateCaption,
-            label = { Text("Caption and tags (optional)") },
+            label = { Text(LanguageManager.getString("caption_and_tags_optional")) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = false
         )
@@ -168,7 +169,13 @@ fun CreatePostScreen(
             modifier = Modifier.fillMaxWidth().height(50.dp),
             colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50))
         ) {
-            Text(color = Color.White, text = if (isUploading) "Uploading..." else "Add Image (${imageCount}/10)")
+            Text(
+                color = Color.White, 
+                text = if (isUploading) 
+                    LanguageManager.getString("uploading") 
+                else 
+                    "${LanguageManager.getString("add_image")} (${imageCount}/10)"
+            )
         }
 
         Spacer(Modifier.height(16.dp))
@@ -178,7 +185,7 @@ fun CreatePostScreen(
             onClick = {
                 viewModel.createPost(
                     onSuccess = {
-                        Toast.makeText(context, "Post created!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, LanguageManager.getString("post_created"), Toast.LENGTH_SHORT).show()
                         navController.popBackStack()
                     },
                     onError = {
@@ -192,7 +199,7 @@ fun CreatePostScreen(
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4CAF50))
         ) {
-            Text("Post", color = Color.White)
+            Text(LanguageManager.getString("post_button"), color = Color.White)
         }
     }
 }

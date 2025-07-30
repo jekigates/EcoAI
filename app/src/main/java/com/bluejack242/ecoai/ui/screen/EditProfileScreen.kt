@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.bluejack242.ecoai.utils.CloudinaryService
+import com.bluejack242.ecoai.utils.LanguageManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,7 +76,7 @@ fun EditProfileScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth().height(56.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text("Edit Profile", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+            Text(LanguageManager.getString("edit_profile"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
             IconButton(onClick = { navController.popBackStack() }, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
@@ -98,7 +99,7 @@ fun EditProfileScreen(navController: NavHostController) {
         OutlinedTextField(
             value = fullName,
             onValueChange = { fullName = it },
-            label = { Text("Full Name") },
+            label = { Text(LanguageManager.getString("full_name")) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             isError = fullNameError != null
         )
@@ -111,7 +112,7 @@ fun EditProfileScreen(navController: NavHostController) {
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text(LanguageManager.getString("username")) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             isError = usernameError != null
         )
@@ -124,7 +125,7 @@ fun EditProfileScreen(navController: NavHostController) {
         OutlinedTextField(
             value = bio,
             onValueChange = { bio = it },
-            label = { Text("Bio") },
+            label = { Text(LanguageManager.getString("bio")) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             isError = bioError != null,
             maxLines = 3
@@ -142,11 +143,11 @@ fun EditProfileScreen(navController: NavHostController) {
 
                 var valid = true
                 if (fullName.length < 4) {
-                    fullNameError = "Name must be at least 4 characters long"
+                    fullNameError = LanguageManager.getString("name_required")
                     valid = false
                 }
                 if (bio.trim().split("\\s+".toRegex()).size < 3) {
-                    bioError = "Bio must be at least 3 words long"
+                    bioError = LanguageManager.getString("bio_required")
                     valid = false
                 }
 
@@ -157,7 +158,7 @@ fun EditProfileScreen(navController: NavHostController) {
                     .addOnSuccessListener { result ->
                         val usernameTaken = result.any { it.id != user.uid }
                         if (usernameTaken) {
-                            usernameError = "Username is already taken"
+                            usernameError = LanguageManager.getString("username_taken")
                             isSaving = false
                         } else {
                             coroutineScope.launch {
@@ -166,7 +167,7 @@ fun EditProfileScreen(navController: NavHostController) {
                                     val result = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
                                     result.onSuccess { url -> uploadedUrl = url }
                                     result.onFailure {
-                                        Toast.makeText(context, "Failed to upload image: ${it.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, LanguageManager.getString("upload_failed") + it.message, Toast.LENGTH_SHORT).show()
                                         isSaving = false
                                         return@launch
                                     }
@@ -180,11 +181,11 @@ fun EditProfileScreen(navController: NavHostController) {
                                 db.collection("users").document(user.uid)
                                     .update(userMap as Map<String, Any>)
                                     .addOnSuccessListener {
-                                        Toast.makeText(context, "Profile updated!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, LanguageManager.getString("profile_updated"), Toast.LENGTH_SHORT).show()
                                         navController.popBackStack()
                                     }
                                     .addOnFailureListener {
-                                        Toast.makeText(context, "Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, LanguageManager.getString("failed_update") + it.message, Toast.LENGTH_SHORT).show()
                                     }
                                 isSaving = false
                             }
@@ -195,7 +196,7 @@ fun EditProfileScreen(navController: NavHostController) {
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
             enabled = !isSaving
         ) {
-            Text(if (isSaving) "Saving..." else "Save", color = Color.White)
+            Text(if (isSaving) LanguageManager.getString("saving") else LanguageManager.getString("save"), color = Color.White)
         }
     }
 }

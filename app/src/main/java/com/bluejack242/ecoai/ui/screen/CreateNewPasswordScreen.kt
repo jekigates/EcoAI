@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.bluejack242.ecoai.model.ResetPasswordRequest
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 
 @Composable
@@ -27,13 +28,13 @@ fun CreateNewPasswordScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Create New Password", style = MaterialTheme.typography.headlineMedium)
+        Text(LanguageManager.getString("create_new_password_title"), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
             value = newPassword,
             onValueChange = { newPassword = it },
-            label = { Text("New Password") },
+            label = { Text(LanguageManager.getString("new_password")) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -44,7 +45,7 @@ fun CreateNewPasswordScreen(
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
+            label = { Text(LanguageManager.getString("confirm_password")) },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -80,7 +81,7 @@ fun CreateNewPasswordScreen(
                     strokeWidth = 2.dp
                 )
             } else {
-                Text("Confirm")
+                Text(LanguageManager.getString("confirm_button"))
             }
         }
     }

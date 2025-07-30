@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import com.bluejack242.ecoai.viewmodel.ProfileViewModel
 import com.bluejack242.ecoai.ui.component.ProfileCount
+import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
 fun ProfileScreen(
@@ -113,24 +114,24 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    ProfileCount("Following", viewModel.following.size) {
+                    ProfileCount(LanguageManager.getString("following"), viewModel.following.size) {
                         if (viewModel.following.isNotEmpty()) {
                             val ids = viewModel.following.joinToString(",")
                             navController.navigate("following_list/$ids")
                         }
                     }
-                    ProfileCount("Followers", viewModel.followers.size) {
+                    ProfileCount(LanguageManager.getString("followers"), viewModel.followers.size) {
                         if (viewModel.followers.isNotEmpty()) {
                             val ids = viewModel.followers.joinToString(",")
                             navController.navigate("followers_list/$ids")
                         }
                     }
-                    ProfileCount("Likes", viewModel.likes)
+                    ProfileCount(LanguageManager.getString("likes"), viewModel.likes)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 // Bio
                 Text(
-                    text = if (viewModel.bio.isBlank()) "Write a bio to help people discover you" else viewModel.bio,
+                    text = if (viewModel.bio.isBlank()) LanguageManager.getString("write_bio_placeholder") else viewModel.bio,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
@@ -148,7 +149,7 @@ fun ProfileScreen(
                         .padding(horizontal = 24.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
                 ) {
-                    Text("Edit Profile", color = Color.White)
+                    Text(LanguageManager.getString("edit_profile"), color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -168,7 +169,11 @@ fun ProfileScreen(
                     },
                     divider = {}
                 ) {
-                    listOf("Posts", "Saved", "Liked").forEachIndexed { index, title ->
+                    listOf(
+                        LanguageManager.getString("posts"),
+                        LanguageManager.getString("saved"),
+                        LanguageManager.getString("liked")
+                    ).forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },

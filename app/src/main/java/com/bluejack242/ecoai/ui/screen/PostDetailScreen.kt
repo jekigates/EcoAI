@@ -1,6 +1,7 @@
 package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -32,7 +33,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -42,6 +42,7 @@ import com.bluejack242.ecoai.viewmodel.PostDetailViewModel
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.draw.alpha
 import com.bluejack242.ecoai.utils.sendNotificationWithType
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.composables.icons.lucide.MessageCircle
 import com.composables.icons.lucide.ArrowUp
 import com.google.firebase.auth.FirebaseAuth
@@ -145,7 +146,7 @@ fun PostDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = LanguageManager.getString("back"))
             }
             if (viewModel.creator != null) {
                 val profilePictureUrl = viewModel.creator?.get("profilePictureUrl") as? String
@@ -160,7 +161,7 @@ fun PostDetailScreen(
                     if (!profilePictureUrl.isNullOrBlank()) {
                         AsyncImage(
                             model = profilePictureUrl,
-                            contentDescription = "Profile Picture",
+                            contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
@@ -169,7 +170,7 @@ fun PostDetailScreen(
                     } else {
                         Icon(
                             imageVector = Icons.Default.Person,
-                            contentDescription = "Profile Picture",
+                            contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
                             tint = Color.Gray,
                             modifier = Modifier.size(28.dp)
                         )
@@ -195,14 +196,14 @@ fun PostDetailScreen(
                         modifier = Modifier.height(32.dp)
                     ) {
                         Text(
-                            if (viewModel.isFollowing) "Unfollow" else "Follow",
+                            if (viewModel.isFollowing) LanguageManager.getString("unfollow") else LanguageManager.getString("follow"),
                             color = Color.White,
                             fontSize = 14.sp
                         )
                     }
                 } else {
                     IconButton(onClick = { viewModel.showBottomSheet = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                        Icon(Icons.Default.MoreVert, contentDescription = LanguageManager.getString("more"))
                     }
                 }
             }
@@ -230,7 +231,7 @@ fun PostDetailScreen(
                         Box(Modifier.fillMaxSize()) {
                             AsyncImage(
                                 model = media["url"],
-                                contentDescription = "Post Image",
+                                contentDescription = LanguageManager.getString("post_image"),
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
@@ -323,7 +324,7 @@ fun PostDetailScreen(
         }
         // Comments section
         Text(
-            "${comments.size} comments",
+            "${comments.size} ${LanguageManager.getString("comments")}",
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -335,7 +336,7 @@ fun PostDetailScreen(
             ) { CircularProgressIndicator() }
         } else if (comments.isEmpty()) {
             Text(
-                "No comments yet",
+                LanguageManager.getString("no_comments"),
                 color = Color.Gray,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
@@ -382,7 +383,7 @@ fun PostDetailScreen(
                             if (!commenterProfilePic.isNullOrBlank()) {
                                 AsyncImage(
                                     model = commenterProfilePic,
-                                    contentDescription = "Profile Picture",
+                                    contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
@@ -391,7 +392,7 @@ fun PostDetailScreen(
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Person,
-                                    contentDescription = "Profile Picture",
+                                    contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
                                     tint = Color.Gray,
                                     modifier = Modifier.size(32.dp)
                                 )
@@ -410,7 +411,7 @@ fun PostDetailScreen(
                                 Text(createdDateString, fontSize = 13.sp, color = Color.Gray)
                                 Spacer(Modifier.width(12.dp))
                                 Text(
-                                    "Reply",
+                                    LanguageManager.getString("reply"),
                                     fontSize = 13.sp,
                                     color = Color.Gray,
                                     modifier = Modifier.alpha(0f)
@@ -426,7 +427,7 @@ fun PostDetailScreen(
                             ) {
                                 Icon(
                                     imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                    contentDescription = "Like comment",
+                                    contentDescription = LanguageManager.getString("like_comment"),
                                     tint = if (liked) Color.Red else Color.Gray,
                                     modifier = Modifier
                                         .size(20.dp)
@@ -466,7 +467,7 @@ fun PostDetailScreen(
                         decorationBox = { innerTextField ->
                             Box(Modifier.fillMaxWidth()) {
                                 if (commentInput.isEmpty()) Text(
-                                    "Add comment...",
+                                    LanguageManager.getString("add_comment_placeholder"),
                                     color = Color.Gray
                                 )
                                 innerTextField()
@@ -478,7 +479,7 @@ fun PostDetailScreen(
                 IconButton(onClick = { viewModel.toggleLike(postId) }) {
                     Icon(
                         imageVector = if (viewModel.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Like",
+                        contentDescription = LanguageManager.getString("like"),
                         tint = if (viewModel.isLiked) Color.Red else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
@@ -492,7 +493,7 @@ fun PostDetailScreen(
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     imageVector = Lucide.MessageCircle,
-                    contentDescription = "Comments",
+                    contentDescription = LanguageManager.getString("comments"),
                     tint = Color.Gray,
                     modifier = Modifier.size(24.dp)
                 )
@@ -506,7 +507,7 @@ fun PostDetailScreen(
                 IconButton(onClick = { viewModel.toggleSave(postId) }) {
                     Icon(
                         imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
-                        contentDescription = "Save",
+                        contentDescription = LanguageManager.getString("save"),
                         tint = if (viewModel.isSaved) Color(0xFF4CAF50) else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
@@ -582,7 +583,7 @@ fun PostDetailScreen(
                     ) {
                         Icon(
                             imageVector = Lucide.ArrowUp,
-                            contentDescription = "Send",
+                            contentDescription = LanguageManager.getString("send"),
                             tint = Color.Black,
                             modifier = Modifier.size(28.dp)
                         )
@@ -600,7 +601,7 @@ fun PostDetailScreen(
             Column(Modifier.fillMaxWidth()) {
                 // Download photo
                 ListItem(
-                    headlineContent = { Text("Download photo") },
+                    headlineContent = { Text(LanguageManager.getString("download_photo")) },
                     leadingContent = { Icon(Lucide.Download, contentDescription = null) },
                     modifier = Modifier.clickable {
                         viewModel.showBottomSheet = false
@@ -612,7 +613,7 @@ fun PostDetailScreen(
                 )
                 // Edit
                 ListItem(
-                    headlineContent = { Text("Edit") },
+                    headlineContent = { Text(LanguageManager.getString("edit")) },
                     leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
                     modifier = Modifier.clickable {
                         viewModel.showBottomSheet = false
@@ -621,7 +622,7 @@ fun PostDetailScreen(
                 )
                 // Delete
                 ListItem(
-                    headlineContent = { Text("Delete") },
+                    headlineContent = { Text(LanguageManager.getString("delete")) },
                     leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
                     modifier = Modifier.clickable {
                         viewModel.showBottomSheet = false
@@ -635,17 +636,17 @@ fun PostDetailScreen(
     if (viewModel.showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.showDeleteDialog = false },
-            title = { Text("Delete?") },
+            title = { Text(LanguageManager.getString("delete_confirmation")) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.showDeleteDialog = false
                     viewModel.deletePost(postId) {
                         navController.popBackStack()
                     }
-                }) { Text("Delete") }
+                }) { Text(LanguageManager.getString("delete")) }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { viewModel.showDeleteDialog = false }) { Text(LanguageManager.getString("cancel")) }
             }
         )
     }

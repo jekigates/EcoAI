@@ -19,6 +19,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
 fun ProgressScreen(
@@ -53,7 +54,7 @@ fun ProgressScreen(
                 onClick = onAddWasteClick,
                 backgroundColor = Color(0xFF4CAF50)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Waste", tint = Color.White)
+                Icon(Icons.Default.Add, contentDescription = LanguageManager.getString("add_waste"), tint = Color.White)
             }
         }
     ) { paddingValues ->
@@ -73,7 +74,7 @@ fun ProgressScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Progress",
+                    text = LanguageManager.getString("progress_title"),
                     style = MaterialTheme.typography.h5,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
@@ -92,12 +93,12 @@ fun ProgressScreen(
             Spacer(Modifier.height(16.dp))
 
             // Recently uploaded title
-            Text("Recently uploaded", style = MaterialTheme.typography.subtitle1)
+            Text(LanguageManager.getString("recently_uploaded"), style = MaterialTheme.typography.subtitle1)
             Spacer(Modifier.height(8.dp))
 
             // List uploaded items
             if (recentlyUploaded.isEmpty()) {
-                Text("No items uploaded yet.", color = Color.Gray)
+                Text(LanguageManager.getString("no_items_uploaded"), color = Color.Gray)
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(recentlyUploaded.size) { index ->

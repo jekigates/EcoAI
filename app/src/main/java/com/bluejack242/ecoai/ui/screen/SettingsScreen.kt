@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bluejack242.ecoai.ui.component.LanguageSelector
+import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
 fun SettingsScreen(
@@ -43,7 +44,7 @@ fun SettingsScreen(
             }
 
             Text(
-                text = "Settings",
+                text = LanguageManager.getString("settings"),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.align(Alignment.Center)
             )
@@ -51,9 +52,9 @@ fun SettingsScreen(
         // Push notifications
         SettingItem {
             Column(Modifier.weight(1f)) {
-                Text("Push notifications", fontWeight = FontWeight.Bold)
+                Text(LanguageManager.getString("push_notifications"), fontWeight = FontWeight.Bold)
                 Text(
-                    "Stay up to date with all things happening in your app",
+                    LanguageManager.getString("push_notifications_desc"),
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -73,9 +74,9 @@ fun SettingsScreen(
         // Appearance
         SettingItem {
             Column(Modifier.weight(1f)) {
-                Text("Appearance", fontWeight = FontWeight.Bold)
+                Text(LanguageManager.getString("appearance"), fontWeight = FontWeight.Bold)
                 Text(
-                    "Choose light, dark or system appearance",
+                    LanguageManager.getString("appearance_desc"),
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -83,7 +84,7 @@ fun SettingsScreen(
             }
             TextButton(onClick = { onThemeChange(!isDarkTheme) }) {
                 Text(
-                    if (isDarkTheme) "Dark" else "Light",
+                    if (isDarkTheme) LanguageManager.getString("dark_mode") else LanguageManager.getString("light_mode"),
                     color = Color(0xFF388E3C)
                 )
             }
@@ -93,9 +94,9 @@ fun SettingsScreen(
         // Language
         SettingItem {
             Column(Modifier.weight(1f)) {
-                Text("Language", fontWeight = FontWeight.Bold)
+                Text(LanguageManager.getString("language"), fontWeight = FontWeight.Bold)
                 Text(
-                    "Select language.",
+                    LanguageManager.getString("select_language"),
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -107,17 +108,13 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         // Log Out
-        OutlinedButton(
+        TextButton(
             onClick = onLogout,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color(0xFF388E3C)
-            ),
-            border = BorderStroke(1.dp, Color(0xFF388E3C))
+                .padding(16.dp)
         ) {
-            Text("Log Out", fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("logout"), color = Color.Red)
         }
 
     }

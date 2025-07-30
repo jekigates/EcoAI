@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import androidx.compose.foundation.clickable
@@ -76,12 +77,12 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray)
+                Icon(Icons.Default.Search, contentDescription = LanguageManager.getString("search"), tint = Color.Gray)
                 Spacer(Modifier.width(8.dp))
                 TextField(
                     value = searchText,
                     onValueChange = { searchText = it },
-                    placeholder = { Text("Search tags or posts") },
+                    placeholder = { Text(LanguageManager.getString("search_placeholder")) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                     colors = TextFieldDefaults.colors(
@@ -92,7 +93,7 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                 )
                 Spacer(Modifier.width(8.dp))
                 Button(onClick = { /* Search action, keep empty for now */ }) {
-                    Text("Search")
+                    Text(LanguageManager.getString("search_button"))
                 }
             }
             if (isLoading) {
@@ -121,7 +122,7 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                                     ) {
                                         AsyncImage(
                                             model = thumbnailUrl,
-                                            contentDescription = "Post Thumbnail",
+                                            contentDescription = LanguageManager.getString("post_thumbnail"),
                                             modifier = Modifier.fillMaxSize()
                                         )
                                     }

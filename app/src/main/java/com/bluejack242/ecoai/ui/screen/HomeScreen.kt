@@ -23,6 +23,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
 import com.bluejack242.ecoai.ui.component.MediaCard
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -34,7 +35,7 @@ fun HomeScreen(
     val posts by viewModel.posts.collectAsState()
 
     var selectedTab by remember { mutableIntStateOf(1) }
-    val tabs = listOf("Following", "For You")
+    val tabs = listOf(LanguageManager.getString("following"), LanguageManager.getString("for_you"))
 
     val db = FirebaseFirestore.getInstance()
     val creatorInfoCache =
@@ -145,7 +146,7 @@ fun HomeScreen(
                 IconButton(onClick = { setNavigateToSearch(true) }) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = LanguageManager.getString("search"),
                         tint = if (selectedTab == 1) Color(0xFF388E3C) else Color.Gray,
                         modifier = Modifier.size(20.dp)
                     )
@@ -176,7 +177,7 @@ fun HomeScreen(
                 } else if (selectedTab == 0 && filteredPosts.isEmpty()) {
                     item(span = { GridItemSpan(2) }) {
                         Text(
-                            "No posts from users you follow.",
+                            LanguageManager.getString("no_posts_following"),
                             color = Color.Gray,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -191,7 +192,7 @@ fun HomeScreen(
                             if (creatorInfo == null && post.userId.isNotBlank()) {
                                 db.collection("users").document(post.userId).get()
                                     .addOnSuccessListener { doc ->
-                                        val fullName = doc.getString("fullName") ?: "Unknown"
+                                        val fullName = doc.getString("fullName") ?: LanguageManager.getString("unknown_user")
                                         val profilePictureUrl = doc.getString("profilePictureUrl")
                                         creatorInfoCache[post.userId] =
                                             fullName.take(30) to profilePictureUrl

@@ -24,6 +24,7 @@ import com.bluejack242.ecoai.viewmodel.WasteViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.io.File
+import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
 fun AddWasteScreen(
@@ -39,7 +40,7 @@ fun AddWasteScreen(
 
     val handleImageSelected: (Uri) -> Unit = handleImageSelected@{ uri ->
         if (wasteName.isBlank()) {
-            errorMessage = "Please enter waste name"
+            errorMessage = LanguageManager.getString("enter_waste_name")
             return@handleImageSelected
         }
 
@@ -60,7 +61,7 @@ fun AddWasteScreen(
 
             } catch (e: Exception) {
                 Log.e("AddWasteScreen", "Error addWasteItem: ${e.message}", e)
-                errorMessage = "Terjadi error: ${e.localizedMessage}"
+                errorMessage = "${LanguageManager.getString("error_occurred")}: ${e.localizedMessage}"
                 isLoading = false
             }
         }
@@ -89,19 +90,19 @@ fun AddWasteScreen(
         if (isGranted) {
             tempUri?.let { cameraLauncher.launch(it) }
         } else {
-            errorMessage = "Camera permission denied"
+            errorMessage = LanguageManager.getString("camera_permission_denied")
         }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Waste") },
+                title = { Text(LanguageManager.getString("add_waste_title")) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = LanguageManager.getString("back")
                         )
                     }
                 }
@@ -129,7 +130,7 @@ fun AddWasteScreen(
                 OutlinedTextField(
                     value = wasteName,
                     onValueChange = { wasteName = it },
-                    label = { Text("Waste Name") },
+                    label = { Text(LanguageManager.getString("waste_name")) },
                     modifier = Modifier.fillMaxWidth(),
                     isError = errorMessage.contains("name")
                 )
@@ -164,7 +165,7 @@ fun AddWasteScreen(
                 ) {
                     Icon(Icons.Default.Camera, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Open Camera")
+                    Text(LanguageManager.getString("open_camera"))
                 }
 
 
@@ -174,7 +175,7 @@ fun AddWasteScreen(
                 ) {
                     Icon(Icons.Default.Image, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Open Gallery")
+                    Text(LanguageManager.getString("open_gallery"))
                 }
             }
         }

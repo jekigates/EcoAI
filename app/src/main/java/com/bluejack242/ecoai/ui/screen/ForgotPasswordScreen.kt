@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 
 @Composable
@@ -34,7 +35,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Forgot Password",
+                text = LanguageManager.getString("forgot_password_title"),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
@@ -43,7 +44,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
                 onClick = { navController.navigate("login") },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.Default.ArrowBack, contentDescription = LanguageManager.getString("back"))
             }
         }
         Spacer(Modifier.height(24.dp))
@@ -51,7 +52,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
         OutlinedTextField(
             value = email.value,
             onValueChange = { email.value = it },
-            label = { Text("Enter Email Address") },
+            label = { Text(LanguageManager.getString("enter_email_address")) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -68,7 +69,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
             enabled = !isLoading,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
         ) {
-            Text("Send", color = Color.White)
+            Text(LanguageManager.getString("send_reset_link"), color = Color.White)
         }
 
         Spacer(Modifier.height(16.dp))

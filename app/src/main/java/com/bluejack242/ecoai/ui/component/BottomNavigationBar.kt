@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController, currentRoute: String) {
@@ -19,32 +20,32 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String) 
         NavigationBarItem(
             selected = currentRoute == "home",
             onClick = { navController.navigate("home") },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Home") }
+            icon = { Icon(Icons.Default.Home, contentDescription = LanguageManager.getString("home")) },
+            label = { Text(LanguageManager.getString("home")) }
         )
         NavigationBarItem(
             selected = currentRoute == "progress",
             onClick = { navController.navigate("progress") },
-            icon = { Icon(Icons.Default.DateRange, contentDescription = "Progress") },
-            label = { Text("Progress") }
+            icon = { Icon(Icons.Default.DateRange, contentDescription = LanguageManager.getString("progress")) },
+            label = { Text(LanguageManager.getString("progress")) }
         )
         NavigationBarItem(
             selected = currentRoute == "create",
             onClick = { navController.navigate("create_post") },
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = "Create") },
-            label = { Text("Create") }
+            icon = { Icon(Icons.Default.AddCircle, contentDescription = LanguageManager.getString("create")) },
+            label = { Text(LanguageManager.getString("create")) }
         )
         NavigationBarItem(
             selected = currentRoute == "notifications",
             onClick = { navController.navigate("notifications") },
-            icon = { Icon(Icons.Default.Email, contentDescription = "Notification") },
-            label = { Text("Notification") }
+            icon = { Icon(Icons.Default.Email, contentDescription = LanguageManager.getString("notification")) },
+            label = { Text(LanguageManager.getString("notification")) }
         )
         NavigationBarItem(
             selected = currentRoute == "profile",
             onClick = { navController.navigate("profile") },
-            icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
-            label = { Text("Profile") }
+            icon = { Icon(Icons.Default.Person, contentDescription = LanguageManager.getString("profile")) },
+            label = { Text(LanguageManager.getString("profile")) }
         )
     }
 }
