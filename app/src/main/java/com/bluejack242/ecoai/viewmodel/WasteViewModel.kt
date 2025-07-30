@@ -1,6 +1,7 @@
 package com.bluejack242.ecoai.viewmodel
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -8,8 +9,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bluejack242.ecoai.data.WasteRepository
+import com.bluejack242.ecoai.model.WasteAnalysisResult
 import com.bluejack242.ecoai.model.WasteHistoryItem
+import com.bluejack242.ecoai.utils.GeminiApiService
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class WasteViewModel(
     private val repository: WasteRepository = WasteRepository()
@@ -21,39 +25,33 @@ class WasteViewModel(
     private val _recentlyUploadedWaste = MutableLiveData<List<WasteHistoryItem>>()
     val recentlyUploadedWaste: LiveData<List<WasteHistoryItem>> get() = _recentlyUploadedWaste
 
-    private val _carbonTrack = MutableLiveData<Int>()
-    val carbonTrack: LiveData<Int> get() = _carbonTrack
-
-    private val _weeklyStreak = MutableLiveData<Int>()
-    val weeklyStreak: LiveData<Int> get() = _weeklyStreak
-
-//    fun fetchRecentlyUploadedWaste(limit: Int = 5) {
-//        viewModelScope.launch {
-//            val items = repository.getRecentlyUploadedWaste(limit)
-//            _recentlyUploadedWaste.postValue(items)
-//        }
-//    }
-
-    fun fetchCarbonTrack() {
-        viewModelScope.launch {
-            val track = repository.getUserCarbonTrack()
-            _carbonTrack.postValue(track)
-        }
-    }
-
-    fun fetchWeeklyStreak() {
-        viewModelScope.launch {
-            val streak = repository.getUserWeeklyStreak()
-            _weeklyStreak.postValue(streak)
-        }
-    }
-
-    fun addWasteItemWithImage(context: Context, name: String, co2e: Int, imageUri: Uri, uploadedBy: String, onSuccess: () -> Unit) {
+    fun addWasteItemWithImage(
+        context: Context,
+        imageBitmap: Bitmap,
+        imageUri: Uri,
+        uploadedBy: String,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
             _isUploading.value = true
             try {
-                repository.addWasteItemWithImage(context, name, co2e, imageUri, uploadedBy)
-                onSuccess()
+                val resultString = GeminiApiService.classifyImage(imageBitmap)
+
+                val analysis = parseWasteAnalysisResult(resultString)
+
+                if (analysis != null) {
+                    repository.addWasteItemWithImage(
+                        context = context,
+                        name = analysis.name,
+                        co2e = analysis.carbon_footprint_data,
+                        imageUri = imageUri,
+                        uploadedBy = uploadedBy,
+                        disposalMethod = analysis.disposal_methods
+                    )
+                    onSuccess()
+                } else {
+                    Log.e("WasteViewModel", "Analisa gagal, data null")
+                }
             } catch (e: Exception) {
                 Log.e("WasteViewModel", "Upload error: ${e.message}", e)
             } finally {
@@ -61,5 +59,21 @@ class WasteViewModel(
             }
         }
     }
+
+    private fun parseWasteAnalysisResult(jsonString: String): WasteAnalysisResult? {
+        return try {
+            val json = JSONObject(jsonString)
+            WasteAnalysisResult(
+                name = json.getString("name"),
+                item_details = json.getString("item_details"),
+                carbon_footprint_data = json.getInt("carbon_footprint_data"),
+                disposal_methods = json.getString("disposal_methods")
+            )
+        } catch (e: Exception) {
+            Log.e("WasteViewModel", "Parsing JSON gagal: ${e.message}", e)
+            null
+        }
+    }
+
 
 }

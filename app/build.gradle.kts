@@ -41,7 +41,6 @@ android {
 }
 
 dependencies {
-    // Existing dependencies (view system)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -50,13 +49,12 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.functions.ktx)
-
-    // Testing
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.ai)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // --- Compose starts here ---
     val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -72,8 +70,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.runtime.livedata)
 
-    // Customize the splash screen in your app
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.ktx.v1131)
 
     // Navigation with Compose
     implementation(libs.androidx.navigation.compose)
@@ -82,10 +80,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
     implementation("com.google.firebase:firebase-analytics")
 
-    // Coil untuk load gambar
     implementation ("io.coil-kt:coil-compose:2.1.0")
 
-// Accompanist Pager untuk carousel
     implementation ("com.google.accompanist:accompanist-pager:0.28.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")

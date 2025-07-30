@@ -8,5 +8,6 @@ data class WasteHistoryItem(
     val co2e: Int = 0,
     val date: Timestamp = Timestamp.now(),
     val imageRes: String = "",
-    val uploadedBy: String = ""
+    val uploadedBy: String = "",
+    val disposalMethod: String = ""
 )

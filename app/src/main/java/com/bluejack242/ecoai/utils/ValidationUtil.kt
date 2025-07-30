@@ -50,6 +50,7 @@ object ValidationUtil {
         return when {
             email.isBlank() -> "Email cannot be empty"
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Invalid email format"
+            !email.endsWith("@gmail.com") -> "Email address must end with @gmail.com"
             else -> null
         }
     }
