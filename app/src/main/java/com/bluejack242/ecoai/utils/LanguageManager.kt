@@ -167,7 +167,10 @@ object LanguageManager {
             "create_new_password_title" to "Create New Password",
             "new_password" to "New Password",
             "confirm_password" to "Confirm Password",
-            "confirm_button" to "Confirm"
+            "confirm_button" to "Confirm",
+            "success" to "Success",
+            "reset_password_success_message" to "If this email is associated with an account, you will receive a password reset link shortly.",
+            "ok" to "OK"
         ),
         "ID" to mapOf(
             // Landing Screen
@@ -331,7 +334,10 @@ object LanguageManager {
             "create_new_password_title" to "Buat Kata Sandi Baru",
             "new_password" to "Kata Sandi Baru",
             "confirm_password" to "Konfirmasi Kata Sandi",
-            "confirm_button" to "Konfirmasi"
+            "confirm_button" to "Konfirmasi",
+            "success" to "Berhasil",
+            "reset_password_success_message" to "Jika email ini terdaftar, Anda akan menerima tautan untuk mengatur ulang kata sandi segera.",
+            "ok" to "Oke"
 
         )
     )

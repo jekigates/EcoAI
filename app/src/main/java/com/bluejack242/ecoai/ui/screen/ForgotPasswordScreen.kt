@@ -12,14 +12,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.rememberCoroutineScope
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController) {
     val email = remember { mutableStateOf("") }
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
+    val showSuccessDialog = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -62,7 +66,9 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
         Button(
             onClick = {
                 viewModel.sendResetEmail(email.value) {
-                    navController.navigate("create_new_password/${email.value}")
+                    coroutineScope.launch {
+                        showSuccessDialog.value = true
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
@@ -80,6 +86,27 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
                 color = Color.Red,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
+        if (showSuccessDialog.value) {
+            AlertDialog(
+                onDismissRequest = {
+                    showSuccessDialog.value = false
+                    navController.navigate("login")
+                },
+                title = { Text(LanguageManager.getString("success")) },
+                text = { Text(LanguageManager.getString("reset_password_success_message")) },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showSuccessDialog.value = false
+                            navController.navigate("login")
+                        }
+                    ) {
+                        Text(LanguageManager.getString("ok"))
+                    }
+                }
             )
         }
     }
