@@ -76,10 +76,10 @@ fun EditProfileScreen(navController: NavHostController) {
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
     val errorColor = MaterialTheme.colorScheme.error
-    val buttonColor = Color(0xFF4CAF50)
+    val buttonColor = MaterialTheme.colorScheme.primary
     // Use luminance to determine if theme is light or dark
     val isLightTheme = backgroundColor.luminance() > 0.5f
-    val profilePictureBg = if (isLightTheme) Color(0xFFE0E0E0) else onSurfaceVariantColor.copy(alpha = 0.2f)
+    val profilePictureBg = if (isLightTheme) MaterialTheme.colorScheme.surfaceVariant else onSurfaceVariantColor.copy(alpha = 0.2f)
 
     Column(
         modifier = Modifier
@@ -242,7 +242,7 @@ fun EditProfileScreen(navController: NavHostController) {
         ) {
             Text(
                 if (isSaving) LanguageManager.getString("saving") else LanguageManager.getString("save"),
-                color = Color.White
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }

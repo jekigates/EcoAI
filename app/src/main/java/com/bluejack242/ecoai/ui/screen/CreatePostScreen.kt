@@ -66,15 +66,15 @@ fun CreatePostScreen(
     val backgroundColor = MaterialTheme.colorScheme.background
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val buttonColor = Color(0xFF4CAF50)
-    val buttonTextColor = Color.White
-    val cardBgColor = if (backgroundColor.luminance() > 0.5f) Color.LightGray else onSurfaceVariantColor.copy(alpha = 0.2f)
+    val buttonColor = MaterialTheme.colorScheme.primary
+    val buttonTextColor = MaterialTheme.colorScheme.onPrimary
+    val cardBgColor = if (backgroundColor.luminance() > 0.5f) MaterialTheme.colorScheme.surfaceVariant else onSurfaceVariantColor.copy(alpha = 0.2f)
 
     Column(
         Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .background(backgroundColor)
+            .padding(16.dp)
     ) {
         // Header
         Row(
@@ -125,7 +125,7 @@ fun CreatePostScreen(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = LanguageManager.getString("remove_image"),
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }

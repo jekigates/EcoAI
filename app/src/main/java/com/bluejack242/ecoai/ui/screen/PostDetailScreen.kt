@@ -134,7 +134,7 @@ fun PostDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
         // Top bar
@@ -142,7 +142,7 @@ fun PostDetailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(Color.White),
+                .background(MaterialTheme.colorScheme.background),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
@@ -165,7 +165,7 @@ fun PostDetailScreen(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFE0E0E0))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                         )
                     } else {
                         Icon(
@@ -188,9 +188,7 @@ fun PostDetailScreen(
                         onClick = { viewModel.toggleFollow() },
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (viewModel.isFollowing) Color.Gray else Color(
-                                0xFF4CAF50
-                            )
+                            containerColor = if (viewModel.isFollowing) Color.Gray else MaterialTheme.colorScheme.primary
                         ),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                         modifier = Modifier.height(32.dp)
@@ -247,7 +245,7 @@ fun PostDetailScreen(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(12.dp)
-                                .background(Color(0x80000000), shape = CircleShape)
+                                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), shape = CircleShape)
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
@@ -266,7 +264,7 @@ fun PostDetailScreen(
                                         .size(if (pagerState.currentPage == i) 10.dp else 8.dp)
                                         .padding(2.dp)
                                         .background(
-                                            if (pagerState.currentPage == i) Color(0xFF4CAF50) else Color.LightGray,
+                                            if (pagerState.currentPage == i) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                                             shape = CircleShape
                                         )
                                 )
@@ -308,7 +306,7 @@ fun PostDetailScreen(
                     val start = match.range.first
                     val end = match.range.last + 1
                     if (start > lastIndex) append(captionText.substring(lastIndex, start))
-                    withStyle(SpanStyle(color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)) {
+                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
                         append(captionText.substring(start, end))
                     }
                     lastIndex = end
@@ -387,7 +385,7 @@ fun PostDetailScreen(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFE0E0E0))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
                                 )
                             } else {
                                 Icon(
@@ -455,7 +453,7 @@ fun PostDetailScreen(
                 Box(
                     Modifier
                         .weight(1f)
-                        .background(Color(0xFFF0F0F0), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                         .clickable { showCommentSheet = true }
                 ) {
@@ -508,7 +506,7 @@ fun PostDetailScreen(
                     Icon(
                         imageVector = if (viewModel.isSaved) Lucide.Bookmark else Lucide.BookmarkPlus,
                         contentDescription = LanguageManager.getString("save"),
-                        tint = if (viewModel.isSaved) Color(0xFF4CAF50) else Color.Gray,
+                        tint = if (viewModel.isSaved) MaterialTheme.colorScheme.primary else Color.Gray,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -555,7 +553,7 @@ fun PostDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(90.dp)
-                        .background(Color(0xFFF0F0F0), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
                         .padding(horizontal = 16.dp, vertical = 14.dp),
                     maxLines = 4,
                     decorationBox = { innerTextField ->

@@ -62,8 +62,8 @@ fun RegisterScreen(
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(bottom = 16.dp),
-            backgroundColor = Color(0xFFF5F5F5),
-            textColor = Color.Black
+            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+            textColor = MaterialTheme.colorScheme.onSurface
         )
         
         Text(
@@ -133,7 +133,7 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
         if (error != null) {
-            Text(error, color = Color.Red)
+            Text(error, color = MaterialTheme.colorScheme.error)
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -153,10 +153,10 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(6.dp)
         ) {
-            Text(LanguageManager.getString("create_account"), color = Color.White, fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("create_account"), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -164,9 +164,9 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(LanguageManager.getString("have_account"), color = Color(0xFF888888))
+            Text(LanguageManager.getString("have_account"), color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton(onClick = onLoginClick) {
-                Text(LanguageManager.getString("log_in"), fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(LanguageManager.getString("log_in"), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             }
         }
 

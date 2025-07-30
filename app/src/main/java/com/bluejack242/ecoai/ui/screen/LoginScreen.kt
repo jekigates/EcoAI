@@ -60,8 +60,8 @@ fun LoginScreen(
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(bottom = 16.dp),
-            backgroundColor = Color(0xFFF5F5F5),
-            textColor = Color.Black
+            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+            textColor = MaterialTheme.colorScheme.onSurface
         )
         
         // Gambar placeholder
@@ -69,10 +69,10 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
-                .background(Color.LightGray),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Text("GAMBAR", fontWeight = FontWeight.Bold)
+            Text("GAMBAR", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -111,7 +111,7 @@ fun LoginScreen(
             Text(
                 text = LanguageManager.getString("forgotten_password"),
                 fontSize = 14.sp,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -125,13 +125,13 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(6.dp)
         ) {
-            Text(LanguageManager.getString("log_in"), color = Color.White, fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("log_in"), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
         }
         if (error != null) {
-            Text(error, color = Color.Red)
+            Text(error, color = MaterialTheme.colorScheme.error)
         }
 
         if (isLoading) {
@@ -144,9 +144,9 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(LanguageManager.getString("dont_have_account"), color = Color(0xFF888888))
+            Text(LanguageManager.getString("dont_have_account"), color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton(onClick = onRegisterClick) {
-                Text(LanguageManager.getString("register"), fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(LanguageManager.getString("register"), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             }
         }
     }

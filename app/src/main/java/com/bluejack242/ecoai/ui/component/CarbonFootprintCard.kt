@@ -32,14 +32,15 @@ fun CarbonFootprintCard(data: WasteItem) {
                 Icon(
                     imageVector = Icons.Default.Cloud,
                     contentDescription = "CO2",
-                    tint = Color(0xFF388E3C),
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     "${data.co2e} gram CO2e",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -56,7 +57,7 @@ private fun InfoItem(label: String, value: String, icon: ImageVector) {
         Icon(
             icon,
             contentDescription = label,
-            tint = Color.Gray,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
         Text(
@@ -68,7 +69,7 @@ private fun InfoItem(label: String, value: String, icon: ImageVector) {
         Text(
             label,
             style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

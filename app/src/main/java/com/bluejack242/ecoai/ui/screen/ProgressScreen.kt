@@ -45,7 +45,7 @@ fun ProgressScreen(
     val backgroundColor = MaterialTheme.colorScheme.background
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val fabColor = Color(0xFF4CAF50)
+    val fabColor = MaterialTheme.colorScheme.primary
     val fabIconColor = Color.White
     val subtitleColor = onSurfaceVariantColor
     val emptyTextColor = onSurfaceVariantColor

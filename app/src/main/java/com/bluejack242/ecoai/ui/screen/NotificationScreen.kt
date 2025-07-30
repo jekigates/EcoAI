@@ -102,7 +102,7 @@ fun NotificationScreen(
 
                         Text(
                             text = LanguageManager.getString("no_notifications"),
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 32.dp)
                         )
                     }
@@ -155,7 +155,7 @@ fun NotificationScreen(
                                             .padding(16.dp),
                                         contentAlignment = Alignment.CenterStart
                                     ) {
-                                        Text("Loading...", color = Color.Gray)
+                                        Text("Loading...", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
                             }

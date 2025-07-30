@@ -39,7 +39,7 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         item { Spacer(Modifier.height(16.dp)) }
         item {
@@ -53,7 +53,7 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                     text = "@${viewModel.username}",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 IconButton(
                     onClick = { navController.popBackStack() },
@@ -74,7 +74,7 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                     modifier = Modifier
                         .size(100.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFE0E0E0)),
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
                     if (!viewModel.profilePictureUrl.isNullOrBlank()) {
@@ -87,10 +87,10 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                         Box(
                             modifier = Modifier
                                 .size(100.dp)
-                                .background(Color(0xFFE0E0E0), CircleShape),
+                                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(viewModel.fullName.take(1).uppercase(), fontSize = 40.sp, color = Color.Gray)
+                            Text(viewModel.fullName.take(1).uppercase(), fontSize = 40.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -112,7 +112,7 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                 Text(
                     text = viewModel.bio,
                     fontSize = 15.sp,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -136,9 +136,9 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .padding(horizontal = 24.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = if (viewModel.isFollowing) Color.Gray else Color(0xFF4CAF50))
+                        colors = ButtonDefaults.buttonColors(containerColor = if (viewModel.isFollowing) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary)
                     ) {
-                        Text(if (viewModel.isFollowing) "Unfollow" else "Follow", color = Color.White)
+                        Text(if (viewModel.isFollowing) "Unfollow" else "Follow", color = if (viewModel.isFollowing) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }
@@ -151,7 +151,7 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
             if (viewModel.isLoading && viewModel.userPosts.isEmpty()) {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             } else if (viewModel.userPosts.isEmpty()) {
-                Text("No posts yet", color = Color.Gray, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                Text("No posts yet", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),

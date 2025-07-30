@@ -38,7 +38,7 @@ fun MediaCard(
                 .height(150.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.LightGray),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentScale = ContentScale.Crop
         )
 
@@ -63,13 +63,13 @@ fun MediaCard(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFE0E0E0))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile Picture",
-                        tint = Color.Gray,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -81,7 +81,7 @@ fun MediaCard(
                     imageVector = if (liked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Likes",
                     modifier = Modifier.size(14.dp),
-                    tint = if (liked) Color.Red else Color.Gray
+                    tint = if (liked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = likes.toString(), style = MaterialTheme.typography.labelSmall)

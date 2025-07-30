@@ -54,7 +54,7 @@ fun LandingScreen(
         Surface(
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             tonalElevation = 4.dp,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.background,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
@@ -74,14 +74,14 @@ fun LandingScreen(
                 Button(
                     onClick = onGetStartedClick,
                     shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
                     Text(
                         LanguageManager.getString("get_started"),
-                        color = Color.White, 
+                        color = MaterialTheme.colorScheme.onPrimary, 
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -91,14 +91,14 @@ fun LandingScreen(
                 Text(
                     text = LanguageManager.getString("have_account"),
                     fontSize = 14.sp,
-                    color = Color(0xFF888888)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 TextButton(onClick = onLoginClick) {
                     Text(
                         text = LanguageManager.getString("log_in"),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

@@ -66,14 +66,14 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
             // Top bar with search input
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -106,7 +106,7 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     items(topTags) { tag ->
-                        Text(tag, color = Color(0xFF4CAF50), style = MaterialTheme.typography.titleMedium)
+                        Text(tag, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.height(8.dp))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),

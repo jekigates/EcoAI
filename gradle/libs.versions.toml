@@ -21,7 +21,7 @@ firebaseFunctionsKtx = "21.2.1"
 androidanimatednavigationbar = { module = "com.github.Exyte:AndroidAnimatedNavigationBar", version.ref = "androidanimatednavigationbar" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-core-ktx-v1131 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
+androidx-core-ktx-v1131 = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
@@ -33,7 +33,6 @@ androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 firebase-ai = { module = "com.google.firebase:firebase-ai" }
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

@@ -73,9 +73,9 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Text(LanguageManager.getString("send_reset_link"), color = Color.White)
+            Text(LanguageManager.getString("send_reset_link"), color = MaterialTheme.colorScheme.onPrimary)
         }
 
         Spacer(Modifier.height(16.dp))
@@ -83,7 +83,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
         if (!errorMessage.isNullOrEmpty()) {
             Text(
                 text = errorMessage!!,
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

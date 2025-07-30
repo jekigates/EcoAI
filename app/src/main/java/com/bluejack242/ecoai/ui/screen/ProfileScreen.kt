@@ -49,7 +49,7 @@ fun ProfileScreen(
         val surfaceColor = MaterialTheme.colorScheme.surface
         val onSurfaceColor = MaterialTheme.colorScheme.onSurface
         val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
-        val indicatorColor = Color(0xFF388E3C)
+        val indicatorColor = MaterialTheme.colorScheme.primary
         if (!viewModel.isProfileLoaded) {
             Box(
                 modifier = Modifier
@@ -79,7 +79,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFE0E0E0)),
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
                         if (!viewModel.profilePictureUrl.isNullOrBlank()) {
@@ -144,7 +144,7 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
                     fontSize = 14.sp,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 // Logout button
@@ -155,9 +155,9 @@ fun ProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(LanguageManager.getString("edit_profile"), color = Color.White)
+                    Text(LanguageManager.getString("edit_profile"), color = MaterialTheme.colorScheme.onPrimary)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
