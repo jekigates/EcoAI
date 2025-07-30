@@ -7,10 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.bluejack242.ecoai.ui.theme.EcoAITheme
@@ -22,8 +20,8 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            var isDarkTheme by remember { mutableStateOf(false) }
-            var isNotificationEnabled by remember { mutableStateOf(true) }
+            var isDarkTheme by rememberSaveable { mutableStateOf(false) }
+            var isNotificationEnabled by rememberSaveable { mutableStateOf(true) }
 
             EcoAITheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
