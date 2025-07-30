@@ -71,7 +71,7 @@ class CreatePostViewModel : ViewModel() {
 
     fun createPost(onSuccess: () -> Unit, onError: (String) -> Unit) {
         val post = _postRequest.value
-        val validationError = ValidationUtil.validatePost(post.headline, post.mediaList.size)
+        val validationError = ValidationUtil.validatePost(post.headline, post.caption, post.mediaList.size)
         if (validationError != null) {
             onError(validationError)
             return
