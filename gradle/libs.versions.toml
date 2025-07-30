@@ -1,6 +1,7 @@
 [versions]
 activityCompose = "1.10.1"
 agp = "8.10.1"
+androidanimatednavigationbar = "1.0.0"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -17,6 +18,7 @@ firebaseFirestoreKtx = "25.1.4"
 firebaseFunctionsKtx = "21.2.1"
 
 [libraries]
+androidanimatednavigationbar = { module = "com.github.Exyte:AndroidAnimatedNavigationBar", version.ref = "androidanimatednavigationbar" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation" }

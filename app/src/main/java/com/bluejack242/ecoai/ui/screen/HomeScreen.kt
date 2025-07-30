@@ -105,7 +105,7 @@ fun HomeScreen(
                                 .align(Alignment.Bottom)
                                 .height(2.dp)
                                 .background(
-                                    color = Color(0xFF388E3C) ,
+                                    color = MaterialTheme.colorScheme.primary,
                                     shape = MaterialTheme.shapes.small
                                 )
                         )
@@ -120,7 +120,7 @@ fun HomeScreen(
                             Text(
                                 text = tabs[0],
                                 color = if (selectedTab == 0)
-                                    Color(0xFF388E3C)
+                                    MaterialTheme.colorScheme.primary
                                 else
                                     Color.Gray
                             )
@@ -135,7 +135,7 @@ fun HomeScreen(
                             Text(
                                 text = tabs[1],
                                 color = if (selectedTab == 1)
-                                    Color(0xFF388E3C)
+                                    MaterialTheme.colorScheme.primary
                                 else
                                     Color.Gray
                             )
@@ -147,7 +147,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = LanguageManager.getString("search"),
-                        tint = if (selectedTab == 1) Color(0xFF388E3C) else Color.Gray,
+                        tint = if (selectedTab == 1) MaterialTheme.colorScheme.primary else Color.Gray,
                         modifier = Modifier.size(20.dp)
                     )
                 }

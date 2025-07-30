@@ -72,9 +72,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.runtime.livedata)
 
-    // Customize the splash screen in your app
-    implementation("androidx.core:core-splashscreen:1.0.1")
-
     // Navigation with Compose
     implementation(libs.androidx.navigation.compose)
 
@@ -85,7 +82,7 @@ dependencies {
     // Coil untuk load gambar
     implementation ("io.coil-kt:coil-compose:2.1.0")
 
-// Accompanist Pager untuk carousel
+    // Accompanist Pager untuk carousel
     implementation ("com.google.accompanist:accompanist-pager:0.28.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
@@ -93,4 +90,5 @@ dependencies {
 
     implementation ("androidx.compose.material:material-icons-extended")
 
+    implementation("com.exyte:animated-navigation-bar:1.0.0")
 }

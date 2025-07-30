@@ -64,8 +64,8 @@ fun SettingsScreen(
                 checked = isNotificationEnabled,
                 onCheckedChange = { onNotificationChange(it) },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF388E3C),      // Warna tombol switch ketika aktif
-                    checkedTrackColor = Color(0xFF388E3C).copy(alpha = 0.4f), // Warna track
+                    checkedThumbColor = MaterialTheme.colorScheme.primary, // Ikuti theme
+                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                 )
             )
         }
@@ -85,7 +85,7 @@ fun SettingsScreen(
             TextButton(onClick = { onThemeChange(!isDarkTheme) }) {
                 Text(
                     if (isDarkTheme) LanguageManager.getString("dark_mode") else LanguageManager.getString("light_mode"),
-                    color = Color(0xFF388E3C)
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
