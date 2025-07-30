@@ -149,6 +149,7 @@ object LanguageManager {
             "camera_permission_denied" to "Camera permission denied",
             "open_camera" to "Open Camera",
             "open_gallery" to "Open Gallery",
+            "open_history" to "Open History",
             "error_occurred" to "An error occurred",
             
             // Bottom Navigation Bar
@@ -316,6 +317,7 @@ object LanguageManager {
             "camera_permission_denied" to "Izin kamera ditolak",
             "open_camera" to "Buka Kamera",
             "open_gallery" to "Buka Galeri",
+            "open_history" to "Buka Riwayat",
             "error_occurred" to "Terjadi kesalahan",
             
             // Bottom Navigation Bar

@@ -1,15 +1,19 @@
 package com.bluejack242.ecoai
 
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bluejack242.ecoai.model.WasteHistoryItem
 import com.bluejack242.ecoai.ui.screen.UserListScreen
 import com.bluejack242.ecoai.ui.screen.AddWasteScreen
 import com.bluejack242.ecoai.ui.screen.CreatePostScreen
 import com.bluejack242.ecoai.ui.screen.EditProfileScreen
 import com.bluejack242.ecoai.ui.screen.ForgotPasswordScreen
+import com.bluejack242.ecoai.ui.screen.HistoryScreen
 import com.bluejack242.ecoai.ui.screen.HomeScreen
 import com.bluejack242.ecoai.ui.screen.LandingScreen
 import com.bluejack242.ecoai.ui.screen.LoginScreen
@@ -21,6 +25,7 @@ import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
 import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.ui.screen.UserProfileScreen
+import com.bluejack242.ecoai.ui.screen.WasteDetailScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.bluejack242.ecoai.viewmodel.ProgressViewModel
 import com.bluejack242.ecoai.viewmodel.WasteViewModel
@@ -138,7 +143,7 @@ fun NavGraph(navController: NavHostController,
                     navController.navigate("add_waste")
                 },
                 onItemClick = { itemId ->
-                    navController.navigate("detail/$itemId")
+                    navController.navigate("wasteDetail/$itemId")
                 },
                 viewModel = viewModel
             )
@@ -158,6 +163,27 @@ fun NavGraph(navController: NavHostController,
                 title = "Following",
                 userIds = userIds,
                 navController = navController
+            )
+        }
+
+        composable("history") {
+            HistoryScreen(
+//                historyList =,
+                onItemClick = {}
+            )
+        }
+
+        composable(
+            "wasteDetail/{itemId}",
+            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
+            val viewModel: ProgressViewModel = viewModel()
+
+            WasteDetailScreen(
+                viewModel = viewModel,
+                itemId = itemId,
+                onDone = { navController.popBackStack() }
             )
         }
     }

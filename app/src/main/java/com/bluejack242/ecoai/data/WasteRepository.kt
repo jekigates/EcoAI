@@ -7,6 +7,7 @@ import com.bluejack242.ecoai.utils.CloudinaryService
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import java.util.Calendar
 import java.util.UUID
 
 class WasteRepository() {
@@ -17,7 +18,8 @@ class WasteRepository() {
         name: String,
         co2e: Int,
         imageUri: Uri,
-        uploadedBy: String
+        uploadedBy: String,
+        disposalMethod: String
     ): WasteHistoryItem {
         val cloudinary = CloudinaryService()
         val result = cloudinary.uploadMedia(context, imageUri)
@@ -29,7 +31,8 @@ class WasteRepository() {
                 co2e = co2e,
                 imageRes = imageUrl,
                 date = Timestamp.now(),
-                uploadedBy = uploadedBy
+                uploadedBy = uploadedBy,
+                disposalMethod = disposalMethod
             )
 
             firestore.collection("wasteHistoryItems")
@@ -72,14 +75,39 @@ class WasteRepository() {
     }
 
 
-    suspend fun getUserCarbonTrack(): Int {
-        val snapshot = firestore.collection("carbonTrack").document("userId").get().await()
-        return snapshot.getLong("totalCO2")?.toInt() ?: 0
+    suspend fun calculateUserCarbonTrack(userId: String): Int {
+        val items = firestore.collection("wasteHistoryItems")
+            .whereEqualTo("uploadedBy", userId)
+            .get()
+            .await()
+            .toObjects(WasteHistoryItem::class.java)
+
+        return items.sumOf { it.co2e }
     }
 
-    suspend fun getUserWeeklyStreak(): Int {
-        val snapshot = firestore.collection("weeklyStreak").document("userId").get().await()
-        return snapshot.getLong("streak")?.toInt() ?: 0
+    suspend fun calculateUserWeeklyStreak(userId: String): Int {
+        val items = firestore.collection("wasteHistoryItems")
+            .whereEqualTo("uploadedBy", userId)
+            .get()
+            .await()
+            .toObjects(WasteHistoryItem::class.java)
+
+        val now = Calendar.getInstance()
+
+        val last7days = items.filter { item ->
+            val itemDate = item.date.toDate()
+            val diffInMillis = now.timeInMillis - itemDate.time
+            diffInMillis <= (7 * 24 * 60 * 60 * 1000)
+        }
+
+        return last7days
+            .mapNotNull { item ->
+                val cal = java.util.Calendar.getInstance()
+                item.date.toDate().let { cal.time = it }
+                "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+            }
+            .distinct()
+            .size
     }
 
 }

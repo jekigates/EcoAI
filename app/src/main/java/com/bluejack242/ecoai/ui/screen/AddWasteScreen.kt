@@ -2,6 +2,7 @@ package com.bluejack242.ecoai.ui.screen
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.runtime.*
@@ -25,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.io.File
 import com.bluejack242.ecoai.utils.LanguageManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun AddWasteScreen(
@@ -32,33 +36,30 @@ fun AddWasteScreen(
     navController: NavHostController
 ) {
     val context = LocalContext.current
-    var wasteName by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-    val handleImageSelected: (Uri) -> Unit = handleImageSelected@{ uri ->
-        if (wasteName.isBlank()) {
-            errorMessage = LanguageManager.getString("enter_waste_name")
-            return@handleImageSelected
-        }
-
+    val handleImageSelected: (Uri) -> Unit = { uri ->
         isLoading = true
         coroutineScope.launch {
             try {
+                val bitmap = withContext(Dispatchers.IO) {
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    BitmapFactory.decodeStream(inputStream)
+                }
+
                 viewModel.addWasteItemWithImage(
-                    context,
-                    wasteName,
-                    10,
-                    uri,
+                    context = context,
+                    imageBitmap = bitmap,
+                    imageUri = uri,
+                    uploadedBy = userId,
                     onSuccess = {
                         isLoading = false
                         navController.navigateUp()
-                    },
-                    uploadedBy = userId
+                    }
                 )
-
             } catch (e: Exception) {
                 Log.e("AddWasteScreen", "Error addWasteItem: ${e.message}", e)
                 errorMessage = "${LanguageManager.getString("error_occurred")}: ${e.localizedMessage}"
@@ -66,6 +67,7 @@ fun AddWasteScreen(
             }
         }
     }
+
 
     // camera launcher
     var tempUri: Uri? by remember { mutableStateOf(null) }
@@ -127,13 +129,6 @@ fun AddWasteScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
-                    value = wasteName,
-                    onValueChange = { wasteName = it },
-                    label = { Text(LanguageManager.getString("waste_name")) },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = errorMessage.contains("name")
-                )
 
                 if (errorMessage.isNotEmpty()) {
                     Text(
@@ -176,6 +171,15 @@ fun AddWasteScreen(
                     Icon(Icons.Default.Image, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(LanguageManager.getString("open_gallery"))
+                }
+
+                OutlinedButton(
+                    onClick = { navController.navigate("history") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Filled.AccessTimeFilled, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(LanguageManager.getString("open_history"))
                 }
             }
         }

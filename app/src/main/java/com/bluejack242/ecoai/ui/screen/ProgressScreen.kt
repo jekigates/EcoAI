@@ -36,8 +36,8 @@ fun ProgressScreen(
 
     DisposableEffect(Unit) {
         viewModel.fetchRecentlyUploadedWaste(userId)
-        viewModel.fetchCarbonTrack()
-        viewModel.fetchWeeklyStreak()
+        viewModel.fetchCarbonTrack(userId)
+        viewModel.fetchWeeklyStreak(userId)
         onDispose { }
     }
 
@@ -113,7 +113,7 @@ fun ProgressScreen(
                     items(recentlyUploaded.size) { index ->
                         RecentlyUploadedItemCard(
                             item = recentlyUploaded[index],
-                            onClick = { onItemClick(it) }
+                            onClick = { onItemClick(recentlyUploaded[index].id) }
                         )
                     }
                 }

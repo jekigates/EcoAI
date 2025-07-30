@@ -31,31 +31,23 @@ class ProgressViewModel(
     }
 
 
-    fun fetchCarbonTrack() {
+    fun fetchCarbonTrack(userId: String) {
         viewModelScope.launch {
-            val track = repository.getUserCarbonTrack()
+            val track = repository.calculateUserCarbonTrack(userId)
             _carbonTrack.postValue(track)
         }
     }
 
-    fun fetchWeeklyStreak() {
+    fun fetchWeeklyStreak(userId: String) {
         viewModelScope.launch {
-            val streak = repository.getUserWeeklyStreak()
+            val streak = repository.calculateUserWeeklyStreak(userId)
             _weeklyStreak.postValue(streak)
         }
     }
 
-    fun addWasteItem(context: Context, name: String, co2e: Int, imageUri: Uri, uploadedBy: String) {
-        viewModelScope.launch {
-            try {
-                repository.addWasteItemWithImage(context, name, co2e, imageUri, uploadedBy)
-                fetchRecentlyUploadedWaste(uploadedBy)
-                fetchCarbonTrack()
-                fetchWeeklyStreak()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+    suspend fun getWasteItemById(id: String): WasteHistoryItem? {
+        return repository.getWasteHistoryItemById(id)
     }
+
 
 }
