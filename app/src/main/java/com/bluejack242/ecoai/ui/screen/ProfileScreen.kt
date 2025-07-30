@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,7 +19,6 @@ import coil.compose.AsyncImage
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
 import com.bluejack242.ecoai.ui.component.MediaCard
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -47,11 +45,16 @@ fun ProfileScreen(
             BottomNavigationBar(navController = navController, currentRoute = currentRoute)
         }
     ) { paddingValues ->
+        val backgroundColor = MaterialTheme.colorScheme.background
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+        val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
+        val indicatorColor = Color(0xFF388E3C)
         if (!viewModel.isProfileLoaded) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(backgroundColor)
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
@@ -61,7 +64,7 @@ fun ProfileScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(backgroundColor)
                     .padding(paddingValues)
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
@@ -89,7 +92,7 @@ fun ProfileScreen(
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Profile Picture",
-                                tint = Color.Gray,
+                                tint = onSurfaceVariantColor,
                                 modifier = Modifier.size(48.dp)
                             )
                         }
@@ -101,12 +104,17 @@ fun ProfileScreen(
                         Text(
                             "@${viewModel.username}",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
+                            fontSize = 20.sp,
+                            color = onSurfaceColor
                         )
-                        Text(viewModel.fullName.take(30), fontSize = 16.sp, color = Color.Gray)
+                        Text(
+                            viewModel.fullName.take(30),
+                            fontSize = 16.sp,
+                            color = onSurfaceVariantColor
+                        )
                     }
                     IconButton(onClick = { navController.navigate("settings") }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = onSurfaceVariantColor)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -154,12 +162,12 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Tabs
-                val selectedColor = Color(0xFF388E3C)
-                val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                val selectedColor = indicatorColor
+                val unselectedColor = onSurfaceVariantColor
 
                 TabRow(
                     selectedTabIndex = selectedTab,
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = surfaceColor,
                     contentColor = selectedColor,
                     indicator = { tabPositions ->
                         TabRowDefaults.SecondaryIndicator(
@@ -193,13 +201,13 @@ fun ProfileScreen(
                     0 -> {
                         if (viewModel.isLoadingPosts) {
                             Box(
-                                Modifier.fillMaxSize(),
+                                Modifier.fillMaxSize().background(backgroundColor),
                                 contentAlignment = Alignment.Center
                             ) { CircularProgressIndicator() }
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize().background(backgroundColor),
                                 contentPadding = PaddingValues(8.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -238,13 +246,13 @@ fun ProfileScreen(
                     1 -> {
                         if (viewModel.isLoadingPosts) {
                             Box(
-                                Modifier.fillMaxSize(),
+                                Modifier.fillMaxSize().background(backgroundColor),
                                 contentAlignment = Alignment.Center
                             ) { CircularProgressIndicator() }
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize().background(backgroundColor),
                                 contentPadding = PaddingValues(8.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -283,13 +291,13 @@ fun ProfileScreen(
                     2 -> {
                         if (viewModel.isLoadingPosts) {
                             Box(
-                                Modifier.fillMaxSize(),
+                                Modifier.fillMaxSize().background(backgroundColor),
                                 contentAlignment = Alignment.Center
                             ) { CircularProgressIndicator() }
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize().background(backgroundColor),
                                 contentPadding = PaddingValues(8.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -330,38 +338,4 @@ fun ProfileScreen(
     }
 }
 
-@Composable
-fun ProfilePostsTab() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Your posts will appear here.")
-    }
-}
-
-@Composable
-fun ProfileSavedTab() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Your saved posts will appear here.")
-    }
-}
-
-@Composable
-fun ProfileLikedTab() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Your liked posts will appear here.")
-    }
-} 
+// ...existing code...

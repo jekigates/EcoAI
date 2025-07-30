@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -48,9 +49,9 @@ fun CreatePostScreen(
 
     // Launcher for picking media
     val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
+        uri?.let { pickedUri ->
             if (post.mediaList.count { it.type == MediaType.IMAGE } < 10) {
-                viewModel.uploadMedia(context, it, false) { error ->
+                viewModel.uploadMedia(context, pickedUri, false) { _ ->
                     Toast.makeText(context, LanguageManager.getString("error_uploading_image"), Toast.LENGTH_LONG).show()
                 }
             } else {
@@ -62,11 +63,18 @@ fun CreatePostScreen(
     }
     val imageCount = post.mediaList.count { it.type == MediaType.IMAGE }
 
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val buttonColor = Color(0xFF4CAF50)
+    val buttonTextColor = Color.White
+    val cardBgColor = if (backgroundColor.luminance() > 0.5f) Color.LightGray else onSurfaceVariantColor.copy(alpha = 0.2f)
+
     Column(
         Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .background(Color.White)
+            .background(backgroundColor)
     ) {
         // Header
         Row(
@@ -75,9 +83,9 @@ fun CreatePostScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Default.Close, contentDescription = LanguageManager.getString("back"))
+                Icon(Icons.Default.Close, contentDescription = LanguageManager.getString("back"), tint = onSurfaceVariantColor)
             }
-            Text(LanguageManager.getString("create_new_post"), fontWeight = FontWeight.Bold)
+            Text(LanguageManager.getString("create_new_post"), fontWeight = FontWeight.Bold, color = onSurfaceColor, style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.width(48.dp)) // Placeholder for alignment
         }
 
@@ -87,12 +95,12 @@ fun CreatePostScreen(
                 .fillMaxWidth()
                 .height(300.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(if (post.mediaList.isEmpty()) Color.LightGray else Color.Transparent)
+                .background(if (post.mediaList.isEmpty()) cardBgColor else Color.Transparent)
         ) {
             if (post.mediaList.isEmpty()) {
                 Text(
                     LanguageManager.getString("no_media_yet"),
-                    color = Color.Black,
+                    color = onSurfaceVariantColor,
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
@@ -127,8 +135,8 @@ fun CreatePostScreen(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(8.dp),
-                    activeColor = Color.Black,
-                    inactiveColor = Color.Gray
+                    activeColor = onSurfaceColor,
+                    inactiveColor = onSurfaceVariantColor
                 )
             }
         }
@@ -142,23 +150,36 @@ fun CreatePostScreen(
             onValueChange = {
                 if (it.length <= 50) viewModel.updateHeadline(it)
             },
-            label = { Text(LanguageManager.getString("headline_optional")) },
+            label = { Text(LanguageManager.getString("headline_optional"), color = onSurfaceVariantColor) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            // Use trailingIcon for char count, since supportingText is not available in Material 2
             trailingIcon = {
-                Text(headlineSupportingText)
-            }
+                Text(headlineSupportingText, color = onSurfaceVariantColor)
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = onSurfaceColor,
+                unfocusedTextColor = onSurfaceColor,
+                focusedBorderColor = onSurfaceVariantColor,
+                unfocusedBorderColor = onSurfaceVariantColor,
+                cursorColor = onSurfaceColor
+            )
         )
         Spacer(Modifier.height(8.dp))
 
         // Caption and Tags
         OutlinedTextField(
             value = post.caption,
-            onValueChange = viewModel::updateCaption,
-            label = { Text(LanguageManager.getString("caption_and_tags_optional")) },
+            onValueChange = { value -> viewModel.updateCaption(value) },
+            label = { Text(LanguageManager.getString("caption_and_tags_optional"), color = onSurfaceVariantColor) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = false
+            singleLine = false,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = onSurfaceColor,
+                unfocusedTextColor = onSurfaceColor,
+                focusedBorderColor = onSurfaceVariantColor,
+                unfocusedBorderColor = onSurfaceVariantColor,
+                cursorColor = onSurfaceColor
+            )
         )
         Spacer(Modifier.height(16.dp))
 
@@ -167,13 +188,13 @@ fun CreatePostScreen(
             onClick = { imageLauncher.launch("image/*") },
             enabled = !isUploading && imageCount < 10,
             modifier = Modifier.fillMaxWidth().height(50.dp),
-            colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50))
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
         ) {
             Text(
-                color = Color.White, 
-                text = if (isUploading) 
-                    LanguageManager.getString("uploading") 
-                else 
+                color = buttonTextColor,
+                text = if (isUploading)
+                    LanguageManager.getString("uploading")
+                else
                     "${LanguageManager.getString("add_image")} (${imageCount}/10)"
             )
         }
@@ -188,8 +209,8 @@ fun CreatePostScreen(
                         Toast.makeText(context, LanguageManager.getString("post_created"), Toast.LENGTH_SHORT).show()
                         navController.popBackStack()
                     },
-                    onError = {
-                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                    onError = { errMsg ->
+                        Toast.makeText(context, errMsg, Toast.LENGTH_SHORT).show()
                     }
                 )
             },
@@ -197,9 +218,9 @@ fun CreatePostScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4CAF50))
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
         ) {
-            Text(LanguageManager.getString("post_button"), color = Color.White)
+            Text(LanguageManager.getString("post_button"), color = buttonTextColor)
         }
     }
 }

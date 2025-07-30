@@ -3,7 +3,7 @@ package com.bluejack242.ecoai.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
@@ -42,6 +42,14 @@ fun ProgressScreen(
     }
 
 
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val fabColor = Color(0xFF4CAF50)
+    val fabIconColor = Color.White
+    val subtitleColor = onSurfaceVariantColor
+    val emptyTextColor = onSurfaceVariantColor
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -52,16 +60,17 @@ fun ProgressScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddWasteClick,
-                backgroundColor = Color(0xFF4CAF50)
+                containerColor = fabColor,
+                contentColor = fabIconColor
             ) {
-                Icon(Icons.Default.Add, contentDescription = LanguageManager.getString("add_waste"), tint = Color.White)
+                Icon(Icons.Default.Add, contentDescription = LanguageManager.getString("add_waste"), tint = fabIconColor)
             }
         }
     ) { paddingValues ->
         Column(
             Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(backgroundColor)
                 .padding(paddingValues)
                 .padding(16.dp)
                 .statusBarsPadding()
@@ -70,13 +79,13 @@ fun ProgressScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(Color.White),
+                    .background(backgroundColor),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = LanguageManager.getString("progress_title"),
-                    style = MaterialTheme.typography.h5,
-                    color = Color.Black,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = onSurfaceColor,
                     fontWeight = FontWeight.Bold,
                 )
             }
@@ -93,12 +102,12 @@ fun ProgressScreen(
             Spacer(Modifier.height(16.dp))
 
             // Recently uploaded title
-            Text(LanguageManager.getString("recently_uploaded"), style = MaterialTheme.typography.subtitle1)
+            Text(LanguageManager.getString("recently_uploaded"), style = MaterialTheme.typography.titleMedium, color = subtitleColor)
             Spacer(Modifier.height(8.dp))
 
             // List uploaded items
             if (recentlyUploaded.isEmpty()) {
-                Text(LanguageManager.getString("no_items_uploaded"), color = Color.Gray)
+                Text(LanguageManager.getString("no_items_uploaded"), color = emptyTextColor)
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(recentlyUploaded.size) { index ->

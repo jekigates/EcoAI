@@ -10,14 +10,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -66,19 +72,33 @@ fun EditProfileScreen(navController: NavHostController) {
         }
     }
 
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val errorColor = MaterialTheme.colorScheme.error
+    val buttonColor = Color(0xFF4CAF50)
+    // Use luminance to determine if theme is light or dark
+    val isLightTheme = backgroundColor.luminance() > 0.5f
+    val profilePictureBg = if (isLightTheme) Color(0xFFE0E0E0) else onSurfaceVariantColor.copy(alpha = 0.2f)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(backgroundColor)
     ) {
         Spacer(Modifier.height(16.dp))
         Box(
             modifier = Modifier.fillMaxWidth().height(56.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(LanguageManager.getString("edit_profile"), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+            Text(
+                LanguageManager.getString("edit_profile"),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                color = onSurfaceColor
+            )
             IconButton(onClick = { navController.popBackStack() }, modifier = Modifier.align(Alignment.CenterStart)) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = onSurfaceVariantColor)
             }
         }
 
@@ -86,7 +106,7 @@ fun EditProfileScreen(navController: NavHostController) {
         // Profile Picture
         Box(
             modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
-                .clip(CircleShape).background(Color(0xFFE0E0E0))
+                .clip(CircleShape).background(profilePictureBg)
                 .clickable { imagePickerLauncher.launch("image/*") },
             contentAlignment = Alignment.Center
         ) {
@@ -99,12 +119,20 @@ fun EditProfileScreen(navController: NavHostController) {
         OutlinedTextField(
             value = fullName,
             onValueChange = { fullName = it },
-            label = { Text(LanguageManager.getString("full_name")) },
+            label = { Text(LanguageManager.getString("full_name"), color = onSurfaceVariantColor) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            isError = fullNameError != null
+            isError = fullNameError != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = onSurfaceColor,
+                unfocusedTextColor = onSurfaceColor,
+                focusedBorderColor = onSurfaceVariantColor,
+                unfocusedBorderColor = onSurfaceVariantColor,
+                errorBorderColor = errorColor,
+                errorLabelColor = errorColor
+            )
         )
         if (fullNameError != null) {
-            Text(fullNameError!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
+            Text(fullNameError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
         }
 
         Spacer(Modifier.height(12.dp))
@@ -112,12 +140,20 @@ fun EditProfileScreen(navController: NavHostController) {
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text(LanguageManager.getString("username")) },
+            label = { Text(LanguageManager.getString("username"), color = onSurfaceVariantColor) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            isError = usernameError != null
+            isError = usernameError != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = onSurfaceColor,
+                unfocusedTextColor = onSurfaceColor,
+                focusedBorderColor = onSurfaceVariantColor,
+                unfocusedBorderColor = onSurfaceVariantColor,
+                errorBorderColor = errorColor,
+                errorLabelColor = errorColor
+            )
         )
         if (usernameError != null) {
-            Text(usernameError!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
+            Text(usernameError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
         }
 
         Spacer(Modifier.height(12.dp))
@@ -125,13 +161,21 @@ fun EditProfileScreen(navController: NavHostController) {
         OutlinedTextField(
             value = bio,
             onValueChange = { bio = it },
-            label = { Text(LanguageManager.getString("bio")) },
+            label = { Text(LanguageManager.getString("bio"), color = onSurfaceVariantColor) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             isError = bioError != null,
-            maxLines = 3
+            maxLines = 3,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = onSurfaceColor,
+                unfocusedTextColor = onSurfaceColor,
+                focusedBorderColor = onSurfaceVariantColor,
+                unfocusedBorderColor = onSurfaceVariantColor,
+                errorBorderColor = errorColor,
+                errorLabelColor = errorColor
+            )
         )
         if (bioError != null) {
-            Text(bioError!!, color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
+            Text(bioError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
         }
 
         Spacer(Modifier.height(24.dp))
@@ -164,9 +208,9 @@ fun EditProfileScreen(navController: NavHostController) {
                             coroutineScope.launch {
                                 var uploadedUrl: String? = profilePictureUrl
                                 if (profilePictureUri != null) {
-                                    val result = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
-                                    result.onSuccess { url -> uploadedUrl = url }
-                                    result.onFailure {
+                                    val uploadResult = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
+                                    uploadResult.onSuccess { url -> uploadedUrl = url }
+                                    uploadResult.onFailure {
                                         Toast.makeText(context, LanguageManager.getString("upload_failed") + it.message, Toast.LENGTH_SHORT).show()
                                         isSaving = false
                                         return@launch
@@ -193,10 +237,13 @@ fun EditProfileScreen(navController: NavHostController) {
                     }
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             enabled = !isSaving
         ) {
-            Text(if (isSaving) LanguageManager.getString("saving") else LanguageManager.getString("save"), color = Color.White)
+            Text(
+                if (isSaving) LanguageManager.getString("saving") else LanguageManager.getString("save"),
+                color = Color.White
+            )
         }
     }
 }
