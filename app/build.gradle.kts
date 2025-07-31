@@ -84,7 +84,10 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("com.composables:icons-lucide:1.0.0")
 
-    implementation ("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // Lottie for animations
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     implementation("com.exyte:animated-navigation-bar:1.0.0")
 }

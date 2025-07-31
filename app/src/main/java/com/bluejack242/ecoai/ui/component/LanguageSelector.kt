@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,11 +38,24 @@ fun LanguageSelector(
                 .background(backgroundColor, RoundedCornerShape(4.dp))
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            Text(
-                text = currentLanguage,
-                fontWeight = FontWeight.Bold,
-                color = textColor
-            )
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                val flagRes = when (currentLanguage) {
+                    "EN" -> com.bluejack242.ecoai.R.drawable.us_flag
+                    "ID" -> com.bluejack242.ecoai.R.drawable.id_flag
+                    else -> com.bluejack242.ecoai.R.drawable.us_flag
+                }
+                androidx.compose.foundation.Image(
+                    painter = painterResource(id = flagRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(6.dp))
+                Text(
+                    text = currentLanguage,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+            }
         }
 
         DropdownMenu(
