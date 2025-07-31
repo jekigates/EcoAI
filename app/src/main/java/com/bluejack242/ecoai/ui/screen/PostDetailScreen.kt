@@ -55,7 +55,6 @@ fun PostDetailScreen(
     viewModel: PostDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val context = LocalContext.current
-    // Load post on first composition
     LaunchedEffect(postId) {
         viewModel.loadPost(postId)
     }
@@ -69,14 +68,12 @@ fun PostDetailScreen(
 
     val mediaList = viewModel.getMediaList()
 
-    // Comments state
     var commentInput by remember { mutableStateOf("") }
     var comments by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var isLoadingComments by remember { mutableStateOf(true) }
     val userId = viewModel.userId
     val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-    // Fetch comments
     LaunchedEffect(postId) {
         isLoadingComments = true
         db.collection("posts").document(postId).collection("comments")
@@ -129,6 +126,11 @@ fun PostDetailScreen(
     // Bottom bar state
     var showCommentSheet by remember { mutableStateOf(false) }
     val emojiList = listOf("🍋", "🥰", "🤣", "👍", "❤️", "😂", "🥺", "✨")
+
+    fun deleteComment(commentId: String) {
+        if (userId == null) return
+        viewModel.deleteComment(postId, commentId)
+    }
 
     Column(
         modifier = Modifier
@@ -210,7 +212,6 @@ fun PostDetailScreen(
         if (mediaList.isNotEmpty()) {
             val pagerState = rememberPagerState(pageCount = { mediaList.size })
             viewModel.currentPagerIndex = pagerState.currentPage
-            // Show/hide pagination indicator on page change
             LaunchedEffect(pagerState.currentPage) {
                 viewModel.showPagerIndicatorWithDelay()
             }
@@ -356,7 +357,9 @@ fun PostDetailScreen(
                                 .format(date)
                         } ?: ""
                     }
-                    // Fetch commenter info
+                    val isSelfComment = userId == userIdOfComment
+                    var showCommentBottomSheet by remember { mutableStateOf(false) }
+
                     LaunchedEffect(userIdOfComment) {
                         if (userIdOfComment.isNotBlank()) {
                             db.collection("users").document(userIdOfComment).get()
@@ -442,6 +445,33 @@ fun PostDetailScreen(
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )
+                        }
+                        if (isSelfComment) {
+                            Spacer(Modifier.width(8.dp))
+                            IconButton(onClick = { showCommentBottomSheet = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = LanguageManager.getString("more"),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
+                    if (showCommentBottomSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = { showCommentBottomSheet = false },
+                            sheetState = rememberModalBottomSheetState()
+                        ) {
+                            Column(Modifier.fillMaxWidth()) {
+                                ListItem(
+                                    headlineContent = { Text(LanguageManager.getString("delete")) },
+                                    leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
+                                    modifier = Modifier.clickable {
+                                        showCommentBottomSheet = false
+                                        deleteComment(commentId)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -558,7 +588,6 @@ fun PostDetailScreen(
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                // Large text area
                 BasicTextField(
                     value = commentInput,
                     onValueChange = { commentInput = it },
