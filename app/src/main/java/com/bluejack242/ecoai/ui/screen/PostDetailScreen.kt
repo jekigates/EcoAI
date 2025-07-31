@@ -372,11 +372,12 @@ fun PostDetailScreen(
                         modifier = Modifier
                             .padding(vertical = 8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable {
-                                if (userIdOfComment.isNotBlank()) navController.navigate("user_profile/$userIdOfComment")
-                            }
+                        // Avatar
+                        Box(
+                            modifier = Modifier
+                                .clickable {
+                                    if (userIdOfComment.isNotBlank()) navController.navigate("user_profile/$userIdOfComment")
+                                }
                         ) {
                             if (!commenterProfilePic.isNullOrBlank()) {
                                 AsyncImage(
@@ -391,48 +392,57 @@ fun PostDetailScreen(
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
-                                    tint = Color.Gray,
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
-                            Spacer(Modifier.width(10.dp))
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        // Name, comment, date (vertical)
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(
                                 commenterName,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                createdDateString,
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         }
-                        Column(Modifier.weight(1f)) {
-                            Text(text, fontSize = 16.sp)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(createdDateString, fontSize = 13.sp, color = Color.Gray)
-                                Spacer(Modifier.width(12.dp))
-                                Text(
-                                    LanguageManager.getString("reply"),
-                                    fontSize = 13.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.alpha(0f)
-                                )
-                            }
-                        }
+                        // Like button and count
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Surface(
                                 shape = CircleShape,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.surface,
                                 shadowElevation = 2.dp,
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
                                     imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                     contentDescription = LanguageManager.getString("like_comment"),
-                                    tint = if (liked) Color.Red else Color.Gray,
+                                    tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable { toggleCommentLike(commentId, liked) }
                                 )
                             }
-                            Text(likeCount.toString(), fontSize = 13.sp, color = Color.Gray)
+                            Text(
+                                likeCount.toString(),
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
                         }
                     }
                 }
@@ -442,7 +452,8 @@ fun PostDetailScreen(
         // Bottom bar
         Surface(
             tonalElevation = 2.dp,
-            shadowElevation = 2.dp
+            shadowElevation = 2.dp,
+            color = MaterialTheme.colorScheme.surface
         ) {
             Row(
                 Modifier
@@ -462,11 +473,12 @@ fun PostDetailScreen(
                         onValueChange = { commentInput = it },
                         singleLine = true,
                         enabled = false,
+                        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
                         decorationBox = { innerTextField ->
                             Box(Modifier.fillMaxWidth()) {
                                 if (commentInput.isEmpty()) Text(
                                     LanguageManager.getString("add_comment_placeholder"),
-                                    color = Color.Gray
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                 )
                                 innerTextField()
                             }
@@ -556,9 +568,10 @@ fun PostDetailScreen(
                         .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
                         .padding(horizontal = 16.dp, vertical = 14.dp),
                     maxLines = 4,
+                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
                     decorationBox = { innerTextField ->
                         Box(Modifier.fillMaxSize()) {
-                            if (commentInput.isEmpty()) Text("Add comment...", color = Color.Gray)
+                            if (commentInput.isEmpty()) Text(LanguageManager.getString("add_comment_placeholder"), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                             innerTextField()
                         }
                     }
@@ -569,20 +582,23 @@ fun PostDetailScreen(
                     Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterEnd
                 ) {
+                    val sendEnabled = commentInput.isNotBlank()
+                    val sendBg = if (sendEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                    val sendIconColor = if (sendEnabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     IconButton(
                         onClick = {
                             addComment()
                             showCommentSheet = false
                         },
-                        enabled = commentInput.isNotBlank(),
+                        enabled = sendEnabled,
                         modifier = Modifier
                             .size(44.dp)
-                            .background(Color.Yellow, shape = CircleShape)
+                            .background(sendBg, shape = CircleShape)
                     ) {
                         Icon(
                             imageVector = Lucide.ArrowUp,
                             contentDescription = LanguageManager.getString("send"),
-                            tint = Color.Black,
+                            tint = sendIconColor,
                             modifier = Modifier.size(28.dp)
                         )
                     }
