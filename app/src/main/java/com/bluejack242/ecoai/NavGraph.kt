@@ -121,8 +121,6 @@ fun NavGraph(navController: NavHostController,
                 navController = navController,
                 isDarkTheme = isDarkTheme,
                 onThemeChange = onThemeChange,
-                isNotificationEnabled = isNotificationEnabled,
-                onNotificationChange = onNotificationChange,
                 onLogout = onLogout
             )
         }

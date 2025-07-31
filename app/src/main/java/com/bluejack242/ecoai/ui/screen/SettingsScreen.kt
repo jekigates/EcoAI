@@ -15,108 +15,150 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bluejack242.ecoai.ui.component.LanguageSelector
 import com.bluejack242.ecoai.utils.LanguageManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
     isDarkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit,
-    isNotificationEnabled: Boolean,
-    onNotificationChange: (Boolean) -> Unit,
     onLogout: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        // Header
-        Box(
+    val db = FirebaseFirestore.getInstance()
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+    var isNotificationEnabled by remember { mutableStateOf(true) }
+    var isLoading by remember { mutableStateOf(true) }
+    LaunchedEffect(currentUserId) {
+        if (currentUserId != null) {
+            db.collection("users").document(currentUserId)
+                .get()
+                .addOnSuccessListener { userDoc ->
+                    isNotificationEnabled = userDoc.getBoolean("notificationsEnabled") ?: true
+                    isLoading = false
+                }
+                .addOnFailureListener {
+                    // kalau gagal load, pakai default true
+                    isNotificationEnabled = true
+                    isLoading = false
+                }
+        } else {
+            isLoading = false
+        }
+    }
+
+    if (isLoading) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.align(Alignment.CenterStart)
+            // Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.align(Alignment.CenterStart)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
 
-            Text(
-                text = LanguageManager.getString("settings"),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-        // Push notifications
-        SettingItem {
-            Column(Modifier.weight(1f)) {
-                Text(LanguageManager.getString("push_notifications"), fontWeight = FontWeight.Bold)
                 Text(
-                    LanguageManager.getString("push_notifications_desc"),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    text = LanguageManager.getString("settings"),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+            // Push notifications
+            SettingItem {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        LanguageManager.getString("push_notifications"),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        LanguageManager.getString("push_notifications_desc"),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    )
+                }
+                Switch(
+                    checked = isNotificationEnabled,
+                    onCheckedChange = { enabled ->
+                        isNotificationEnabled = enabled
+                        if (currentUserId != null) {
+                            db.collection("users")
+                                .document(currentUserId)
+                                .update("notificationsEnabled", enabled)
+                        }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                     )
                 )
+
             }
-            Switch(
-                checked = isNotificationEnabled,
-                onCheckedChange = { onNotificationChange(it) },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.primary, // Ikuti theme
-                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                )
-            )
-        }
 
 
-        // Appearance
-        SettingItem {
-            Column(Modifier.weight(1f)) {
-                Text(LanguageManager.getString("appearance"), fontWeight = FontWeight.Bold)
-                Text(
-                    LanguageManager.getString("appearance_desc"),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            // Appearance
+            SettingItem {
+                Column(Modifier.weight(1f)) {
+                    Text(LanguageManager.getString("appearance"), fontWeight = FontWeight.Bold)
+                    Text(
+                        LanguageManager.getString("appearance_desc"),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
                     )
-                )
-            }
-            TextButton(onClick = { onThemeChange(!isDarkTheme) }) {
-                Text(
-                    if (isDarkTheme) LanguageManager.getString("dark_mode") else LanguageManager.getString("light_mode"),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
-
-        // Language
-        SettingItem {
-            Column(Modifier.weight(1f)) {
-                Text(LanguageManager.getString("language"), fontWeight = FontWeight.Bold)
-                Text(
-                    LanguageManager.getString("select_language"),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                }
+                TextButton(onClick = { onThemeChange(!isDarkTheme) }) {
+                    Text(
+                        if (isDarkTheme) LanguageManager.getString("dark_mode") else LanguageManager.getString(
+                            "light_mode"
+                        ),
+                        color = MaterialTheme.colorScheme.primary
                     )
-                )
+                }
             }
-            LanguageSelector()
+
+
+            // Language
+            SettingItem {
+                Column(Modifier.weight(1f)) {
+                    Text(LanguageManager.getString("language"), fontWeight = FontWeight.Bold)
+                    Text(
+                        LanguageManager.getString("select_language"),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    )
+                }
+                LanguageSelector()
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Log Out
+            TextButton(
+                onClick = onLogout,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(LanguageManager.getString("logout"), color = Color.Red)
+            }
+
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Log Out
-        TextButton(
-            onClick = onLogout,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(LanguageManager.getString("logout"), color = Color.Red)
-        }
-
     }
 }
 
