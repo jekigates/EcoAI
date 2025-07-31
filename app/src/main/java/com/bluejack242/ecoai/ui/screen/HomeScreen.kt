@@ -7,21 +7,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
-import com.bluejack242.ecoai.ui.component.MediaCard
 import com.bluejack242.ecoai.ui.component.FollowingPostCard
+import com.bluejack242.ecoai.ui.component.MediaCard
 import com.bluejack242.ecoai.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.bluejack242.ecoai.utils.LanguageManager
@@ -31,19 +33,30 @@ fun HomeScreen(
     navController: NavHostController,
     currentRoute: String = "home",
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
-    val listState = rememberLazyListState()
     val viewModel: HomeViewModel = viewModel()
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val gridState = rememberLazyGridState()
+    val listState = rememberLazyListState()
 
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+    val forYouPosts by remember { derivedStateOf { viewModel.forYouPosts } }
+    val followingPosts by remember { derivedStateOf { viewModel.followingPosts } }
+
+    LaunchedEffect(gridState) {
+        snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
                 if (lastVisibleIndex != null &&
-                    lastVisibleIndex >= viewModel.forYouPosts.size - 3 &&
-                    selectedTab == 0) {
+                    lastVisibleIndex >= forYouPosts.size - 3 &&
+                    selectedTab == 0
+                ) {
                     viewModel.loadMorePosts()
                 }
             }
+    }
+
+    val (navigateToSearch, setNavigateToSearch) = remember { mutableStateOf(false) }
+    if (navigateToSearch) {
+        navController.navigate("search")
+        setNavigateToSearch(false)
     }
 
     Scaffold(
@@ -59,41 +72,80 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary,
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                listOf(
-                    LanguageManager.getString("for_you"),
-                    LanguageManager.getString("following")
-                ).forEachIndexed { index, title ->
+                Box(modifier = Modifier.size(40.dp))
+
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.weight(1f),
+                    indicator = { tabPositions ->
+                        Box(
+                            modifier = Modifier
+                                .tabIndicatorOffset(tabPositions[selectedTab])
+                                .fillMaxWidth(0.4f)
+                                .align(Alignment.Bottom)
+                                .height(2.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                        )
+                    },
+                    divider = {}
+                ) {
+                    // Following tab
                     Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
                         text = {
                             Text(
-                                title,
-                                color = if (selectedTab == index)
+                                text = LanguageManager.getString("for_you"),
+                                color = if (selectedTab == 0)
                                     MaterialTheme.colorScheme.primary
                                 else
-                                    MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                                    Color.Gray
                             )
                         }
+                    )
+
+                    // For You tab
+                    Tab(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        text = {
+                            Text(
+                                text =
+                                    LanguageManager.getString("following"),
+                                color = if (selectedTab == 1)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.Gray
+                            )
+                        }
+                    )
+                }
+
+                IconButton(onClick = { setNavigateToSearch(true) }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = LanguageManager.getString("search"),
+                        tint = if (selectedTab == 1) MaterialTheme.colorScheme.primary else Color.Gray,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
 
             when (selectedTab) {
                 0 -> {
-                    if (viewModel.isLoading && viewModel.forYouPosts.isEmpty()) {
+                    if (viewModel.isLoading && forYouPosts.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -107,11 +159,13 @@ fun HomeScreen(
                             contentPadding = PaddingValues(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            state = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+                            state = gridState
                         ) {
-                            items(viewModel.forYouPosts, key = { it.first }) { (postId, post) ->
-                                val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                            items(forYouPosts, key = { it.first }) { (postId, post) ->
+                                val mediaList =
+                                    post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                val firstMedia =
+                                    mediaList.firstOrNull()?.get("url") as? String ?: ""
                                 val username = post["username"] as? String ?: ""
                                 val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
                                 val likes = (post["likes"] as? Long)?.toInt() ?: 0
@@ -150,15 +204,16 @@ fun HomeScreen(
                         }
                     }
                 }
+
                 1 -> {
-                    if (viewModel.isLoading && viewModel.followingPosts.isEmpty()) {
+                    if (viewModel.isLoading && followingPosts.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator()
                         }
-                    } else if (viewModel.followingPosts.isEmpty()) {
+                    } else if (followingPosts.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -171,16 +226,20 @@ fun HomeScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            state = listState
+                            state = listState,
+                            contentPadding = PaddingValues(vertical = 8.dp)
                         ) {
-                            items(viewModel.followingPosts, key = { it.first }) { (postId, post) ->
-                                val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                            items(followingPosts, key = { it.first }) { (postId, post) ->
+                                val mediaList =
+                                    post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                val firstMedia =
+                                    mediaList.firstOrNull()?.get("url") as? String ?: ""
                                 val username = post["username"] as? String ?: ""
                                 val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
                                 val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                 val saves = (post["saves"] as? Long)?.toInt() ?: 0
-                                val comments = post["comments"] as? List<Map<String, Any>> ?: emptyList()
+                                val comments =
+                                    post["comments"] as? List<Map<String, Any>> ?: emptyList()
                                 val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
                                 val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
                                 val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
