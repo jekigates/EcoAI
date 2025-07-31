@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
@@ -179,7 +178,11 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                         val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
                         val likes = (post["likes"] as? Long)?.toInt() ?: 0
                         val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                        val liked = FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(FirebaseAuth.getInstance().currentUser?.uid)
+                        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                        val liked = currentUserId != null && likedBy.contains(currentUserId)
+                        val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
+                        val saved = currentUserId != null && savedBy.contains(currentUserId)
+                        val saves = savedBy.size
                         Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                             MediaCard(
                                 imageUrl = firstMedia,
@@ -187,7 +190,9 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                                 fullName = creatorName,
                                 profilePictureUrl = profilePictureUrl,
                                 likes = likes,
-                                liked = liked
+                                liked = liked,
+                                saves = saves,
+                                saved = saved
                             )
                         }
                     }

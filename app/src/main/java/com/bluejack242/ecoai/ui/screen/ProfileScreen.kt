@@ -138,7 +138,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 // Bio
                 Text(
-                    text = if (viewModel.bio.isBlank()) LanguageManager.getString("write_bio_placeholder") else viewModel.bio,
+                    text = viewModel.bio.ifBlank { LanguageManager.getString("write_bio_placeholder") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
@@ -161,8 +161,8 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Tabs
+
                 val selectedColor = indicatorColor
-                val unselectedColor = onSurfaceVariantColor
 
                 TabRow(
                     selectedTabIndex = selectedTab,
@@ -187,7 +187,7 @@ fun ProfileScreen(
                             text = {
                                 Text(
                                     title,
-                                    color = if (selectedTab == index) selectedColor else unselectedColor
+                                    color = if (selectedTab == index) selectedColor else onSurfaceVariantColor
                                 )
                             }
                         )
@@ -223,10 +223,11 @@ fun ProfileScreen(
                                             .ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                    val liked =
-                                        FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(
-                                            FirebaseAuth.getInstance().currentUser?.uid
-                                        )
+                                    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                                    val liked = currentUserId != null && likedBy.contains(currentUserId)
+                                    val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
+                                    val saved = currentUserId != null && savedBy.contains(currentUserId)
+                                    val saves = savedBy.size
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -234,7 +235,9 @@ fun ProfileScreen(
                                             fullName = creatorName,
                                             profilePictureUrl = profilePictureUrl,
                                             likes = likes,
-                                            liked = liked
+                                            liked = liked,
+                                            saves = saves,
+                                            saved = saved
                                         )
                                     }
                                 }
@@ -268,10 +271,11 @@ fun ProfileScreen(
                                             .ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                    val liked =
-                                        FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(
-                                            FirebaseAuth.getInstance().currentUser?.uid
-                                        )
+                                    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                                    val liked = currentUserId != null && likedBy.contains(currentUserId)
+                                    val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
+                                    val saved = currentUserId != null && savedBy.contains(currentUserId)
+                                    val saves = savedBy.size
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -279,7 +283,9 @@ fun ProfileScreen(
                                             fullName = creatorName,
                                             profilePictureUrl = profilePictureUrl,
                                             likes = likes,
-                                            liked = liked
+                                            liked = liked,
+                                            saves = saves,
+                                            saved = saved
                                         )
                                     }
                                 }
@@ -313,10 +319,11 @@ fun ProfileScreen(
                                             .ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                    val liked =
-                                        FirebaseAuth.getInstance().currentUser?.uid != null && likedBy.contains(
-                                            FirebaseAuth.getInstance().currentUser?.uid
-                                        )
+                                    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                                    val liked = currentUserId != null && likedBy.contains(currentUserId)
+                                    val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
+                                    val saved = currentUserId != null && savedBy.contains(currentUserId)
+                                    val saves = savedBy.size
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -324,7 +331,9 @@ fun ProfileScreen(
                                             fullName = creatorName,
                                             profilePictureUrl = profilePictureUrl,
                                             likes = likes,
-                                            liked = liked
+                                            liked = liked,
+                                            saves = saves,
+                                            saved = saved
                                         )
                                     }
                                 }
