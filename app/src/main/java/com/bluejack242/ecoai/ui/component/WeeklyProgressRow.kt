@@ -37,6 +37,7 @@ fun WeeklyProgressRow() {
     val lastPage = pageCount - 1
     val pagerState = rememberPagerState(initialPage = lastPage) { pageCount }
     Spacer(Modifier.height(8.dp))
+    val dayCircleBg = MaterialTheme.colorScheme.surfaceVariant
     HorizontalPager(
         state = pagerState,
         modifier = Modifier.fillMaxWidth()
@@ -57,14 +58,14 @@ fun WeeklyProgressRow() {
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(if (isToday) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent)
+                            .background(if (isToday) dayCircleBg else Color.Transparent)
                             .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             day,
                             fontWeight = FontWeight.Bold,
-                            color = if (isToday) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                            color = if (isToday) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center
                         )
                     }

@@ -65,9 +65,7 @@ fun LoginScreen(
         LanguageSelector(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp),
-            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-            textColor = MaterialTheme.colorScheme.onSurface
+                .padding(top = 16.dp, end = 16.dp)
         )
 
         // Main content centered

@@ -58,9 +58,7 @@ fun RegisterScreen(
         LanguageSelector(
             modifier = Modifier
                 .align(Alignment.End)
-                .padding(bottom = 16.dp),
-            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-            textColor = MaterialTheme.colorScheme.onSurface
+                .padding(bottom = 16.dp)
         )
         
         Text(

@@ -11,6 +11,7 @@ private val DarkColorPalette = darkColorScheme(
     primary = ThemeColors.Night.primary,
     onPrimary = ThemeColors.Night.text,
     surface = ThemeColors.Night.surface,
+    surfaceVariant = ThemeColors.Night.surfaceVariant,
     background = ThemeColors.Night.background,
     outline = ThemeColors.Night.outline
 )
@@ -19,6 +20,7 @@ private val LightColorPalette = lightColorScheme(
     primary = ThemeColors.Day.primary,
     onPrimary = ThemeColors.Day.text,
     surface = ThemeColors.Day.surface,
+    surfaceVariant = ThemeColors.Day.surfaceVariant,
     background = ThemeColors.Day.background,
     outline = ThemeColors.Day.outline
 )

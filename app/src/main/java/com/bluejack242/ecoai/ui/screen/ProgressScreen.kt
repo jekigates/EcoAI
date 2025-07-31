@@ -146,7 +146,7 @@ fun ProgressScreen(
                         Text(
                             text = weeklyStreak.toString(),
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
                     }

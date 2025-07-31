@@ -19,6 +19,10 @@ val dark_surface = Color(0xFF232826)
 val light_background = Color(0xFFF6F8F9)
 val light_surface = Color(0xFFE9F0F4)
 
+// surfaceVariant for M3 compatibility
+val surface_variant_light = Color(0xFFE7E9EC)
+val surface_variant_dark = Color(0xFF35383B)
+
 // Subtle outline colors for card borders
 val outline_light = Color(0x1A000000) // 10% black
 val outline_dark = Color(0x33FFFFFF) // 20% white
@@ -26,6 +30,7 @@ val outline_dark = Color(0x33FFFFFF) // 20% white
 sealed class ThemeColors(
     val background: Color,
     val surface: Color,
+    val surfaceVariant: Color,
     val primary: Color,
     val text: Color,
     val outline: Color
@@ -33,6 +38,7 @@ sealed class ThemeColors(
     object Night: ThemeColors(
         background = dark_background,
         surface = dark_surface,
+        surfaceVariant = surface_variant_dark,
         primary = green_primary,
         text = Color.White,
         outline = outline_dark
@@ -40,6 +46,7 @@ sealed class ThemeColors(
     object Day: ThemeColors(
         background = light_background,
         surface = light_surface,
+        surfaceVariant = surface_variant_light,
         primary = green_primary,
         text = Color.Black,
         outline = outline_light
