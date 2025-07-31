@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.component
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -188,7 +189,7 @@ fun FollowingPostCard(
                 annotatedCaption.getStringAnnotations(tag = "TAG", start = offset, end = offset)
                     .firstOrNull()?.let { annotation ->
                         val tag = annotation.item
-                        navController.navigate("search?query=$tag")
+                        navController.navigate("search/${Uri.encode(tag)}")
                     }
             }
         )

@@ -69,7 +69,8 @@ fun HomeScreen(
 
     val (navigateToSearch, setNavigateToSearch) = remember { mutableStateOf(false) }
     if (navigateToSearch) {
-        navController.navigate("search")
+        val query = ""
+        navController.navigate("search/$query")
         setNavigateToSearch(false)
     }
 

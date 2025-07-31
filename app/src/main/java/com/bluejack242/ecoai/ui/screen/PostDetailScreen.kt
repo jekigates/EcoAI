@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.screen
 
+import android.net.Uri
 import com.bluejack242.ecoai.ui.component.CustomDialog
 import com.bluejack242.ecoai.ui.component.DialogType
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import com.bluejack242.ecoai.viewmodel.PostDetailViewModel
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.ClickableText
 import com.bluejack242.ecoai.utils.sendNotificationWithType
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.composables.icons.lucide.MessageCircle
@@ -147,7 +149,10 @@ fun PostDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = LanguageManager.getString("back"))
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = LanguageManager.getString("back")
+                )
             }
             if (viewModel.creator != null) {
                 val profilePictureUrl = viewModel.creator?.get("profilePictureUrl") as? String
@@ -162,7 +167,11 @@ fun PostDetailScreen(
                     if (!profilePictureUrl.isNullOrBlank()) {
                         AsyncImage(
                             model = profilePictureUrl,
-                            contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
+                            contentDescription = "${LanguageManager.getString("profile_picture")} ${
+                                viewModel.creator?.get(
+                                    "fullName"
+                                ) ?: ""
+                            }",
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
@@ -171,7 +180,11 @@ fun PostDetailScreen(
                     } else {
                         Icon(
                             imageVector = Icons.Default.Person,
-                            contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
+                            contentDescription = "${LanguageManager.getString("profile_picture")} ${
+                                viewModel.creator?.get(
+                                    "fullName"
+                                ) ?: ""
+                            }",
                             tint = Color.Gray,
                             modifier = Modifier.size(28.dp)
                         )
@@ -195,14 +208,19 @@ fun PostDetailScreen(
                         modifier = Modifier.height(32.dp)
                     ) {
                         Text(
-                            if (viewModel.isFollowing) LanguageManager.getString("unfollow") else LanguageManager.getString("follow"),
+                            if (viewModel.isFollowing) LanguageManager.getString("unfollow") else LanguageManager.getString(
+                                "follow"
+                            ),
                             color = Color.White,
                             fontSize = 14.sp
                         )
                     }
                 } else {
                     IconButton(onClick = { viewModel.showBottomSheet = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = LanguageManager.getString("more"))
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = LanguageManager.getString("more")
+                        )
                     }
                 }
             }
@@ -245,7 +263,10 @@ fun PostDetailScreen(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(12.dp)
-                                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), shape = CircleShape)
+                                .background(
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    shape = CircleShape
+                                )
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
@@ -305,21 +326,47 @@ fun PostDetailScreen(
                 for (match in hashtagRegex.findAll(captionText)) {
                     val start = match.range.first
                     val end = match.range.last + 1
-                    if (start > lastIndex) append(captionText.substring(lastIndex, start))
-                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
+
+                    if (start > lastIndex) {
+                        append(captionText.substring(lastIndex, start))
+                    }
+
+                    pushStringAnnotation(
+                        tag = "TAG",
+                        annotation = captionText.substring(start + 1, end)
+                    )
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) {
                         append(captionText.substring(start, end))
                     }
+                    pop()
+
                     lastIndex = end
                 }
-                if (lastIndex < captionText.length) append(captionText.substring(lastIndex))
+                if (lastIndex < captionText.length) {
+                    append(captionText.substring(lastIndex))
+                }
             }
-            Text(
+
+            ClickableText(
                 text = annotatedCaption,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                onClick = { offset ->
+                    annotatedCaption.getStringAnnotations("TAG", offset, offset)
+                        .firstOrNull()?.let { annotation ->
+                            navController.navigate("search/${Uri.encode(annotation.item)}")
+                        }
+                },
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
+
             Spacer(modifier = Modifier.height(16.dp))
         }
+
         // Comments section
         Text(
             "${comments.size} ${LanguageManager.getString("comments")}",
@@ -384,7 +431,11 @@ fun PostDetailScreen(
                             if (!commenterProfilePic.isNullOrBlank()) {
                                 AsyncImage(
                                     model = commenterProfilePic,
-                                    contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
+                                    contentDescription = "${LanguageManager.getString("profile_picture")} ${
+                                        viewModel.creator?.get(
+                                            "fullName"
+                                        ) ?: ""
+                                    }",
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
@@ -393,7 +444,11 @@ fun PostDetailScreen(
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Person,
-                                    contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
+                                    contentDescription = "${LanguageManager.getString("profile_picture")} ${
+                                        viewModel.creator?.get(
+                                            "fullName"
+                                        ) ?: ""
+                                    }",
                                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                     modifier = Modifier.size(32.dp)
                                 )
@@ -434,7 +489,9 @@ fun PostDetailScreen(
                                 Icon(
                                     imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                     contentDescription = LanguageManager.getString("like_comment"),
-                                    tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                    tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = 0.7f
+                                    ),
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clickable { toggleCommentLike(commentId, liked) }
@@ -465,7 +522,12 @@ fun PostDetailScreen(
                             Column(Modifier.fillMaxWidth()) {
                                 ListItem(
                                     headlineContent = { Text(LanguageManager.getString("delete")) },
-                                    leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
+                                    leadingContent = {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = null
+                                        )
+                                    },
                                     modifier = Modifier.clickable {
                                         showCommentBottomSheet = false
                                         deleteComment(commentId)
@@ -600,7 +662,10 @@ fun PostDetailScreen(
                     textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
                     decorationBox = { innerTextField ->
                         Box(Modifier.fillMaxSize()) {
-                            if (commentInput.isEmpty()) Text(LanguageManager.getString("add_comment_placeholder"), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                            if (commentInput.isEmpty()) Text(
+                                LanguageManager.getString("add_comment_placeholder"),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                            )
                             innerTextField()
                         }
                     }
@@ -612,8 +677,12 @@ fun PostDetailScreen(
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     val sendEnabled = commentInput.isNotBlank()
-                    val sendBg = if (sendEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                    val sendIconColor = if (sendEnabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    val sendBg =
+                        if (sendEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                    val sendIconColor =
+                        if (sendEnabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.5f
+                        )
                     IconButton(
                         onClick = {
                             addComment()

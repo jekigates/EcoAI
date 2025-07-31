@@ -24,11 +24,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
-fun SearchScreen(navController: NavHostController, currentRoute: String = "search") {
+fun SearchScreen(navController: NavHostController, currentRoute: String = "search", query: String = "") {
     val db = FirebaseFirestore.getInstance()
-    var searchText by remember { mutableStateOf("") }
+    var searchText by rememberSaveable { mutableStateOf(query) }
     var topTags by remember { mutableStateOf(listOf<String>()) }
     var tagPosts by remember { mutableStateOf(mapOf<String, List<Pair<String, String>>>()) }
     var searchResults by remember { mutableStateOf(listOf<Pair<String, String>>()) }
@@ -152,7 +153,14 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                     contentPadding = PaddingValues(16.dp)
                 ) {
                     items(topTags) { tag ->
-                        Text(tag, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = tag,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.clickable {
+                                searchText = tag
+                            }
+                        )
                         Spacer(Modifier.height(8.dp))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
