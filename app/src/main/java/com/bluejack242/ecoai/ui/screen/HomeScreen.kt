@@ -27,6 +27,8 @@ import com.bluejack242.ecoai.ui.component.MediaCard
 import com.bluejack242.ecoai.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.bluejack242.ecoai.utils.LanguageManager
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun HomeScreen(
@@ -41,17 +43,29 @@ fun HomeScreen(
     val forYouPosts by remember { derivedStateOf { viewModel.forYouPosts } }
     val followingPosts by remember { derivedStateOf { viewModel.followingPosts } }
 
-    LaunchedEffect(gridState) {
-        snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .collect { lastVisibleIndex ->
-                if (lastVisibleIndex != null &&
-                    lastVisibleIndex >= forYouPosts.size - 3 &&
-                    selectedTab == 0
-                ) {
-                    viewModel.loadMorePosts()
+    LaunchedEffect(selectedTab, gridState, listState) {
+        if (selectedTab == 0) {
+            snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+                .distinctUntilChanged()
+                .debounce(300)
+                .collect { index ->
+                    if (index != null && index >= forYouPosts.size - 3) {
+                        viewModel.loadForYouPosts(append = true)
+                    }
                 }
-            }
+        } else {
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+                .distinctUntilChanged()
+                .debounce(300)
+                .collect { index ->
+                    if (index != null && index >= followingPosts.size - 3) {
+                        viewModel.loadFollowingPosts(append = true)
+                    }
+                }
+        }
     }
+
+
 
     val (navigateToSearch, setNavigateToSearch) = remember { mutableStateOf(false) }
     if (navigateToSearch) {
@@ -145,7 +159,7 @@ fun HomeScreen(
 
             when (selectedTab) {
                 0 -> {
-                    if (viewModel.isLoading && forYouPosts.isEmpty()) {
+                    if (viewModel.isLoadingForYou && forYouPosts.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -189,7 +203,7 @@ fun HomeScreen(
                                 }
                             }
 
-                            if (viewModel.isLoading) {
+                            if (viewModel.isLoadingForYou) {
                                 item {
                                     Box(
                                         modifier = Modifier
@@ -206,7 +220,7 @@ fun HomeScreen(
                 }
 
                 1 -> {
-                    if (viewModel.isLoading && followingPosts.isEmpty()) {
+                    if (viewModel.isLoadingFollowing && followingPosts.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
