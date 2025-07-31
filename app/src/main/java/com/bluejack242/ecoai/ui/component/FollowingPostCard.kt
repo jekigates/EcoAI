@@ -1,7 +1,5 @@
-package com.bluejack242.ecoai.ui.home
+package com.bluejack242.ecoai.ui.component
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,9 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,37 +21,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.foundation.text.ClickableText
-
+import androidx.compose.material.icons.filled.FavoriteBorder
+import com.bluejack242.ecoai.utils.LanguageManager
+import com.composables.icons.lucide.Bookmark
+import com.composables.icons.lucide.BookmarkPlus
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MessageCircle
 
 @Composable
 fun FollowingPostCard(
+    postId: String,
     profilePictureUrl: String? = null,
     username: String,
     title: String,
     imageUrl: String? = null,
     caption: String,
     likes: Int = 0,
-    comments: Int = 0,
+    comments: List<Map<String, Any>> = emptyList(),
     saves: Int = 0,
+    isLiked: Boolean = false,
+    isSaved: Boolean = false,
+    onLikeClick: (String) -> Unit,
+    onSaveClick: (String) -> Unit,
+    onCommentClick: (String) -> Unit,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    var currentLikes by remember { mutableIntStateOf(likes) }
+    var currentSaves by remember { mutableIntStateOf(saves) }
+    var liked by remember { mutableStateOf(isLiked) }
+    var saved by remember { mutableStateOf(isSaved) }
 
-    var isLiked by remember { mutableStateOf(false) }
-    var likeCount by remember { mutableStateOf(likes) }
-
-    var isSaved by remember { mutableStateOf(false) }
-    var saveCount by remember { mutableStateOf(saves) }
+    LaunchedEffect(likes, saves, isLiked, isSaved) {
+        currentLikes = likes
+        currentSaves = saves
+        liked = isLiked
+        saved = isSaved
+    }
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-        // Profile Header
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (profilePictureUrl != null) {
                 AsyncImage(
@@ -77,23 +91,18 @@ fun FollowingPostCard(
                         .clip(CircleShape)
                 )
             }
-
             Spacer(modifier = Modifier.width(8.dp))
-            Text(username, fontWeight = FontWeight.Bold)
+            Text("@$username", fontWeight = FontWeight.Bold)
         }
-
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Title
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Post Image
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,10 +124,8 @@ fun FollowingPostCard(
                 Text("No Image", color = Color.DarkGray)
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Caption with tag hyperlink
         val annotatedCaption = buildAnnotatedString {
             val words = caption.split(" ")
             words.forEachIndexed { index, word ->
@@ -148,67 +155,121 @@ fun FollowingPostCard(
                 annotatedCaption.getStringAnnotations(tag = "TAG", start = offset, end = offset)
                     .firstOrNull()?.let { annotation ->
                         val tag = annotation.item
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=$tag"))
-                        context.startActivity(intent)
+                        navController.navigate("search?query=$tag")
                     }
             }
         )
-
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Interaction Icons
         Row(
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Like
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable {
-                    isLiked = !isLiked
-                    likeCount += if (isLiked) 1 else -1
+                    liked = !liked
+                    currentLikes += if (liked) 1 else -1
+                    onLikeClick(postId)
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Favorite,
+                    imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = "Like",
-                    tint = if (isLiked) Color.Red else Color.Gray,
+                    tint = if (liked) Color.Red else Color.Gray,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(likeCount.toString(), style = MaterialTheme.typography.labelSmall)
+                Text(currentLikes.toString(), style = MaterialTheme.typography.labelSmall)
             }
 
-            // Comment
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    onCommentClick(postId)
+                }
+            ) {
                 Icon(
-                    imageVector = Icons.Default.Create,
+                    imageVector = Lucide.MessageCircle,
                     contentDescription = "Comment",
                     tint = Color.Gray,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(comments.toString(), style = MaterialTheme.typography.labelSmall)
+                Text(comments.size.toString(), style = MaterialTheme.typography.labelSmall)
             }
 
-            // Save
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable {
-                    isSaved = !isSaved
-                    saveCount += if (isSaved) 1 else -1
+                    saved = !saved
+                    currentSaves += if (saved) 1 else -1
+                    onSaveClick(postId)
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Star,
+                    imageVector = if (saved) Lucide.Bookmark else Lucide.BookmarkPlus,
                     contentDescription = "Save",
-                    tint = if (isSaved) Color.Yellow else Color.Gray,
+                    tint = if (saved) MaterialTheme.colorScheme.primary else Color.Gray,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(saveCount.toString(), style = MaterialTheme.typography.labelSmall)
+                Text(currentSaves.toString(), style = MaterialTheme.typography.labelSmall)
+            }
+        }
+
+        if (comments.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = LanguageManager.getString("top_comments"),
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            comments.take(3).forEach { comment ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val commentProfileUrl = comment["profilePictureUrl"] as? String
+                    if (commentProfileUrl != null) {
+                        AsyncImage(
+                            model = commentProfileUrl,
+                            contentDescription = "Commenter Profile",
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Default Profile",
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "@${comment["username"] ?: "Unknown"}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = comment["text"] as? String ?: "",
+                        fontSize = 12.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "${comment["likes"] ?: 0}",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
 }
-

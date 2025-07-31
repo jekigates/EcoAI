@@ -95,6 +95,7 @@ object LanguageManager {
             "search" to "Search",
             "no_posts_following" to "No posts from users you follow.",
             "unknown_user" to "Unknown",
+            "top_comments" to "Top Comments",
             
             // Search Screen
             "search_placeholder" to "Search tags or posts",
@@ -263,7 +264,8 @@ object LanguageManager {
             "search" to "Cari",
             "no_posts_following" to "Tidak ada postingan dari pengguna yang Anda ikuti.",
             "unknown_user" to "Tidak Dikenal",
-            
+            "top_comments" to "Komentar Teratas",
+
             // Search Screen
             "search_placeholder" to "Cari tag atau postingan",
             "search_button" to "Cari",
