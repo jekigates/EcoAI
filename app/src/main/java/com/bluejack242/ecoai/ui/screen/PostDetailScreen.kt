@@ -1,5 +1,7 @@
 package com.bluejack242.ecoai.ui.screen
 
+import com.bluejack242.ecoai.ui.component.CustomDialog
+import com.bluejack242.ecoai.ui.component.DialogType
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -40,12 +42,10 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import com.bluejack242.ecoai.viewmodel.PostDetailViewModel
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.ui.draw.alpha
 import com.bluejack242.ecoai.utils.sendNotificationWithType
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.composables.icons.lucide.MessageCircle
 import com.composables.icons.lucide.ArrowUp
-import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +54,6 @@ fun PostDetailScreen(
     navController: NavHostController,
     viewModel: PostDetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val context = LocalContext.current
     // Load post on first composition
     LaunchedEffect(postId) {
@@ -535,7 +534,8 @@ fun PostDetailScreen(
     if (showCommentSheet) {
         ModalBottomSheet(
             onDismissRequest = { showCommentSheet = false },
-            sheetState = rememberModalBottomSheetState()
+            sheetState = rememberModalBottomSheetState(),
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 Modifier
@@ -648,20 +648,20 @@ fun PostDetailScreen(
     }
     // Delete confirmation dialog
     if (viewModel.showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { viewModel.showDeleteDialog = false },
-            title = { Text(LanguageManager.getString("delete_confirmation")) },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.showDeleteDialog = false
-                    viewModel.deletePost(postId) {
-                        navController.popBackStack()
-                    }
-                }) { Text(LanguageManager.getString("delete")) }
+        CustomDialog(
+            title = LanguageManager.getString("delete_confirmation"),
+            message = LanguageManager.getString("delete_post_confirmation_message"),
+            confirmText = LanguageManager.getString("delete"),
+            onConfirm = {
+                viewModel.showDeleteDialog = false
+                viewModel.deletePost(postId) {
+                    navController.popBackStack()
+                }
             },
-            dismissButton = {
-                TextButton(onClick = { viewModel.showDeleteDialog = false }) { Text(LanguageManager.getString("cancel")) }
-            }
+            onDismiss = { viewModel.showDeleteDialog = false },
+            dialogType = DialogType.Confirm,
+            showDismiss = true,
+            dismissText = LanguageManager.getString("cancel")
         )
     }
 } 

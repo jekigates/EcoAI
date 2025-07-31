@@ -2,16 +2,17 @@ package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import com.bluejack242.ecoai.ui.component.CustomDialog
+import com.bluejack242.ecoai.ui.component.DialogType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.rememberCoroutineScope
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
@@ -48,7 +49,10 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
                 onClick = { navController.navigate("login") },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = LanguageManager.getString("back"))
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = LanguageManager.getString("back")
+                )
             }
         }
         Spacer(Modifier.height(24.dp))
@@ -90,23 +94,17 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
         }
         
         if (showSuccessDialog.value) {
-            AlertDialog(
-                onDismissRequest = {
+            CustomDialog(
+                title = LanguageManager.getString("success"),
+                message = LanguageManager.getString("reset_password_success_message"),
+                confirmText = LanguageManager.getString("ok"),
+                onConfirm = {
                     showSuccessDialog.value = false
-                    navController.navigate("login")
                 },
-                title = { Text(LanguageManager.getString("success")) },
-                text = { Text(LanguageManager.getString("reset_password_success_message")) },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showSuccessDialog.value = false
-                            navController.navigate("login")
-                        }
-                    ) {
-                        Text(LanguageManager.getString("ok"))
-                    }
-                }
+                onDismiss = {
+                    showSuccessDialog.value = false
+                },
+                dialogType = DialogType.Success
             )
         }
     }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -16,7 +15,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.AlertDialog
+import com.bluejack242.ecoai.ui.component.CustomDialog
+import com.bluejack242.ecoai.ui.component.DialogType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -40,7 +38,6 @@ fun RegisterScreen(
     viewModel: AuthViewModel,
     onLoginClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val error = viewModel.errorMessage.value
     val isLoading = viewModel.isLoading.value
 
@@ -176,19 +173,16 @@ fun RegisterScreen(
         }
 
         if (showSuccessDialog) {
-            AlertDialog(
-                onDismissRequest = {}, // Prevent dismiss by outside touch or back
-                title = { Text(LanguageManager.getString("registration_success")) },
-                text = { Text(LanguageManager.getString("verification_link_sent")) },
-                confirmButton = {
-                    Button(onClick = {
-                        showSuccessDialog = false
-                        onLoginClick()
-                    }) {
-                        Text(LanguageManager.getString("go_to_login"))
-                    }
+            CustomDialog(
+                title = LanguageManager.getString("registration_success"),
+                message = LanguageManager.getString("verification_link_sent"),
+                confirmText = LanguageManager.getString("go_to_login"),
+                onConfirm = {
+                    showSuccessDialog = false
+                    onLoginClick()
                 },
-                dismissButton = null
+                onDismiss = {},
+                dialogType = DialogType.Success
             )
         }
     }

@@ -48,6 +48,8 @@ object LanguageManager {
             "time_weeks_ago" to "%d weeks ago",
             "time_months_ago" to "%d months ago",
             "time_years_ago" to "%d years ago",
+            // Dialogs
+            "delete_post_confirmation_message" to "Are you sure you want to delete this post? This action cannot be undone.",
             "no_notifications" to "No notifications yet",
             "notification" to "Notifications",
             
@@ -216,6 +218,8 @@ object LanguageManager {
             "time_weeks_ago" to "%d minggu yang lalu",
             "time_months_ago" to "%d bulan yang lalu",
             "time_years_ago" to "%d tahun yang lalu",
+            // Dialogs
+            "delete_post_confirmation_message" to "Apakah Anda yakin ingin menghapus postingan ini? Tindakan ini tidak dapat dibatalkan.",
 
             "no_notifications" to "Belum ada notifikasi",
             
