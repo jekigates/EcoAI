@@ -21,6 +21,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.runtime.mutableIntStateOf
 import com.bluejack242.ecoai.utils.sendNotificationWithType
+import kotlinx.coroutines.tasks.await
 
 class PostDetailViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
@@ -182,5 +183,16 @@ class PostDetailViewModel : ViewModel() {
             val date = Date(it.seconds * 1000)
             SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(date)
         } ?: ""
+    }
+
+    fun deleteComment(postId: String, commentId: String) {
+        viewModelScope.launch {
+            if (userId == null) return@launch
+            val commentRef = db.collection("posts").document(postId).collection("comments").document(commentId)
+            val commentDoc = commentRef.get().await()
+            if (commentDoc.get("userId") == userId) {
+                commentRef.delete().await()
+            }
+        }
     }
 } 

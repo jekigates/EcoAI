@@ -69,7 +69,8 @@ fun HomeScreen(
 
     val (navigateToSearch, setNavigateToSearch) = remember { mutableStateOf(false) }
     if (navigateToSearch) {
-        navController.navigate("search")
+        val query = ""
+        navController.navigate("search/$query")
         setNavigateToSearch(false)
     }
 
@@ -253,6 +254,7 @@ fun HomeScreen(
                                     post["media"] as? List<Map<String, Any>> ?: emptyList()
                                 val firstMedia =
                                     mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                val userId = post["userId"] as? String ?: ""
                                 val username = post["username"] as? String ?: ""
                                 val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
                                 val likes = (post["likes"] as? Long)?.toInt() ?: 0
@@ -268,6 +270,7 @@ fun HomeScreen(
                                 FollowingPostCard(
                                     postId = postId,
                                     profilePictureUrl = profilePictureUrl,
+                                    userId = userId,
                                     username = username,
                                     title = post["headline"] as? String ?: "",
                                     imageUrl = firstMedia,
@@ -280,7 +283,10 @@ fun HomeScreen(
                                     onLikeClick = { viewModel.toggleLike(it) },
                                     onSaveClick = { viewModel.toggleSave(it) },
                                     onCommentClick = { navController.navigate("post_detail/$it") },
-                                    navController = navController
+                                    navController = navController,
+                                    onDelete = { viewModel.deletePost(postId) },
+                                    viewModel = viewModel
+
                                 )
                             }
                         }

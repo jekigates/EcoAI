@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.component
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,17 +27,22 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.MoreVert
 import com.bluejack242.ecoai.utils.LanguageManager
+import com.bluejack242.ecoai.viewmodel.HomeViewModel
 import com.composables.icons.lucide.Bookmark
 import com.composables.icons.lucide.BookmarkPlus
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MessageCircle
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FollowingPostCard(
     postId: String,
     profilePictureUrl: String? = null,
+    userId: String,
     username: String,
     title: String,
     imageUrl: String? = null,
@@ -49,7 +55,9 @@ fun FollowingPostCard(
     onLikeClick: (String) -> Unit,
     onSaveClick: (String) -> Unit,
     onCommentClick: (String) -> Unit,
+    onDelete: (String) -> Unit,
     navController: NavHostController,
+    viewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -57,6 +65,11 @@ fun FollowingPostCard(
     var currentSaves by remember { mutableIntStateOf(saves) }
     var liked by remember { mutableStateOf(isLiked) }
     var saved by remember { mutableStateOf(isSaved) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+    val isSelf = currentUser?.uid == userId
+    val comments by remember { derivedStateOf { viewModel.commentsMap[postId] ?: emptyList() } }
 
     LaunchedEffect(likes, saves, isLiked, isSaved) {
         currentLikes = likes
@@ -65,34 +78,55 @@ fun FollowingPostCard(
         saved = isSaved
     }
 
+    LaunchedEffect(postId) {
+        if (!viewModel.commentsMap.containsKey(postId)) {
+            viewModel.loadComments(postId)
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(12.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (profilePictureUrl != null) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(profilePictureUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Default Profile",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { navController.navigate("user_profile/$userId") }
+            ) {
+                if (profilePictureUrl != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(profilePictureUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "Default Profile",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("@$username", fontWeight = FontWeight.Bold)
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("@$username", fontWeight = FontWeight.Bold)
+            if (isSelf) {
+                IconButton(onClick = { showBottomSheet = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = LanguageManager.getString("more"))
+                }
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -155,7 +189,7 @@ fun FollowingPostCard(
                 annotatedCaption.getStringAnnotations(tag = "TAG", start = offset, end = offset)
                     .firstOrNull()?.let { annotation ->
                         val tag = annotation.item
-                        navController.navigate("search?query=$tag")
+                        navController.navigate("search/${Uri.encode(tag)}")
                     }
             }
         )
@@ -270,6 +304,41 @@ fun FollowingPostCard(
                     )
                 }
             }
+        }
+
+        if (showBottomSheet && isSelf) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = rememberModalBottomSheetState()
+            ) {
+                Column(Modifier.fillMaxWidth()) {
+                    ListItem(
+                        headlineContent = { Text(LanguageManager.getString("delete")) },
+                        leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            showBottomSheet = false
+                            showDeleteDialog = true
+                        }
+                    )
+                }
+            }
+        }
+
+        // Delete Confirmation Dialog
+        if (showDeleteDialog) {
+            CustomDialog(
+                title = LanguageManager.getString("delete_confirmation"),
+                message = LanguageManager.getString("delete_post_confirmation_message"),
+                confirmText = LanguageManager.getString("delete"),
+                onConfirm = {
+                    showDeleteDialog = false
+                    onDelete(postId)
+                },
+                onDismiss = { showDeleteDialog = false },
+                dialogType = DialogType.Confirm,
+                showDismiss = true,
+                dismissText = LanguageManager.getString("cancel")
+            )
         }
     }
 }

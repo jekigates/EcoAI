@@ -102,8 +102,9 @@ fun NavGraph(navController: NavHostController,
             PostDetailScreen(postId = postId, navController = navController)
         }
 
-        composable("search") {
-            SearchScreen(navController = navController, currentRoute = "search")
+        composable("search/{query}") {backStackEntry ->
+            val query = backStackEntry.arguments?.getString("query") ?: ""
+            SearchScreen(navController = navController, currentRoute = "search", query = query)
         }
 
         composable("user_profile/{userId}") { backStackEntry ->

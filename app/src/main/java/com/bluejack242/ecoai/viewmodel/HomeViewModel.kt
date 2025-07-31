@@ -29,7 +29,11 @@ class HomeViewModel : ViewModel() {
     private var lastForYouSnapshot: DocumentSnapshot? = null
     private var lastFollowingSnapshot: DocumentSnapshot? = null
 
-    private val pageSize = 10
+    private val pageSize = 3
+
+    private val _commentsMap = mutableMapOf<String, List<Map<String, Any>>>()
+    val commentsMap: Map<String, List<Map<String, Any>>>
+        get() = _commentsMap
 
     init {
         loadInitialPosts()
@@ -75,14 +79,16 @@ class HomeViewModel : ViewModel() {
             val userDoc = firestore.collection("users").document(currentUser.uid).get().await()
             val following = userDoc.get("following") as? List<String> ?: emptyList()
 
-            if (following.isEmpty()) {
+            val followingWithSelf = (following + currentUser.uid).distinct().take(10)
+
+            if (followingWithSelf.isEmpty()) {
                 followingPosts = emptyList()
                 isLoadingFollowing = false
                 return@launch
             }
 
             var query = firestore.collection("posts")
-                .whereIn("userId", following.take(3))
+                .whereIn("userId", followingWithSelf)
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .limit(pageSize.toLong())
             if (append && lastFollowingSnapshot != null) {
@@ -97,8 +103,25 @@ class HomeViewModel : ViewModel() {
             val newPosts = enrichPosts(snapshot.documents)
             followingPosts = if (append) followingPosts + newPosts else newPosts
 
+            snapshot.documents.forEach { postDoc ->
+                loadComments(postDoc.id)
+            }
+
             isLoadingFollowing = false
         }
+    }
+
+    fun loadComments(postId: String) {
+        firestore.collection("posts").document(postId).collection("comments")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) return@addSnapshotListener
+                snapshot?.let {
+                    viewModelScope.launch {
+                        val enrichedComments = enrichComments(it.documents)
+                        _commentsMap[postId] = enrichedComments
+                    }
+                } ?: run { _commentsMap[postId] = emptyList() }
+            }
     }
 
     private suspend fun enrichPosts(docs: List<DocumentSnapshot>) =
@@ -114,6 +137,19 @@ class HomeViewModel : ViewModel() {
                 put("profilePictureUrl", userData["profilePictureUrl"] ?: "")
             }
             postDoc.id to enriched
+        }
+
+    private suspend fun enrichComments(commentDocs: List<DocumentSnapshot>): List<Map<String, Any>> =
+        commentDocs.mapNotNull { commentDoc ->
+            val commentData = commentDoc.data ?: return@mapNotNull null
+            val userId = commentData["userId"] as? String ?: return@mapNotNull null
+            val userDoc = firestore.collection("users").document(userId).get().await()
+            val userData = userDoc.data ?: return@mapNotNull null
+
+            commentData.toMutableMap().apply {
+                put("username", userData["username"] ?: "Unknown")
+                put("profilePictureUrl", userData["profilePictureUrl"] ?: "")
+            }.plus("id" to commentDoc.id)
         }
 
     fun toggleLike(postId: String) {
@@ -221,6 +257,26 @@ class HomeViewModel : ViewModel() {
                 id to updatedPost
             } else {
                 id to post
+            }
+        }
+    }
+
+    fun deletePost(postId: String) {
+        val currentUser = auth.currentUser ?: return
+
+        viewModelScope.launch {
+            try {
+                val postRef = firestore.collection("posts").document(postId)
+                val postDoc = postRef.get().await()
+                val postData = postDoc.data ?: return@launch
+
+                if (postData["userId"] == currentUser.uid) {
+                    postRef.delete().await()
+
+                    forYouPosts = forYouPosts.filter { it.first != postId }
+                    followingPosts = followingPosts.filter { it.first != postId }
+                }
+            } catch (e: Exception) {
             }
         }
     }
