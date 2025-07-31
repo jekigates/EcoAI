@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,14 +25,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.LottieConstants
 import androidx.compose.material3.CircularProgressIndicator
+import com.bluejack242.ecoai.R
 import com.bluejack242.ecoai.model.LoginRequest
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.ui.component.LanguageSelector
@@ -49,104 +55,111 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.Top
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
     ) {
-        // Language Selector
+        // Language Selector at absolute top right
         LanguageSelector(
             modifier = Modifier
-                .align(Alignment.End)
-                .padding(bottom = 16.dp),
+                .align(Alignment.TopEnd)
+                .padding(top = 16.dp, end = 16.dp),
             backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
             textColor = MaterialTheme.colorScheme.onSurface
         )
-        
-        // Gambar placeholder
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("GAMBAR", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-        }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = LanguageManager.getString("welcome_back"),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text(LanguageManager.getString("email_address")) },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(LanguageManager.getString("password_hint")) },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(
-            onClick = onForgotPasswordClick,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(
-                text = LanguageManager.getString("forgotten_password"),
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = { viewModel.login(LoginRequest(email, password)) {
-                Toast.makeText(context, LanguageManager.getString("login_success"), Toast.LENGTH_SHORT).show()
-                onLoginSuccess()
-            } },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            shape = RoundedCornerShape(6.dp)
-        ) {
-            Text(LanguageManager.getString("log_in"), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
-        }
-        if (error != null) {
-            Text(error, color = MaterialTheme.colorScheme.error)
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator()
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
+        // Main content centered
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(LanguageManager.getString("dont_have_account"), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick = onRegisterClick) {
-                Text(LanguageManager.getString("register"), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            // Lottie Animation (Trash Can) - much larger
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.becket_trash_can))
+            LottieAnimation(
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+                modifier = Modifier
+                    .size(280.dp)
+                    .padding(bottom = 8.dp)
+            )
+
+            Text(
+                text = LanguageManager.getString("welcome_back"),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+            )
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text(LanguageManager.getString("email_address")) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(LanguageManager.getString("password_hint")) },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+
+            TextButton(
+                onClick = onForgotPasswordClick,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 4.dp, bottom = 4.dp)
+            ) {
+                Text(
+                    text = LanguageManager.getString("forgotten_password"),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Button(
+                onClick = { viewModel.login(LoginRequest(email, password)) {
+                    Toast.makeText(context, LanguageManager.getString("login_success"), Toast.LENGTH_SHORT).show()
+                    onLoginSuccess()
+                } },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text(LanguageManager.getString("log_in"), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+            }
+            if (error != null) {
+                Text(error, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 4.dp))
+            }
+
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.padding(top = 8.dp))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(LanguageManager.getString("dont_have_account"), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                TextButton(onClick = onRegisterClick) {
+                    Text(LanguageManager.getString("register"), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                }
             }
         }
     }
