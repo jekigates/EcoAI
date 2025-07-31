@@ -52,6 +52,7 @@ fun ProgressScreen(
     val fabIconColor = Color.White
     // val emptyTextColor = onSurfaceVariantColor
 
+    var fabExpanded by remember { mutableStateOf(false) }
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -60,16 +61,46 @@ fun ProgressScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddWasteClick,
-                containerColor = fabColor,
-                contentColor = fabIconColor
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = LanguageManager.getString("add_waste"),
-                    tint = fabIconColor
-                )
+            Box(contentAlignment = Alignment.BottomEnd) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    if (fabExpanded) {
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                fabExpanded = false
+                                navController.navigate("add_waste")
+                            },
+                            icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                            text = { Text("Scan Waste") },
+                            containerColor = fabColor,
+                            contentColor = fabIconColor,
+                            modifier = Modifier
+                                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+                        )
+                        ExtendedFloatingActionButton(
+                            onClick = { fabExpanded = false },
+                            icon = { Icon(painterResource(id = R.drawable.baseline_recycling_24), contentDescription = null) },
+                            text = { Text("Food Database") },
+                            containerColor = fabColor,
+                            contentColor = fabIconColor,
+                            modifier = Modifier
+                                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+                        )
+                    }
+                    FloatingActionButton(
+                        onClick = { fabExpanded = !fabExpanded },
+                        containerColor = fabColor,
+                        contentColor = fabIconColor
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = LanguageManager.getString("add_waste"),
+                            tint = fabIconColor
+                        )
+                    }
+                }
             }
         }
     ) { paddingValues ->
