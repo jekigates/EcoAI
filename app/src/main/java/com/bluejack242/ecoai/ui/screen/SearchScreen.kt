@@ -2,8 +2,6 @@ package com.bluejack242.ecoai.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -21,39 +19,59 @@ import com.bluejack242.ecoai.utils.LanguageManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 
 @Composable
 fun SearchScreen(navController: NavHostController, currentRoute: String = "search") {
     val db = FirebaseFirestore.getInstance()
     var searchText by remember { mutableStateOf("") }
     var topTags by remember { mutableStateOf(listOf<String>()) }
-    var tagPosts by remember { mutableStateOf(mapOf<String, List<Pair<String, String>>>()) } // tag -> list of (postId, thumbnailUrl)
+    var tagPosts by remember { mutableStateOf(mapOf<String, List<Pair<String, String>>>()) }
+    var searchResults by remember { mutableStateOf(listOf<Pair<String, String>>()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Fetch top tags and posts
-    LaunchedEffect(Unit) {
+    LaunchedEffect(searchText) {
         isLoading = true
-        // Fetch all posts and extract tags
+
         val postsSnapshot = db.collection("posts").get().await()
         val tagCount = mutableMapOf<String, Int>()
-        val tagToPosts = mutableMapOf<String, MutableList<Triple<String, String, Int>>>() // tag -> list of (postId, thumbnailUrl, likes)
+        val tagToPosts = mutableMapOf<String, MutableList<Triple<String, String, Int>>>()
+        val results = mutableListOf<Pair<String, String>>()
+
         for (doc in postsSnapshot) {
             val postId = doc.id
             val caption = doc.getString("caption") ?: ""
+            val headline = doc.getString("headline") ?: ""
             val likes = doc.getLong("likes")?.toInt() ?: 0
             val media = doc.get("media") as? List<Map<String, Any>>
             val thumbnail = media?.firstOrNull()?.get("url") as? String ?: ""
-            val tagRegex = Regex("#[A-Za-z0-9_]+")
-            for (tag in tagRegex.findAll(caption).map { it.value }) {
-                tagCount[tag] = (tagCount[tag] ?: 0) + 1
-                val postList = tagToPosts.getOrPut(tag) { mutableListOf() }
-                postList.add(Triple(postId, thumbnail, likes))
+
+            if (searchText.isNotBlank()) {
+                if (caption.contains(searchText, ignoreCase = true) || headline.contains(searchText, ignoreCase = true)) {
+                    results.add(postId to thumbnail)
+                }
+            } else {
+                val tagRegex = Regex("#[A-Za-z0-9_]+")
+                for (tag in tagRegex.findAll(caption).map { it.value }) {
+                    tagCount[tag] = (tagCount[tag] ?: 0) + 1
+                    val postList = tagToPosts.getOrPut(tag) { mutableListOf() }
+                    postList.add(Triple(postId, thumbnail, likes))
+                }
             }
         }
-        val sortedTags = tagCount.entries.sortedByDescending { it.value }.take(5).map { it.key }
-        topTags = sortedTags
-        tagPosts = sortedTags.associateWith { tag ->
-            tagToPosts[tag]?.sortedByDescending { it.third }?.take(5)?.map { it.first to it.second } ?: emptyList()
+
+        searchResults = results
+        if (searchText.isBlank()) {
+            val sortedTags = tagCount.entries.sortedByDescending { it.value }.map { it.key }
+            topTags = sortedTags
+            tagPosts = sortedTags.associateWith { tag ->
+                tagToPosts[tag]?.sortedByDescending { it.third }
+                    ?.take(5)?.map { it.first to it.second } ?: emptyList()
+            }
         }
         isLoading = false
     }
@@ -69,7 +87,7 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
-            // Top bar with search input
+            // Search bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,14 +109,42 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                         disabledContainerColor = Color.Transparent
                     )
                 )
-                Spacer(Modifier.width(8.dp))
-                Button(onClick = { /* Search action, keep empty for now */ }) {
-                    Text(LanguageManager.getString("search_button"))
-                }
             }
+
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
+                }
+            } else if (searchText.isNotBlank()) {
+                if (searchResults.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No results found", color = Color.Gray)
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        contentPadding = PaddingValues(2.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(searchResults) { (postId, thumbnailUrl) ->
+                            Box(
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .padding(2.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color.LightGray)
+                                    .clickable { navController.navigate("post_detail/$postId") }
+                            ) {
+                                if (thumbnailUrl.isNotBlank()) {
+                                    AsyncImage(
+                                        model = thumbnailUrl,
+                                        contentDescription = LanguageManager.getString("post_thumbnail"),
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             } else {
                 LazyColumn(
@@ -114,11 +160,12 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                         ) {
                             tagPosts[tag]?.forEach { (postId, thumbnailUrl) ->
                                 if (thumbnailUrl.isNotBlank()) {
-                                    Box(Modifier
-                                        .size(80.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(Color.LightGray)
-                                        .clickable { navController.navigate("post_detail/$postId") }
+                                    Box(
+                                        Modifier
+                                            .size(80.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color.LightGray)
+                                            .clickable { navController.navigate("post_detail/$postId") }
                                     ) {
                                         AsyncImage(
                                             model = thumbnailUrl,
@@ -135,4 +182,4 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
             }
         }
     }
-} 
+}
