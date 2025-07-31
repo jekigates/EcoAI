@@ -80,12 +80,14 @@ class HomeViewModel : ViewModel() {
                     val commentData = commentDoc.data ?: return@mapNotNull null
                     val commentUserId = commentData["userId"] as? String ?: return@mapNotNull null
 
-                    val commentUserDoc = firestore.collection("users").document(commentUserId).get().await()
+                    val commentUserDoc =
+                        firestore.collection("users").document(commentUserId).get().await()
                     val commentUserData = commentUserDoc.data ?: return@mapNotNull null
 
                     val enrichedComment = commentData.toMutableMap()
                     enrichedComment["username"] = commentUserData["username"] ?: ""
-                    enrichedComment["profilePictureUrl"] = commentUserData["profilePictureUrl"] ?: ""
+                    enrichedComment["profilePictureUrl"] =
+                        commentUserData["profilePictureUrl"] ?: ""
                     enrichedComment
                 }
 
@@ -107,6 +109,7 @@ class HomeViewModel : ViewModel() {
                 hasMorePosts = posts.size >= pageSize
             }
         } catch (e: Exception) {
+            // Handle error
         }
     }
 
@@ -132,7 +135,8 @@ class HomeViewModel : ViewModel() {
                 for (postDoc in userPostsSnapshot.documents) {
                     val postData = postDoc.data ?: continue
 
-                    val userDoc = firestore.collection("users").document(followedUserId).get().await()
+                    val userDoc =
+                        firestore.collection("users").document(followedUserId).get().await()
                     val userData = userDoc.data ?: continue
 
                     val enrichedPost = postData.toMutableMap()
@@ -146,14 +150,17 @@ class HomeViewModel : ViewModel() {
 
                     val comments = commentsSnapshot.documents.mapNotNull { commentDoc ->
                         val commentData = commentDoc.data ?: return@mapNotNull null
-                        val commentUserId = commentData["userId"] as? String ?: return@mapNotNull null
+                        val commentUserId =
+                            commentData["userId"] as? String ?: return@mapNotNull null
 
-                        val commentUserDoc = firestore.collection("users").document(commentUserId).get().await()
+                        val commentUserDoc =
+                            firestore.collection("users").document(commentUserId).get().await()
                         val commentUserData = commentUserDoc.data ?: return@mapNotNull null
 
                         val enrichedComment = commentData.toMutableMap()
                         enrichedComment["username"] = commentUserData["username"] ?: ""
-                        enrichedComment["profilePictureUrl"] = commentUserData["profilePictureUrl"] ?: ""
+                        enrichedComment["profilePictureUrl"] =
+                            commentUserData["profilePictureUrl"] ?: ""
                         enrichedComment
                     }
 
@@ -252,6 +259,7 @@ class HomeViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
+                // Handle error
             }
         }
     }
