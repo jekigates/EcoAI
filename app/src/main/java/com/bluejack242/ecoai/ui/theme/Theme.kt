@@ -2,6 +2,7 @@ package com.bluejack242.ecoai.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import com.bluejack242.ecoai.ui.theme.AppTypography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ fun EcoAITheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable 
 
     MaterialTheme(
         colorScheme = colorScheme,
+        typography = AppTypography,
         content = content
     )
 }
