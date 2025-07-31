@@ -256,7 +256,7 @@ fun ProfileScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                items(viewModel.likedPosts, key = { it.first }) { (postId, post) ->
+                                items(viewModel.savedPosts, key = { it.first }) { (postId, post) ->
                                     val mediaList =
                                         post["media"] as? List<Map<String, Any>> ?: emptyList()
                                     val firstMedia =
@@ -301,7 +301,7 @@ fun ProfileScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                items(viewModel.savedPosts, key = { it.first }) { (postId, post) ->
+                                items(viewModel.likedPosts, key = { it.first }) { (postId, post) ->
                                     val mediaList =
                                         post["media"] as? List<Map<String, Any>> ?: emptyList()
                                     val firstMedia =
