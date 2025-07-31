@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -18,12 +20,15 @@ class HomeViewModel : ViewModel() {
         private set
     var followingPosts by mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList())
         private set
-    var isLoading by mutableStateOf(false)
+
+    var isLoadingForYou by mutableStateOf(false)
         private set
-    var hasMorePosts by mutableStateOf(true)
+    var isLoadingFollowing by mutableStateOf(false)
         private set
 
-    private var currentPage = 0
+    private var lastForYouSnapshot: DocumentSnapshot? = null
+    private var lastFollowingSnapshot: DocumentSnapshot? = null
+
     private val pageSize = 10
 
     init {
@@ -32,153 +37,84 @@ class HomeViewModel : ViewModel() {
 
     private fun loadInitialPosts() {
         viewModelScope.launch {
-            isLoading = true
-            currentPage = 0
             loadForYouPosts()
             loadFollowingPosts()
-            isLoading = false
         }
     }
 
-    fun loadMorePosts() {
-        if (!isLoading && hasMorePosts) {
-            viewModelScope.launch {
-                isLoading = true
-                currentPage++
-                loadForYouPosts(append = true)
-                isLoading = false
+    fun loadForYouPosts(append: Boolean = false) {
+        if (isLoadingForYou) return
+        viewModelScope.launch {
+            isLoadingForYou = true
+
+            var query = firestore.collection("posts")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(pageSize.toLong())
+            if (append && lastForYouSnapshot != null) {
+                query = query.startAfter(lastForYouSnapshot!!)
             }
+
+            val snapshot = query.get().await()
+            if (snapshot.documents.isNotEmpty()) {
+                lastForYouSnapshot = snapshot.documents.last()
+            }
+
+            val newPosts = enrichPosts(snapshot.documents)
+            forYouPosts = if (append) forYouPosts + newPosts else newPosts
+
+            isLoadingForYou = false
         }
     }
 
-    private suspend fun loadForYouPosts(append: Boolean = false) {
-        try {
-            val postsSnapshot = firestore.collection("posts")
-                .orderBy("createdAt")
-                .limit((pageSize * (currentPage + 1)).toLong())
-                .get().await()
+    fun loadFollowingPosts(append: Boolean = false) {
+        if (isLoadingFollowing) return
+        viewModelScope.launch {
+            isLoadingFollowing = true
 
-            val posts = mutableListOf<Pair<String, Map<String, Any>>>()
-
-            for (postDoc in postsSnapshot.documents.reversed()) {
-                val postData = postDoc.data ?: continue
-                val userId = postData["userId"] as? String ?: continue
-
-                val userDoc = firestore.collection("users").document(userId).get().await()
-                val userData = userDoc.data ?: continue
-
-                val enrichedPost = postData.toMutableMap()
-                enrichedPost["username"] = userData["username"] ?: ""
-                enrichedPost["fullName"] = userData["fullName"] ?: ""
-                enrichedPost["profilePictureUrl"] = userData["profilePictureUrl"] ?: ""
-
-                val commentsSnapshot = firestore.collection("posts").document(postDoc.id)
-                    .collection("comments")
-                    .get().await()
-
-                val comments = commentsSnapshot.documents.mapNotNull { commentDoc ->
-                    val commentData = commentDoc.data ?: return@mapNotNull null
-                    val commentUserId = commentData["userId"] as? String ?: return@mapNotNull null
-
-                    val commentUserDoc =
-                        firestore.collection("users").document(commentUserId).get().await()
-                    val commentUserData = commentUserDoc.data ?: return@mapNotNull null
-
-                    val enrichedComment = commentData.toMutableMap()
-                    enrichedComment["username"] = commentUserData["username"] ?: ""
-                    enrichedComment["profilePictureUrl"] =
-                        commentUserData["profilePictureUrl"] ?: ""
-                    enrichedComment
-                }
-
-                enrichedPost["comments"] = comments.sortedByDescending {
-                    (it["likes"] as? Long) ?: 0
-                }.take(3)
-
-                posts.add(postDoc.id to enrichedPost)
-            }
-
-            if (append) {
-                val newPosts = posts.filter { newPost ->
-                    forYouPosts.none { existingPost -> existingPost.first == newPost.first }
-                }
-                forYouPosts = forYouPosts + newPosts
-                hasMorePosts = newPosts.isNotEmpty()
-            } else {
-                forYouPosts = posts
-                hasMorePosts = posts.size >= pageSize
-            }
-        } catch (e: Exception) {
-            // Handle error
-        }
-    }
-
-    private suspend fun loadFollowingPosts() {
-        val currentUser = auth.currentUser ?: return
-
-        try {
+            val currentUser = auth.currentUser ?: return@launch
             val userDoc = firestore.collection("users").document(currentUser.uid).get().await()
             val following = userDoc.get("following") as? List<String> ?: emptyList()
 
             if (following.isEmpty()) {
                 followingPosts = emptyList()
-                return
+                isLoadingFollowing = false
+                return@launch
             }
 
-            val posts = mutableListOf<Pair<String, Map<String, Any>>>()
-
-            for (followedUserId in following) {
-                val userPostsSnapshot = firestore.collection("posts")
-                    .whereEqualTo("userId", followedUserId)
-                    .get().await()
-
-                for (postDoc in userPostsSnapshot.documents) {
-                    val postData = postDoc.data ?: continue
-
-                    val userDoc =
-                        firestore.collection("users").document(followedUserId).get().await()
-                    val userData = userDoc.data ?: continue
-
-                    val enrichedPost = postData.toMutableMap()
-                    enrichedPost["username"] = userData["username"] ?: ""
-                    enrichedPost["fullName"] = userData["fullName"] ?: ""
-                    enrichedPost["profilePictureUrl"] = userData["profilePictureUrl"] ?: ""
-
-                    val commentsSnapshot = firestore.collection("posts").document(postDoc.id)
-                        .collection("comments")
-                        .get().await()
-
-                    val comments = commentsSnapshot.documents.mapNotNull { commentDoc ->
-                        val commentData = commentDoc.data ?: return@mapNotNull null
-                        val commentUserId =
-                            commentData["userId"] as? String ?: return@mapNotNull null
-
-                        val commentUserDoc =
-                            firestore.collection("users").document(commentUserId).get().await()
-                        val commentUserData = commentUserDoc.data ?: return@mapNotNull null
-
-                        val enrichedComment = commentData.toMutableMap()
-                        enrichedComment["username"] = commentUserData["username"] ?: ""
-                        enrichedComment["profilePictureUrl"] =
-                            commentUserData["profilePictureUrl"] ?: ""
-                        enrichedComment
-                    }
-
-                    enrichedPost["comments"] = comments.sortedByDescending {
-                        (it["likes"] as? Long) ?: 0
-                    }.take(3)
-
-                    posts.add(postDoc.id to enrichedPost)
-                }
+            var query = firestore.collection("posts")
+                .whereIn("userId", following.take(3))
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(pageSize.toLong())
+            if (append && lastFollowingSnapshot != null) {
+                query = query.startAfter(lastFollowingSnapshot!!)
             }
 
-            followingPosts = posts.sortedByDescending { (_, post) ->
-                (post["createdAt"] as? Long) ?: 0
+            val snapshot = query.get().await()
+            if (snapshot.documents.isNotEmpty()) {
+                lastFollowingSnapshot = snapshot.documents.last()
             }
-        } catch (e: Exception) {
-            // Handle error
+
+            val newPosts = enrichPosts(snapshot.documents)
+            followingPosts = if (append) followingPosts + newPosts else newPosts
+
+            isLoadingFollowing = false
         }
     }
+
+    private suspend fun enrichPosts(docs: List<DocumentSnapshot>) =
+        docs.mapNotNull { postDoc ->
+            val postData = postDoc.data ?: return@mapNotNull null
+            val userId = postData["userId"] as? String ?: return@mapNotNull null
+            val userDoc = firestore.collection("users").document(userId).get().await()
+            val userData = userDoc.data ?: return@mapNotNull null
+
+            val enriched = postData.toMutableMap().apply {
+                put("username", userData["username"] ?: "")
+                put("fullName", userData["fullName"] ?: "")
+                put("profilePictureUrl", userData["profilePictureUrl"] ?: "")
+            }
+            postDoc.id to enriched
+        }
 
     fun toggleLike(postId: String) {
         val currentUser = auth.currentUser ?: return
