@@ -1,6 +1,7 @@
 package com.bluejack242.ecoai
 
 import android.os.Bundle
+import android.content.Context
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -20,8 +21,17 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            var isDarkTheme by rememberSaveable { mutableStateOf(false) }
+            val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
+            var isDarkTheme by rememberSaveable {
+                mutableStateOf(prefs.getBoolean("isDarkTheme", false))
+            }
             var isNotificationEnabled by rememberSaveable { mutableStateOf(true) }
+
+            // Load language from prefs if available
+            val initialLang = prefs.getString("language", "EN") ?: "EN"
+            LaunchedEffect(Unit) {
+                com.bluejack242.ecoai.utils.LanguageManager.setLanguage(initialLang)
+            }
 
             EcoAITheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
@@ -33,7 +43,10 @@ class MainActivity : AppCompatActivity() {
                     NavGraph(
                         navController = navController,
                         isDarkTheme = isDarkTheme,
-                        onThemeChange = { isDarkTheme = it },
+                        onThemeChange = {
+                            isDarkTheme = it
+                            prefs.edit().putBoolean("isDarkTheme", it).apply()
+                        },
                         isNotificationEnabled = isNotificationEnabled,
                         onNotificationChange = { isNotificationEnabled = it },
                         onLogout = {

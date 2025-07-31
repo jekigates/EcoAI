@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.component
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bluejack242.ecoai.utils.LanguageManager
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LanguageSelector(
@@ -30,6 +32,7 @@ fun LanguageSelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val currentLanguage by LanguageManager.currentLanguage
+    val context = LocalContext.current
 
     Box(modifier = modifier) {
         Box(
@@ -68,6 +71,9 @@ fun LanguageSelector(
                     text = { Text(lang, color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface) },
                     onClick = {
                         LanguageManager.setLanguage(lang)
+                        // Save language to SharedPreferences
+                        context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                            .edit().putString("language", lang).apply()
                         expanded = false
                     }
                 )
