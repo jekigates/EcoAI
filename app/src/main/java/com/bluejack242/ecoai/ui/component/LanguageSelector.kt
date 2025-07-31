@@ -22,8 +22,8 @@ import com.bluejack242.ecoai.utils.LanguageManager
 @Composable
 fun LanguageSelector(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.White,
-    textColor: Color = Color.Black
+    backgroundColor: Color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+    textColor: Color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
 ) {
     var expanded by remember { mutableStateOf(false) }
     val currentLanguage by LanguageManager.currentLanguage
@@ -44,11 +44,12 @@ fun LanguageSelector(
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(androidx.compose.material3.MaterialTheme.colorScheme.surface)
         ) {
             listOf("EN", "ID").forEach { lang ->
                 DropdownMenuItem(
-                    text = { Text(lang) },
+                    text = { Text(lang, color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface) },
                     onClick = {
                         LanguageManager.setLanguage(lang)
                         expanded = false
