@@ -7,19 +7,22 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bluejack242.ecoai.viewmodel.ProgressViewModel
 import com.bluejack242.ecoai.ui.component.*
+import com.bluejack242.ecoai.ui.component.WeeklyProgressRow
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.bluejack242.ecoai.utils.LanguageManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.bluejack242.ecoai.R
 
 @Composable
 fun ProgressScreen(
@@ -47,8 +50,7 @@ fun ProgressScreen(
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
     val fabColor = MaterialTheme.colorScheme.primary
     val fabIconColor = Color.White
-    val subtitleColor = onSurfaceVariantColor
-    val emptyTextColor = onSurfaceVariantColor
+    // val emptyTextColor = onSurfaceVariantColor
 
     Scaffold(
         bottomBar = {
@@ -63,7 +65,11 @@ fun ProgressScreen(
                 containerColor = fabColor,
                 contentColor = fabIconColor
             ) {
-                Icon(Icons.Default.Add, contentDescription = LanguageManager.getString("add_waste"), tint = fabIconColor)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = LanguageManager.getString("add_waste"),
+                    tint = fabIconColor
+                )
             }
         }
     ) { paddingValues ->
@@ -75,39 +81,70 @@ fun ProgressScreen(
                 .padding(16.dp)
                 .statusBarsPadding()
         ) {
+            // Progress title and streak indicator row
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .background(backgroundColor),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = LanguageManager.getString("progress_title"),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineMedium,
                     color = onSurfaceColor,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.weight(1f)
                 )
+                // Streak indicator styled like language selector
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shadowElevation = 1.dp,
+                    modifier = Modifier
+                        .height(40.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_local_fire_department_24),
+                            contentDescription = "Streak",
+                            tint = Color.Red,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = weeklyStreak.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            // Weekly streak
-            WeeklyStreakView(streakCount = weeklyStreak)
-
-            // Carbon track (items left)
-            Spacer(Modifier.height(8.dp))
-            CarbonTrackView(carbonFootprint = carbonTrack, itemsUploaded = recentlyUploaded.size)
 
             Spacer(Modifier.height(16.dp))
 
+            // Weekly progress row (custom)
+            WeeklyProgressRow()
+
+            Spacer(Modifier.height(24.dp))
+
+            // Carbon track (items left)
+            CarbonTrackView(carbonFootprint = carbonTrack, itemsUploaded = recentlyUploaded.size)
+
+            Spacer(Modifier.height(24.dp))
+
             // Recently uploaded title
-            Text(LanguageManager.getString("recently_uploaded"), style = MaterialTheme.typography.titleMedium, color = subtitleColor)
+            Text(
+                LanguageManager.getString("recently_uploaded"),
+                style = MaterialTheme.typography.titleMedium,
+                color = onSurfaceVariantColor
+            )
             Spacer(Modifier.height(8.dp))
 
             // List uploaded items
             if (recentlyUploaded.isEmpty()) {
-                Text(LanguageManager.getString("no_items_uploaded"), color = emptyTextColor)
+                Text(LanguageManager.getString("no_items_uploaded"), color = onSurfaceVariantColor)
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(recentlyUploaded.size) { index ->

@@ -18,7 +18,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,72 +33,71 @@ fun LandingScreen(
     onGetStartedClick: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.download),
-            contentDescription = "Landing Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
-        )
-
-        // Language Selector
-        LanguageSelector(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-                .padding(top = 16.dp)
-        )
-
-        Surface(
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            tonalElevation = 4.dp,
-            color = MaterialTheme.colorScheme.background,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 32.dp)
-            ) {
-                Text(
-                    text = LanguageManager.getString("waste_tracking_made_easy"),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                Image(
+                    painter = painterResource(id = R.drawable.download),
+                    contentDescription = "Landing Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = onGetStartedClick,
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                // Language Selector
+                LanguageSelector(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .padding(top = 16.dp)
+                )
+            }
+            Surface(
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                shadowElevation = 4.dp,
+                color = MaterialTheme.colorScheme.background,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 32.dp)
                 ) {
                     Text(
-                        LanguageManager.getString("get_started"),
-                        color = MaterialTheme.colorScheme.onPrimary, 
+                        text = LanguageManager.getString("waste_tracking_made_easy"),
+                        style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
-                }
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = onGetStartedClick,
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Text(
+                            LanguageManager.getString("get_started"),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
 
-                Text(
-                    text = LanguageManager.getString("have_account"),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                TextButton(onClick = onLoginClick) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
-                        text = LanguageManager.getString("log_in"),
+                        text = LanguageManager.getString("have_account"),
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    TextButton(onClick = onLoginClick) {
+                        Text(
+                            text = LanguageManager.getString("log_in"),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
         }
