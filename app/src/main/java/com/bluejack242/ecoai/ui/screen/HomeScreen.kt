@@ -171,7 +171,7 @@ fun HomeScreen(
                             columns = GridCells.Fixed(2),
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             state = gridState
                         ) {
@@ -180,12 +180,15 @@ fun HomeScreen(
                                     post["media"] as? List<Map<String, Any>> ?: emptyList()
                                 val firstMedia =
                                     mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                val username = post["username"] as? String ?: ""
+                                val fullName = post["fullName"] as? String ?: ""
                                 val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
                                 val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                 val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                val liked = FirebaseAuth.getInstance().currentUser?.uid != null &&
-                                        likedBy.contains(FirebaseAuth.getInstance().currentUser?.uid)
+                                val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
+                                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                                val liked = currentUserId != null && likedBy.contains(currentUserId)
+                                val saved = currentUserId != null && savedBy.contains(currentUserId)
+                                val saves = savedBy.size
 
                                 Box(
                                     modifier = Modifier.clickable {
@@ -195,10 +198,12 @@ fun HomeScreen(
                                     MediaCard(
                                         imageUrl = firstMedia,
                                         title = post["headline"] as? String ?: "",
-                                        fullName = "@$username",
+                                        fullName = fullName,
                                         profilePictureUrl = profilePictureUrl,
                                         likes = likes,
-                                        liked = liked
+                                        liked = liked,
+                                        saves = saves,
+                                        saved = saved
                                     )
                                 }
                             }
