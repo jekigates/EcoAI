@@ -10,15 +10,18 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bluejack242.ecoai.ui.component.BottomNavigationBar
@@ -85,76 +88,79 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+
+            // Eco AI top bar styled like bottom navigation bar
+            val topBarBg = MaterialTheme.colorScheme.surface
+            val topBarText = MaterialTheme.colorScheme.onSurface
+            val tabSelectedBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            val tabSelectedText = MaterialTheme.colorScheme.primary
+            val tabUnselectedText = MaterialTheme.colorScheme.onSurfaceVariant
+            Surface(
+                tonalElevation = 4.dp,
+                shadowElevation = 4.dp,
+                color = topBarBg,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Box(modifier = Modifier.size(40.dp))
-
-                TabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.weight(1f),
-                    indicator = { tabPositions ->
-                        Box(
-                            modifier = Modifier
-                                .tabIndicatorOffset(tabPositions[selectedTab])
-                                .fillMaxWidth(0.4f)
-                                .align(Alignment.Bottom)
-                                .height(2.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = MaterialTheme.shapes.small
-                                )
-                        )
-                    },
-                    divider = {}
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 0.dp, bottom = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Following tab
-                    Tab(
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
-                        text = {
-                            Text(
-                                text = LanguageManager.getString("for_you"),
-                                color = if (selectedTab == 0)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    Color.Gray
+                    // Logo
+                    Text(
+                        text = "Eco AI",
+                        color = topBarText,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 2.sp),
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    )
+                    // Tabs row centered
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 0.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val tabTitles = listOf(LanguageManager.getString("for_you"), LanguageManager.getString("following"))
+                            tabTitles.forEachIndexed { idx, title ->
+                                val selected = selectedTab == idx
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .height(32.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(if (selected) tabSelectedBg else Color.Transparent)
+                                        .clickable { selectedTab = idx },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = title.uppercase(),
+                                        color = if (selected) tabSelectedText else tabUnselectedText,
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = 13.sp,
+                                        letterSpacing = 1.25.sp,
+                                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                        IconButton(
+                            onClick = { setNavigateToSearch(true) },
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = LanguageManager.getString("search"),
+                                tint = topBarText,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
-                    )
-
-                    // For You tab
-                    Tab(
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        text = {
-                            Text(
-                                text =
-                                    LanguageManager.getString("following"),
-                                color = if (selectedTab == 1)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    Color.Gray
-                            )
-                        }
-                    )
-                }
-
-                IconButton(onClick = { setNavigateToSearch(true) }) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = LanguageManager.getString("search"),
-                        tint = if (selectedTab == 1) MaterialTheme.colorScheme.primary else Color.Gray,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    }
                 }
             }
 
@@ -171,9 +177,9 @@ fun HomeScreen(
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(8.dp),
+                            contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
                             state = gridState
                         ) {
                             items(forYouPosts, key = { it.first }) { (postId, post) ->

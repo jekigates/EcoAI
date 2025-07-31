@@ -1,8 +1,12 @@
 package com.bluejack242.ecoai.ui.component
 
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -11,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -46,23 +49,31 @@ fun NotificationCard(
                     onUserClick(fromUser.uid)
                 }
             },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = fromUser.profilePictureUrl,
-                contentDescription = "User Profile Picture",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .clickable { onUserClick(fromUser.uid) }
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
+            if (!fromUser.profilePictureUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = fromUser.profilePictureUrl,
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile Picture",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(
                     text = "${fromUser.username} $actionMessage",
@@ -72,7 +83,7 @@ fun NotificationCard(
                 Text(
                     text = timeAgo(notification.createdAt),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
