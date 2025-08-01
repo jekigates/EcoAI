@@ -25,6 +25,7 @@ import com.bluejack242.ecoai.ui.screen.RegisterScreen
 import com.bluejack242.ecoai.ui.screen.SearchScreen
 import com.bluejack242.ecoai.ui.screen.SettingsScreen
 import com.bluejack242.ecoai.ui.screen.UserProfileScreen
+import com.bluejack242.ecoai.ui.screen.WasteDatabaseScreen
 import com.bluejack242.ecoai.ui.screen.WasteDetailScreen
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import com.bluejack242.ecoai.viewmodel.ProgressViewModel
@@ -32,19 +33,21 @@ import com.bluejack242.ecoai.viewmodel.WasteViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavGraph(navController: NavHostController,
-             isDarkTheme: Boolean,
-             onThemeChange: (Boolean) -> Unit,
-             isNotificationEnabled: Boolean,
-             onNotificationChange: (Boolean) -> Unit,
-             onLogout: () -> Unit) {
+fun NavGraph(
+    navController: NavHostController,
+    isDarkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit,
+    isNotificationEnabled: Boolean,
+    onNotificationChange: (Boolean) -> Unit,
+    onLogout: () -> Unit
+) {
 
     val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
     val startDestination = if (isLoggedIn) "home" else "landing"
 
     NavHost(navController, startDestination = startDestination) {
         composable("landing") {
-            LandingScreen (
+            LandingScreen(
                 onLoginClick = { navController.navigate("login") },
                 onGetStartedClick = { navController.navigate("register") }
             )
@@ -52,7 +55,7 @@ fun NavGraph(navController: NavHostController,
 
         composable("login") {
             val authViewModel: AuthViewModel = viewModel()
-            LoginScreen (
+            LoginScreen(
                 viewModel = authViewModel,
                 onRegisterClick = { navController.navigate("register") },
                 onLoginSuccess = { navController.navigate("home") },
@@ -62,7 +65,7 @@ fun NavGraph(navController: NavHostController,
 
         composable("register") {
             val authViewModel: AuthViewModel = viewModel()
-            RegisterScreen (
+            RegisterScreen(
                 viewModel = authViewModel,
                 onLoginClick = { navController.navigate("login") }
             )
@@ -102,7 +105,7 @@ fun NavGraph(navController: NavHostController,
             PostDetailScreen(postId = postId, navController = navController)
         }
 
-        composable("search/{query}") {backStackEntry ->
+        composable("search/{query}") { backStackEntry ->
             val query = backStackEntry.arguments?.getString("query") ?: ""
             SearchScreen(navController = navController, currentRoute = "search", query = query)
         }
@@ -167,8 +170,7 @@ fun NavGraph(navController: NavHostController,
 
         composable("history") {
             HistoryScreen(
-//                historyList =,
-                onItemClick = {}
+                onItemClick = { itemId -> navController.navigate("wasteDetail/$itemId") }
             )
         }
 
@@ -184,6 +186,10 @@ fun NavGraph(navController: NavHostController,
                 itemId = itemId,
                 onDone = { navController.popBackStack() }
             )
+        }
+
+        composable("waste_database") {
+            WasteDatabaseScreen(navController = navController)
         }
     }
 }
