@@ -23,6 +23,11 @@ import com.bluejack242.ecoai.utils.LanguageManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.bluejack242.ecoai.R
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 
 @Composable
 fun ProgressScreen(
@@ -53,6 +58,7 @@ fun ProgressScreen(
     // val emptyTextColor = onSurfaceVariantColor
 
     var fabExpanded by remember { mutableStateOf(false) }
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -66,28 +72,37 @@ fun ProgressScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    if (fabExpanded) {
-                        ExtendedFloatingActionButton(
-                            onClick = {
-                                fabExpanded = false
-                                navController.navigate("add_waste")
-                            },
-                            icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                            text = { Text("Scan Waste") },
-                            containerColor = fabColor,
-                            contentColor = fabIconColor,
-                            modifier = Modifier
-                                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
-                        )
-                        ExtendedFloatingActionButton(
-                            onClick = { fabExpanded = false },
-                            icon = { Icon(painterResource(id = R.drawable.baseline_recycling_24), contentDescription = null) },
-                            text = { Text("Food Database") },
-                            containerColor = fabColor,
-                            contentColor = fabIconColor,
-                            modifier = Modifier
-                                .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
-                        )
+                    AnimatedVisibility(
+                        visible = fabExpanded,
+                        enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
+                        exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 2 })
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            ExtendedFloatingActionButton(
+                                onClick = {
+                                    fabExpanded = false
+                                    navController.navigate("add_waste")
+                                },
+                                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                                text = { Text("Scan Waste") },
+                                containerColor = fabColor,
+                                contentColor = fabIconColor,
+                                modifier = Modifier
+                                    .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+                            )
+                            ExtendedFloatingActionButton(
+                                onClick = { fabExpanded = false },
+                                icon = { Icon(painterResource(id = R.drawable.baseline_recycling_24), contentDescription = null) },
+                                text = { Text("Food Database") },
+                                containerColor = fabColor,
+                                contentColor = fabIconColor,
+                                modifier = Modifier
+                                    .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+                            )
+                        }
                     }
                     FloatingActionButton(
                         onClick = { fabExpanded = !fabExpanded },

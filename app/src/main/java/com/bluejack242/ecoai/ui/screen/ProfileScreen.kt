@@ -44,7 +44,11 @@ fun ProfileScreen(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) { viewModel.fetchProfile() }
-    LaunchedEffect(selectedTab) { viewModel.fetchPostsForTab(selectedTab) }
+    // Always reset posts and loading state when switching tab, to force reload
+    LaunchedEffect(selectedTab) {
+        viewModel.resetPostsForTab(selectedTab)
+        viewModel.fetchPostsForTab(selectedTab)
+    }
 
     Scaffold(
         bottomBar = {
@@ -231,15 +235,10 @@ fun ProfileScreen(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(viewModel.ownPosts, key = { it.first }) { (postId, post) ->
-                                    val mediaList =
-                                        post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                    val firstMedia =
-                                        mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                    val creatorName = (post["fullName"] as? String).orEmpty()
-                                        .ifBlank { viewModel.fullName }
-                                    val profilePictureUrl =
-                                        (post["profilePictureUrl"] as? String).orEmpty()
-                                            .ifBlank { viewModel.profilePictureUrl ?: "" }
+                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { viewModel.fullName }
+                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
                                     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
@@ -247,6 +246,14 @@ fun ProfileScreen(
                                     val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
                                     val saved = currentUserId != null && savedBy.contains(currentUserId)
                                     val saves = savedBy.size
+                                    var commentsCount by remember(postId) { mutableIntStateOf(0) }
+                                    LaunchedEffect(postId) {
+                                        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                                        db.collection("posts").document(postId).collection("comments")
+                                            .addSnapshotListener { snapshot, _ ->
+                                                commentsCount = snapshot?.size() ?: 0
+                                            }
+                                    }
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -256,7 +263,8 @@ fun ProfileScreen(
                                             likes = likes,
                                             liked = liked,
                                             saves = saves,
-                                            saved = saved
+                                            saved = saved,
+                                            commentsCount = commentsCount
                                         )
                                     }
                                 }
@@ -281,15 +289,10 @@ fun ProfileScreen(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(viewModel.savedPosts, key = { it.first }) { (postId, post) ->
-                                    val mediaList =
-                                        post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                    val firstMedia =
-                                        mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                    val creatorName = (post["fullName"] as? String).orEmpty()
-                                        .ifBlank { viewModel.fullName }
-                                    val profilePictureUrl =
-                                        (post["profilePictureUrl"] as? String).orEmpty()
-                                            .ifBlank { viewModel.profilePictureUrl ?: "" }
+                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { viewModel.fullName }
+                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
                                     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
@@ -297,6 +300,14 @@ fun ProfileScreen(
                                     val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
                                     val saved = currentUserId != null && savedBy.contains(currentUserId)
                                     val saves = savedBy.size
+                                    var commentsCount by remember(postId) { mutableIntStateOf(0) }
+                                    LaunchedEffect(postId) {
+                                        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                                        db.collection("posts").document(postId).collection("comments")
+                                            .addSnapshotListener { snapshot, _ ->
+                                                commentsCount = snapshot?.size() ?: 0
+                                            }
+                                    }
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -306,7 +317,8 @@ fun ProfileScreen(
                                             likes = likes,
                                             liked = liked,
                                             saves = saves,
-                                            saved = saved
+                                            saved = saved,
+                                            commentsCount = commentsCount
                                         )
                                     }
                                 }
@@ -331,15 +343,10 @@ fun ProfileScreen(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(viewModel.likedPosts, key = { it.first }) { (postId, post) ->
-                                    val mediaList =
-                                        post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                    val firstMedia =
-                                        mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                    val creatorName = (post["fullName"] as? String).orEmpty()
-                                        .ifBlank { viewModel.fullName }
-                                    val profilePictureUrl =
-                                        (post["profilePictureUrl"] as? String).orEmpty()
-                                            .ifBlank { viewModel.profilePictureUrl ?: "" }
+                                    val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                    val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                    val creatorName = (post["fullName"] as? String).orEmpty().ifBlank { viewModel.fullName }
+                                    val profilePictureUrl = (post["profilePictureUrl"] as? String).orEmpty().ifBlank { viewModel.profilePictureUrl ?: "" }
                                     val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                     val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
                                     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
@@ -347,6 +354,14 @@ fun ProfileScreen(
                                     val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
                                     val saved = currentUserId != null && savedBy.contains(currentUserId)
                                     val saves = savedBy.size
+                                    var commentsCount by remember(postId) { mutableIntStateOf(0) }
+                                    LaunchedEffect(postId) {
+                                        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                                        db.collection("posts").document(postId).collection("comments")
+                                            .addSnapshotListener { snapshot, _ ->
+                                                commentsCount = snapshot?.size() ?: 0
+                                            }
+                                    }
                                     Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                                         MediaCard(
                                             imageUrl = firstMedia,
@@ -356,7 +371,8 @@ fun ProfileScreen(
                                             likes = likes,
                                             liked = liked,
                                             saves = saves,
-                                            saved = saved
+                                            saved = saved,
+                                            commentsCount = commentsCount
                                         )
                                     }
                                 }

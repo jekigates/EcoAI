@@ -8,6 +8,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ProfileViewModel : ViewModel() {
+
+    fun resetPostsForTab(tab: Int) {
+        isLoadingPosts = true
+        when (tab) {
+            0 -> ownPosts = emptyList()
+            1 -> savedPosts = emptyList()
+            2 -> likedPosts = emptyList()
+        }
+    }
     private val db = FirebaseFirestore.getInstance()
     private val user = FirebaseAuth.getInstance().currentUser
     val userId = user?.uid
@@ -55,14 +64,14 @@ class ProfileViewModel : ViewModel() {
                 }
             }
             1 -> {
-                db.collection("posts").whereArrayContains("likedBy", userId ?: "").get().addOnSuccessListener { result ->
-                    likedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
+                db.collection("posts").whereArrayContains("savedBy", userId ?: "").get().addOnSuccessListener { result ->
+                    savedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
                     isLoadingPosts = false
                 }
             }
             2 -> {
-                db.collection("posts").whereArrayContains("savedBy", userId ?: "").get().addOnSuccessListener { result ->
-                    savedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
+                db.collection("posts").whereArrayContains("likedBy", userId ?: "").get().addOnSuccessListener { result ->
+                    likedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
                     isLoadingPosts = false
                 }
             }

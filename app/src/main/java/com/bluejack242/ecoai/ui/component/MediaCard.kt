@@ -32,7 +32,8 @@ fun MediaCard(
     likes: Int,
     liked: Boolean,
     saves: Int,
-    saved: Boolean
+    saved: Boolean,
+    commentsCount: Int
 ) {
     Column(
         modifier = Modifier
@@ -90,14 +91,14 @@ fun MediaCard(
                     Text(text = likes.toString(), fontSize = 12.sp, color = iconDefaultColor)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Comment,
-                        contentDescription = "Comments",
-                        tint = iconDefaultColor,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "24", fontSize = 12.sp, color = iconDefaultColor)
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Comment,
+                contentDescription = "Comments",
+                tint = iconDefaultColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = commentsCount.toString(), fontSize = 12.sp, color = iconDefaultColor)
                 }
             }
         }

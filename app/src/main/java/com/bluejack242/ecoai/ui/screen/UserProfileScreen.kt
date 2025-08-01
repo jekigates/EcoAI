@@ -167,9 +167,9 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 0.dp, max = 1000.dp),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(viewModel.userPosts, key = { it.first }) { (postId, post) ->
                         val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
@@ -183,6 +183,14 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                         val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
                         val saved = currentUserId != null && savedBy.contains(currentUserId)
                         val saves = savedBy.size
+                        var commentsCount by remember(postId) { mutableStateOf(0) }
+                        LaunchedEffect(postId) {
+                            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                            db.collection("posts").document(postId).collection("comments")
+                                .addSnapshotListener { snapshot, _ ->
+                                    commentsCount = snapshot?.size() ?: 0
+                                }
+                        }
                         Box(Modifier.clickable { navController.navigate("post_detail/$postId") }) {
                             MediaCard(
                                 imageUrl = firstMedia,
@@ -192,7 +200,8 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                                 likes = likes,
                                 liked = liked,
                                 saves = saves,
-                                saved = saved
+                                saved = saved,
+                                commentsCount = commentsCount
                             )
                         }
                     }
