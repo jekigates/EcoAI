@@ -69,6 +69,7 @@ object ValidationUtil {
         if (mediaCount > 10) return "Maximum 10 images allowed."
         if (headline.length > 50) return "Headline must be at most 50 characters."
         if (caption.isEmpty()) return "Caption must be filled."
+        if (headline.isEmpty()) return "Headline must be filled."
         return null
     }
 
