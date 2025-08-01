@@ -368,7 +368,15 @@ fun FollowingPostCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
 
+            val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
             commentList.take(3).forEach { comment ->
+                val commentId = comment["id"] as? String
+                val likedBy = comment["likedBy"] as? List<*> ?: emptyList<Any>()
+                val isLiked = currentUserId != null && likedBy.contains(currentUserId)
+                val likeCount = likedBy.size
+                var localLiked by remember(commentId) { mutableStateOf(isLiked) }
+                var localLikeCount by remember(commentId) { mutableStateOf(likeCount) }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -405,11 +413,37 @@ fun FollowingPostCard(
                         fontSize = 12.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    Text(
-                        text = "${comment["likes"] ?: 0}",
-                        fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    // Like button and count (right)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable(enabled = commentId != null && currentUserId != null) {
+                                if (commentId != null && currentUserId != null) {
+                                    val ref = db.collection("posts").document(postId).collection("comments").document(commentId)
+                                    db.runTransaction { tx ->
+                                        val snap = tx.get(ref)
+                                        val likedByList = (snap.get("likedBy") as? List<*>)?.map { it.toString() }?.toMutableList() ?: mutableListOf()
+                                        if (localLiked) likedByList.remove(currentUserId) else likedByList.add(currentUserId)
+                                        tx.update(ref, "likedBy", likedByList)
+                                    }
+                                    localLiked = !localLiked
+                                    localLikeCount += if (localLiked) 1 else -1
+                                }
+                            }
+                    ) {
+                        Icon(
+                            imageVector = if (localLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Like Comment",
+                            tint = if (localLiked) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = localLikeCount.toString(),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 2.dp)
+                        )
+                    }
                 }
             }
         }
