@@ -8,11 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class HomeViewModel : ViewModel() {
+    private var newPostsListener: ListenerRegistration? = null
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
@@ -37,6 +39,53 @@ class HomeViewModel : ViewModel() {
 
     init {
         loadInitialPosts()
+        listenForNewPosts()
+    }
+    private fun listenForNewPosts() {
+        // Remove previous listener if any
+        newPostsListener?.remove()
+        newPostsListener = firestore.collection("posts")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .limit(1)
+            .addSnapshotListener { snapshot, _ ->
+                snapshot?.documentChanges?.forEach { change ->
+                    if (change.type == com.google.firebase.firestore.DocumentChange.Type.ADDED) {
+                        val postDoc = change.document
+                        viewModelScope.launch {
+                        val postData = postDoc.data
+                        val userId = postData["userId"] as? String ?: return@launch
+                        val authorDoc = firestore.collection("users").document(userId).get().await()
+                        val authorData = authorDoc.data ?: return@launch
+                        val enriched = postData.toMutableMap().apply {
+                            put("username", authorData["username"] ?: "")
+                            put("fullName", authorData["fullName"] ?: "")
+                            put("profilePictureUrl", authorData["profilePictureUrl"] ?: "")
+                        }
+                        val newPair = postDoc.id to enriched
+                        // Only add if not already present
+                        if (forYouPosts.none { it.first == postDoc.id }) {
+                            forYouPosts = listOf(newPair) + forYouPosts
+                        }
+                        // Add to followingPosts if the post's user is in following list or is the user
+                        val currentUser = auth.currentUser
+                        if (currentUser != null) {
+                            val userDoc = firestore.collection("users").document(currentUser.uid).get().await()
+                            val following = userDoc.get("following") as? List<String> ?: emptyList()
+                            val followingWithSelf = (following + currentUser.uid).distinct().take(10)
+                            if (followingWithSelf.contains(userId)) {
+                                if (followingPosts.none { it.first == postDoc.id }) {
+                                    followingPosts = listOf(newPair) + followingPosts
+                                }
+                            }
+                        }
+                        }
+                    }
+                }
+            }
+    }
+    override fun onCleared() {
+        super.onCleared()
+        newPostsListener?.remove()
     }
 
     private fun loadInitialPosts() {
@@ -192,6 +241,7 @@ class HomeViewModel : ViewModel() {
                     if (likedBy.contains(currentUser.uid)) likes + 1 else maxOf(0, likes - 1)
                 )
             } catch (e: Exception) {
+                println("[HomeViewModel] Error in toggleLike: ${e.message}")
             }
         }
     }
@@ -231,7 +281,7 @@ class HomeViewModel : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                // Handle error
+                println("[HomeViewModel] Error in toggleSave: ${e.message}")
             }
         }
     }
@@ -277,6 +327,7 @@ class HomeViewModel : ViewModel() {
                     followingPosts = followingPosts.filter { it.first != postId }
                 }
             } catch (e: Exception) {
+                println("[HomeViewModel] Error in deletePost: ${e.message}")
             }
         }
     }
