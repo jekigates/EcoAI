@@ -30,6 +30,7 @@ import com.bluejack242.ecoai.ui.component.MediaCard
 import com.bluejack242.ecoai.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.bluejack242.ecoai.utils.LanguageManager
+import com.bluejack242.ecoai.model.mapPostToUiModel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -183,18 +184,7 @@ fun HomeScreen(
                             state = gridState
                         ) {
                             items(forYouPosts, key = { it.first }) { (postId, post) ->
-                                val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
-                                val fullName = post["fullName"] as? String ?: ""
-                                val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
-                                val likes = (post["likes"] as? Long)?.toInt() ?: 0
-                                val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
-                                val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
-                                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-                                val liked = currentUserId != null && likedBy.contains(currentUserId)
-                                val saved = currentUserId != null && savedBy.contains(currentUserId)
-                                val saves = savedBy.size
-                                var commentsCount by remember(postId) { mutableStateOf(0) }
+                                var commentsCount by remember(postId) { mutableIntStateOf(0) }
                                 LaunchedEffect(postId) {
                                     val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
                                     db.collection("posts").document(postId).collection("comments")
@@ -202,21 +192,26 @@ fun HomeScreen(
                                             commentsCount = snapshot?.size() ?: 0
                                         }
                                 }
+                                val postUi = mapPostToUiModel(
+                                    postId = postId,
+                                    post = post,
+                                    commentsCount = commentsCount
+                                )
                                 Box(
                                     modifier = Modifier.clickable {
                                         navController.navigate("post_detail/$postId")
                                     }
                                 ) {
                                     MediaCard(
-                                        imageUrl = firstMedia,
-                                        title = post["headline"] as? String ?: "",
-                                        fullName = fullName,
-                                        profilePictureUrl = profilePictureUrl,
-                                        likes = likes,
-                                        liked = liked,
-                                        saves = saves,
-                                        saved = saved,
-                                        commentsCount = commentsCount
+                                        imageUrl = postUi.imageUrl,
+                                        title = postUi.title,
+                                        fullName = postUi.fullName,
+                                        profilePictureUrl = postUi.profilePictureUrl,
+                                        likes = postUi.likes,
+                                        liked = postUi.liked,
+                                        saves = postUi.saves,
+                                        saved = postUi.saved,
+                                        commentsCount = postUi.commentsCount
                                     )
                                 }
                             }
