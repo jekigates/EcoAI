@@ -97,9 +97,14 @@ class MainActivity : AppCompatActivity() {
             }
             val postId = intent.getStringExtra("postId")
             val navigateTo = intent.getStringExtra("navigateTo")
+            val userId = intent.getStringExtra("userId")
+
             if (navigateTo == "post_detail" && postId != null) {
                 navController.navigate("post_detail/$postId")
+            } else if (navigateTo == "user_profile" && userId != null) {
+                navController.navigate("user_profile/$userId")
             }
+
 
         }
 

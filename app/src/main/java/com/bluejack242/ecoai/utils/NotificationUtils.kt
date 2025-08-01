@@ -20,33 +20,31 @@ fun sendNotificationWithType(
         .addOnSuccessListener { userDoc ->
             val notificationsEnabled = userDoc.getBoolean("notificationsEnabled") ?: true
             if (!notificationsEnabled) return@addOnSuccessListener
+            val notification = Notification(
+                fromUserId = fromUserId,
+                toUserId = toUserId,
+                postId = postId ?: "",
+                type = type,
+                createdAt = Timestamp.now()
+            )
+
+            db.collection("notifications").add(notification)
+
+            val timestamp = Timestamp.now()
+            val notificationMap = mapOf(
+                "fromUserId" to fromUserId,
+                "toUserId" to toUserId,
+                "postId" to (postId ?: ""),
+                "type" to type,
+                "createdAt" to mapOf(
+                    "seconds" to timestamp.seconds,
+                    "nanoseconds" to timestamp.nanoseconds
+                )
+            )
+            FirebaseDatabase.getInstance()
+                .getReference("notifications")
+                .child(toUserId)
+                .push()
+                .setValue(notificationMap)
         }
-
-    val notification = Notification(
-        fromUserId = fromUserId,
-        toUserId = toUserId,
-        postId = postId ?: "",
-        type = type,
-        createdAt = Timestamp.now()
-    )
-
-    db.collection("notifications").add(notification)
-
-    val timestamp = Timestamp.now()
-    val notificationMap = mapOf(
-        "fromUserId" to fromUserId,
-        "toUserId" to toUserId,
-        "postId" to (postId ?: ""),
-        "type" to type,
-        "createdAt" to mapOf(
-            "seconds" to timestamp.seconds,
-            "nanoseconds" to timestamp.nanoseconds
-        )
-    )
-    FirebaseDatabase.getInstance()
-        .getReference("notifications")
-        .child(toUserId)
-        .push()
-        .setValue(notificationMap)
-
 }

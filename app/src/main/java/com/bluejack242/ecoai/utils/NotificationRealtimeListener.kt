@@ -87,7 +87,8 @@ class NotificationRealtimeListener {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("postId", notification.postId)
-            putExtra("navigateTo", "post_detail")
+            putExtra("navigateTo", if (notification.type == "follow") "user_profile" else "post_detail")
+            putExtra("userId", notification.fromUserId)
         }
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
