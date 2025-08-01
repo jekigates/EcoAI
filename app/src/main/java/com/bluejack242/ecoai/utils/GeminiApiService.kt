@@ -29,7 +29,7 @@ object GeminiApiService {
             {
               "name": "Only the name of the waste item (short and clear, e.g., 'Plastic Bottle', 'Aluminum Can')",
               "item_details": "Name of the waste item and its material composition",
-              "carbon_footprint_data": "Only return the estimated carbon footprint in kg CO2e as an integer (e.g., 25, 100, 250)",
+              "carbon_footprint_data": "Only return the estimated carbon footprint in g CO2e as an integer (e.g., 25, 100, 250)",
               "disposal_methods": "Recommended disposal methods (e.g., 'Recycle with plastics', 'Compost', 'Landfill', 'Special hazardous waste disposal')."
             }
             Do NOT include extra text or explanation. Only return the JSON object.
