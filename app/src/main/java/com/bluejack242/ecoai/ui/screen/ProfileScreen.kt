@@ -3,6 +3,7 @@ package com.bluejack242.ecoai.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -24,10 +26,15 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material.icons.filled.GridOn
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Favorite
 import com.bluejack242.ecoai.viewmodel.ProfileViewModel
 import com.bluejack242.ecoai.ui.component.ProfileCount
 import com.bluejack242.ecoai.utils.LanguageManager
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.runtime.getValue
+
 
 @Composable
 fun ProfileScreen(
@@ -45,7 +52,6 @@ fun ProfileScreen(
         }
     ) { paddingValues ->
         val backgroundColor = MaterialTheme.colorScheme.background
-        val surfaceColor = MaterialTheme.colorScheme.surface
         val onSurfaceColor = MaterialTheme.colorScheme.onSurface
         val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
         val indicatorColor = MaterialTheme.colorScheme.primary
@@ -166,30 +172,41 @@ fun ProfileScreen(
 
                 TabRow(
                     selectedTabIndex = selectedTab,
-                    containerColor = surfaceColor,
+                    containerColor = Color.Transparent,
                     contentColor = selectedColor,
                     indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                            color = selectedColor
+                        val tabWidth = tabPositions[selectedTab].width
+                        val indicatorWidth = 32.dp
+                        val targetOffset = tabPositions[selectedTab].left + (tabWidth - indicatorWidth) / 2
+                        val animatedOffset by animateDpAsState(targetValue = targetOffset, label = "TabIndicatorOffset")
+                        Box(
+                            Modifier
+                                .wrapContentSize(Alignment.BottomStart)
+                                .offset(x = animatedOffset)
+                                .width(indicatorWidth)
+                                .height(3.dp)
+                                .background(selectedColor, RoundedCornerShape(1.5.dp))
                         )
                     },
                     divider = {}
                 ) {
-                    listOf(
-                        LanguageManager.getString("posts"),
-                        LanguageManager.getString("saved"),
-                        LanguageManager.getString("liked")
-                    ).forEachIndexed { index, title ->
+                    val tabIcons = listOf(
+                        Icons.Default.GridOn,      // My Posts
+                        Icons.Default.Bookmark,    // Saved
+                        Icons.Default.Favorite     // Liked
+                    )
+                    tabIcons.forEachIndexed { index, icon ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            text = {
-                                Text(
-                                    title,
-                                    color = if (selectedTab == index) selectedColor else onSurfaceVariantColor
+                            icon = {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = if (selectedTab == index) selectedColor else onSurfaceVariantColor
                                 )
-                            }
+                            },
+                            modifier = Modifier.background(Color.Transparent)
                         )
                     }
                 }
@@ -206,10 +223,12 @@ fun ProfileScreen(
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxSize().background(backgroundColor),
-                                contentPadding = PaddingValues(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(backgroundColor),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(viewModel.ownPosts, key = { it.first }) { (postId, post) ->
                                     val mediaList =
@@ -254,10 +273,12 @@ fun ProfileScreen(
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxSize().background(backgroundColor),
-                                contentPadding = PaddingValues(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(backgroundColor),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(viewModel.savedPosts, key = { it.first }) { (postId, post) ->
                                     val mediaList =
@@ -302,10 +323,12 @@ fun ProfileScreen(
                         } else {
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxSize().background(backgroundColor),
-                                contentPadding = PaddingValues(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(backgroundColor),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(viewModel.likedPosts, key = { it.first }) { (postId, post) ->
                                     val mediaList =
