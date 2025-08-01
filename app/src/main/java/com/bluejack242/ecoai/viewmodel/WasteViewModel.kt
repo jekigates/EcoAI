@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.bluejack242.ecoai.data.WasteRepository
 import com.bluejack242.ecoai.model.WasteAnalysisResult
 import com.bluejack242.ecoai.model.WasteHistoryItem
+import com.bluejack242.ecoai.model.WasteItem
 import com.bluejack242.ecoai.utils.GeminiApiService
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -24,6 +25,9 @@ class WasteViewModel(
 
     private val _recentlyUploadedWaste = MutableLiveData<List<WasteHistoryItem>>()
     val recentlyUploadedWaste: LiveData<List<WasteHistoryItem>> get() = _recentlyUploadedWaste
+
+    private val _wasteDatabaseItems = MutableLiveData<List<WasteItem>>()
+    val wasteDatabaseItems: LiveData<List<WasteItem>> get() = _wasteDatabaseItems
 
     fun addWasteItemWithImage(
         context: Context,
@@ -75,6 +79,30 @@ class WasteViewModel(
         }
     }
 
+    fun addWasteItemFromDatabase(
+        name: String,
+        co2e: Int,
+        imageUrl: String,
+        uploadedBy: String,
+        disposalMethod: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                repository.addWasteItemFromDatabase(
+                    name = name,
+                    co2e = co2e,
+                    imageUrl = imageUrl,
+                    uploadedBy = uploadedBy,
+                    disposalMethod = disposalMethod
+                )
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("WasteViewModel", "Add from database error: ${e.message}", e)
+            }
+        }
+    }
+
     fun fetchHistory(userId: String) {
         viewModelScope.launch {
             try {
@@ -86,4 +114,14 @@ class WasteViewModel(
         }
     }
 
+    fun fetchWasteDatabaseItems() {
+        viewModelScope.launch {
+            try {
+                val items = repository.getWasteDatabaseItems()
+                _wasteDatabaseItems.postValue(items)
+            } catch (e: Exception) {
+                Log.e("WasteViewModel", "Fetch waste database error: ${e.message}", e)
+            }
+        }
+    }
 }

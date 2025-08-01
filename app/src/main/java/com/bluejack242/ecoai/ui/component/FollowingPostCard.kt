@@ -178,7 +178,10 @@ fun FollowingPostCard(
 
         ClickableText(
             text = annotatedCaption,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            ),
             onClick = { offset ->
                 annotatedCaption.getStringAnnotations(tag = "TAG", start = offset, end = offset)
                     .firstOrNull()?.let { annotation ->

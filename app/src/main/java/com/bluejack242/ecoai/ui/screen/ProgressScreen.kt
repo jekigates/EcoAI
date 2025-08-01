@@ -28,6 +28,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.material.icons.filled.AccessTimeFilled
 
 @Composable
 fun ProgressScreen(
@@ -87,16 +88,27 @@ fun ProgressScreen(
                                     navController.navigate("add_waste")
                                 },
                                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                                text = { Text("Scan Waste") },
+                                text = { Text(LanguageManager.getString("scan_waste")) },
                                 containerColor = fabColor,
                                 contentColor = fabIconColor,
                                 modifier = Modifier
                                     .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
                             )
                             ExtendedFloatingActionButton(
-                                onClick = { fabExpanded = false },
+                                onClick = { fabExpanded = false
+                                    navController.navigate("waste_database")},
                                 icon = { Icon(painterResource(id = R.drawable.baseline_recycling_24), contentDescription = null) },
-                                text = { Text("Food Database") },
+                                text = { Text(LanguageManager.getString("waste_database")) },
+                                containerColor = fabColor,
+                                contentColor = fabIconColor,
+                                modifier = Modifier
+                                    .defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+                            )
+                            ExtendedFloatingActionButton(
+                                onClick = { fabExpanded = false
+                                    navController.navigate("history")},
+                                icon = {Icon(Icons.Filled.AccessTimeFilled, contentDescription = null)},
+                                text = { Text(LanguageManager.getString("open_history"))},
                                 containerColor = fabColor,
                                 contentColor = fabIconColor,
                                 modifier = Modifier

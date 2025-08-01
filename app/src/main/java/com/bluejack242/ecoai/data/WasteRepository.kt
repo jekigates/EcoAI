@@ -3,6 +3,7 @@ package com.bluejack242.ecoai.data
 import android.content.Context
 import android.net.Uri
 import com.bluejack242.ecoai.model.WasteHistoryItem
+import com.bluejack242.ecoai.model.WasteItem
 import com.bluejack242.ecoai.utils.CloudinaryService
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -108,6 +109,40 @@ class WasteRepository() {
             }
             .distinct()
             .size
+    }
+
+    suspend fun addWasteItemFromDatabase(
+        name: String,
+        co2e: Int,
+        imageUrl: String,
+        uploadedBy: String,
+        disposalMethod: String
+    ): WasteHistoryItem {
+        val item = WasteHistoryItem(
+            id = UUID.randomUUID().toString(),
+            name = name,
+            co2e = co2e,
+            imageRes = imageUrl,
+            date = Timestamp.now(),
+            uploadedBy = uploadedBy,
+            disposalMethod = disposalMethod
+        )
+
+        firestore.collection("wasteHistoryItems")
+            .document(item.id)
+            .set(item)
+            .await()
+
+        return item
+    }
+
+    suspend fun getWasteDatabaseItems(): List<WasteItem> {
+        return firestore.collection("wasteDatabaseItems")
+            .get()
+            .await()
+            .documents.mapNotNull { document ->
+                document.toObject(WasteItem::class.java)?.copy(id = document.id)
+            }
     }
 
 }
