@@ -78,10 +78,10 @@ class NotificationRealtimeListener {
         username: String
     ) {
         val actionMessage = when (notification.type) {
-            "like" -> "liked your post"
-            "comment" -> "commented on your post"
-            "follow" -> "started following you"
-            else -> "sent you a notification"
+            "like" -> LanguageManager.getString("notif_like")
+            "comment" -> LanguageManager.getString("notif_comment")
+            "follow" -> LanguageManager.getString("notif_follow")
+            else -> ""
         }
 
         val intent = Intent(context, MainActivity::class.java).apply {
