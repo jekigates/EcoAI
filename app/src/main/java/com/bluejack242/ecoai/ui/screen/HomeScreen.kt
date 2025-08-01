@@ -257,22 +257,19 @@ fun HomeScreen(
                             contentPadding = PaddingValues(vertical = 8.dp)
                         ) {
                             items(followingPosts, key = { it.first }) { (postId, post) ->
-                                val mediaList =
-                                    post["media"] as? List<Map<String, Any>> ?: emptyList()
-                                val firstMedia =
-                                    mediaList.firstOrNull()?.get("url") as? String ?: ""
+                                val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
+                                val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
                                 val userId = post["userId"] as? String ?: ""
                                 val username = post["username"] as? String ?: ""
                                 val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
                                 val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                 val saves = (post["saves"] as? Long)?.toInt() ?: 0
-                                val comments =
-                                    post["comments"] as? List<Map<String, Any>> ?: emptyList()
                                 val likedBy = post["likedBy"] as? List<*> ?: emptyList<Any>()
                                 val savedBy = post["savedBy"] as? List<*> ?: emptyList<Any>()
                                 val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
                                 val liked = currentUserId != null && likedBy.contains(currentUserId)
                                 val saved = currentUserId != null && savedBy.contains(currentUserId)
+                                val createdAt = post["createdAt"]
 
                                 FollowingPostCard(
                                     postId = postId,
@@ -281,9 +278,9 @@ fun HomeScreen(
                                     username = username,
                                     title = post["headline"] as? String ?: "",
                                     imageUrl = firstMedia,
+                                    mediaList = mediaList,
                                     caption = post["caption"] as? String ?: "",
                                     likes = likes,
-                                    comments = comments,
                                     saves = saves,
                                     isLiked = liked,
                                     isSaved = saved,
@@ -292,8 +289,8 @@ fun HomeScreen(
                                     onCommentClick = { navController.navigate("post_detail/$it") },
                                     navController = navController,
                                     onDelete = { viewModel.deletePost(postId) },
-                                    viewModel = viewModel
-
+                                    viewModel = viewModel,
+                                    createdAt = createdAt
                                 )
                             }
                         }

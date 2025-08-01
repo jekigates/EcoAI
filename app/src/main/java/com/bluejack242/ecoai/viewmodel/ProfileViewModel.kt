@@ -2,6 +2,7 @@ package com.bluejack242.ecoai.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -28,7 +29,7 @@ class ProfileViewModel : ViewModel() {
     var fullName by mutableStateOf("")
     var followers by mutableStateOf<List<String>>(emptyList())
     var following by mutableStateOf<List<String>>(emptyList())
-    var likes by mutableStateOf(0)
+    var likes by mutableIntStateOf(0)
 
     var ownPosts by mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList())
     var likedPosts by mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList())

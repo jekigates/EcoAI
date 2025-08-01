@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -24,7 +23,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.bluejack242.ecoai.ui.component.EcoAsyncImage
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -38,16 +36,18 @@ import com.composables.icons.lucide.MessageCircle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun FollowingPostCard(
     postId: String,
     profilePictureUrl: String? = null,
     userId: String,
     username: String,
     title: String,
+    createdAt: Any? = null,
     imageUrl: String? = null,
+    mediaList: List<Map<String, Any>> = emptyList(),
     caption: String,
     likes: Int = 0,
-    comments: List<Map<String, Any>> = emptyList(),
     saves: Int = 0,
     isLiked: Boolean = false,
     isSaved: Boolean = false,
@@ -59,7 +59,6 @@ fun FollowingPostCard(
     viewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     var currentLikes by remember { mutableIntStateOf(likes) }
     var currentSaves by remember { mutableIntStateOf(saves) }
     var liked by remember { mutableStateOf(isLiked) }
@@ -68,7 +67,7 @@ fun FollowingPostCard(
     var showDeleteDialog by remember { mutableStateOf(false) }
     val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
     val isSelf = currentUser?.uid == userId
-    val comments by remember { derivedStateOf { viewModel.commentsMap[postId] ?: emptyList() } }
+    val commentList by remember { derivedStateOf { viewModel.commentsMap[postId] ?: emptyList() } }
 
     LaunchedEffect(likes, saves, isLiked, isSaved) {
         currentLikes = likes
@@ -117,7 +116,25 @@ fun FollowingPostCard(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("@$username", fontWeight = FontWeight.Bold)
+                Column {
+                    Text("@$username", fontWeight = FontWeight.Bold)
+                    val dateString = remember(createdAt) {
+                        createdAt?.let {
+                            try {
+                                val timestamp = it as? com.google.firebase.Timestamp
+                                val date = timestamp?.let { t -> java.util.Date(t.seconds * 1000) }
+                                    ?: (it as? java.util.Date)
+                                date?.let { d ->
+                                    java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault()).format(d)
+                                } ?: ""
+                            } catch (e: Exception) { "" }
+                        } ?: ""
+                    }
+                    if (dateString.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(dateString, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
             }
             if (isSelf) {
                 IconButton(onClick = { showBottomSheet = true }) {
@@ -127,126 +144,219 @@ fun FollowingPostCard(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(220.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color.LightGray),
-            contentAlignment = Alignment.Center
-        ) {
-            if (!imageUrl.isNullOrEmpty()) {
-                EcoAsyncImage(
-                    imageUrl = imageUrl,
-                    contentDescription = "Post Image",
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
+        // Multi-photo pager like PostDetailScreen
+        val pagerMediaList = if (mediaList.isNotEmpty()) mediaList else if (!imageUrl.isNullOrEmpty()) listOf(mapOf("url" to imageUrl)) else emptyList()
+        val pagerState = if (pagerMediaList.isNotEmpty()) androidx.compose.foundation.pager.rememberPagerState(pageCount = { pagerMediaList.size }) else null
+        var showPagerIndicator by remember { mutableStateOf(false) }
+        if (pagerMediaList.isNotEmpty() && pagerState != null) {
+            LaunchedEffect(pagerState.currentPage) {
+                showPagerIndicator = true
+                kotlinx.coroutines.delay(1200)
+                showPagerIndicator = false
+            }
+            Box {
+                androidx.compose.foundation.pager.HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.LightGray)
+                ) { index ->
+                    val media = pagerMediaList[index]
+                    val url = media["url"] as? String
+                    if (!url.isNullOrEmpty()) {
+                        EcoAsyncImage(
+                            imageUrl = url,
+                            contentDescription = "Post Image",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Text("No Image", color = Color.DarkGray)
+                    }
+                }
+                // Number indicator at top right
+                if (pagerMediaList.size > 1 && showPagerIndicator) {
+                    Text(
+                        text = "${pagerState.currentPage + 1}/${pagerMediaList.size}",
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                            .background(
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                shape = CircleShape
+                            )
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
+                // Dots indicator moved to action row below
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
                 Text("No Image", color = Color.DarkGray)
             }
+            Spacer(modifier = Modifier.height(8.dp))
         }
-        Spacer(modifier = Modifier.height(8.dp))
 
-        val annotatedCaption = buildAnnotatedString {
-            val words = caption.split(" ")
-            words.forEachIndexed { index, word ->
-                if (word.startsWith("#")) {
-                    val tag = word.removePrefix("#")
-                    pushStringAnnotation(tag = "TAG", annotation = tag)
-                    withStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    ) {
+        if (title.isNotBlank() || caption.isNotBlank()) {
+            if (title.isNotBlank()) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+
+            val annotatedCaption = buildAnnotatedString {
+                val words = caption.split(" ")
+                words.forEachIndexed { index, word ->
+                    if (word.startsWith("#")) {
+                        val tag = word.removePrefix("#")
+                        pushStringAnnotation(tag = "TAG", annotation = tag)
+                        withStyle(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) {
+                            append(word)
+                        }
+                        pop()
+                    } else {
                         append(word)
                     }
-                    pop()
-                } else {
-                    append(word)
+                    if (index != words.lastIndex) append(" ")
                 }
-                if (index != words.lastIndex) append(" ")
             }
+
+            if (caption.isNotBlank()) {
+                ClickableText(
+                    text = annotatedCaption,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal),
+                    onClick = { offset ->
+                        annotatedCaption.getStringAnnotations(tag = "TAG", start = offset, end = offset)
+                            .firstOrNull()?.let { annotation ->
+                                val tag = annotation.item
+                                navController.navigate("search/${Uri.encode(tag)}")
+                            }
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
-        ClickableText(
-            text = annotatedCaption,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            onClick = { offset ->
-                annotatedCaption.getStringAnnotations(tag = "TAG", start = offset, end = offset)
-                    .firstOrNull()?.let { annotation ->
-                        val tag = annotation.item
-                        navController.navigate("search/${Uri.encode(tag)}")
-                    }
-            }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
         Row(
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Like and comment groups (left)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    liked = !liked
-                    currentLikes += if (liked) 1 else -1
-                    onLikeClick(postId)
-                }
+                modifier = Modifier
             ) {
-                Icon(
-                    imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = "Like",
-                    tint = if (liked) Color.Red else Color.Gray,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(currentLikes.toString(), style = MaterialTheme.typography.labelSmall)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable {
+                            liked = !liked
+                            currentLikes += if (liked) 1 else -1
+                            onLikeClick(postId)
+                        }
+                ) {
+                    Icon(
+                        imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Like",
+                        tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    if (currentLikes > 0) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(currentLikes.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clickable { onCommentClick(postId) }
+                        .padding(start = 20.dp)
+                ) {
+                    Icon(
+                        imageVector = Lucide.MessageCircle,
+                        contentDescription = "Comment",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    if (commentList.isNotEmpty()) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(commentList.size.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    onCommentClick(postId)
-                }
+            // Dots indicator (center)
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Lucide.MessageCircle,
-                    contentDescription = "Comment",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(comments.size.toString(), style = MaterialTheme.typography.labelSmall)
+                if (pagerMediaList.size > 1 && pagerState != null) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        repeat(pagerMediaList.size) { i ->
+                            Box(
+                                Modifier
+                                    .size(if (pagerState.currentPage == i) 10.dp else 8.dp)
+                                    .padding(2.dp)
+                                    .background(
+                                        if (pagerState.currentPage == i) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                                        shape = CircleShape
+                                    )
+                            )
+                        }
+                    }
+                }
             }
 
+            // Save group (right)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-                    saved = !saved
-                    currentSaves += if (saved) 1 else -1
-                    onSaveClick(postId)
-                }
+                modifier = Modifier
+                    .clickable {
+                        saved = !saved
+                        currentSaves += if (saved) 1 else -1
+                        onSaveClick(postId)
+                    }
             ) {
                 Icon(
                     imageVector = if (saved) Lucide.Bookmark else Lucide.BookmarkPlus,
                     contentDescription = "Save",
-                    tint = if (saved) MaterialTheme.colorScheme.primary else Color.Gray,
-                    modifier = Modifier.size(18.dp)
+                    tint = if (saved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(currentSaves.toString(), style = MaterialTheme.typography.labelSmall)
+                if (currentSaves > 0) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(currentSaves.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                }
             }
         }
 
-        if (comments.isNotEmpty()) {
+        if (commentList.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = LanguageManager.getString("top_comments"),
@@ -255,7 +365,7 @@ fun FollowingPostCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            comments.take(3).forEach { comment ->
+            commentList.take(3).forEach { comment ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
