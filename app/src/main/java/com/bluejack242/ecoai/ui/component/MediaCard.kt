@@ -11,9 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import androidx.compose.material.icons.filled.Person
@@ -52,13 +50,12 @@ fun MediaCard(
                 .fillMaxWidth()
         ) {
             // Div A: Image
-            AsyncImage(
-                model = imageUrl,
+            EcoAsyncImage(
+                imageUrl = imageUrl,
                 contentDescription = title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp),
-                contentScale = ContentScale.Crop
+                    .height(120.dp)
             )
 
             // Div B: Stats row
@@ -111,13 +108,14 @@ fun MediaCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (!profilePictureUrl.isNullOrBlank()) {
-                AsyncImage(
-                    model = profilePictureUrl,
+                EcoAsyncImage(
+                    imageUrl = profilePictureUrl,
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(28.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    shape = CircleShape
                 )
             } else {
                 Icon(

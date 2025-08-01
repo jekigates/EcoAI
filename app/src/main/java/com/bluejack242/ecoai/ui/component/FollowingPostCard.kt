@@ -24,8 +24,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.bluejack242.ecoai.ui.component.EcoAsyncImage
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -100,15 +99,13 @@ fun FollowingPostCard(
                     .clickable { navController.navigate("user_profile/$userId") }
             ) {
                 if (profilePictureUrl != null) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(profilePictureUrl)
-                            .crossfade(true)
-                            .build(),
+                    EcoAsyncImage(
+                        imageUrl = profilePictureUrl,
                         contentDescription = "Profile Picture",
                         modifier = Modifier
                             .size(40.dp)
-                            .clip(CircleShape)
+                            .clip(CircleShape),
+                        shape = CircleShape
                     )
                 } else {
                     Icon(
@@ -146,11 +143,8 @@ fun FollowingPostCard(
             contentAlignment = Alignment.Center
         ) {
             if (!imageUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(imageUrl)
-                        .crossfade(true)
-                        .build(),
+                EcoAsyncImage(
+                    imageUrl = imageUrl,
                     contentDescription = "Post Image",
                     modifier = Modifier.fillMaxSize()
                 )
@@ -270,12 +264,13 @@ fun FollowingPostCard(
                 ) {
                     val commentProfileUrl = comment["profilePictureUrl"] as? String
                     if (commentProfileUrl != null) {
-                        AsyncImage(
-                            model = commentProfileUrl,
+                        EcoAsyncImage(
+                            imageUrl = commentProfileUrl,
                             contentDescription = "Commenter Profile",
                             modifier = Modifier
                                 .size(20.dp)
-                                .clip(CircleShape)
+                                .clip(CircleShape),
+                            shape = CircleShape
                         )
                     } else {
                         Icon(
