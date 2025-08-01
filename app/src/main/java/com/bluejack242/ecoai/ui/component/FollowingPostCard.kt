@@ -268,75 +268,82 @@ fun FollowingPostCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Like and comment groups (left)
+        // Like and comment groups (left)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable {
-                            liked = !liked
-                            currentLikes += if (liked) 1 else -1
-                            onLikeClick(postId)
-                        }
-                ) {
-                    Icon(
-                        imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Like",
-                        tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    if (currentLikes > 0) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(currentLikes.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                    .clickable {
+                        liked = !liked
+                        currentLikes += if (liked) 1 else -1
+                        onLikeClick(postId)
                     }
+            ) {
+                Icon(
+                    imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = "Like",
+                    tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+                if (currentLikes > 0) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(currentLikes.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable { onCommentClick(postId) }
+                    .padding(start = 20.dp)
+            ) {
+                Icon(
+                    imageVector = Lucide.MessageCircle,
+                    contentDescription = "Comment",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+                if (commentList.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(commentList.size.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                }
+            }
+        }
+
+        // Dots indicator (center)
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            if (pagerMediaList.size > 1 && pagerState != null) {
                 Row(
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable { onCommentClick(postId) }
-                        .padding(start = 20.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(
-                        imageVector = Lucide.MessageCircle,
-                        contentDescription = "Comment",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    if (commentList.isNotEmpty()) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(commentList.size.toString(), fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                    repeat(pagerMediaList.size) { i ->
+                        Box(
+                            Modifier
+                                .size(if (pagerState.currentPage == i) 10.dp else 8.dp)
+                                .padding(2.dp)
+                                .background(
+                                    if (pagerState.currentPage == i) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                                    shape = CircleShape
+                                )
+                        )
                     }
                 }
             }
+        }
 
-            // Dots indicator (center)
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                if (pagerMediaList.size > 1 && pagerState != null) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        repeat(pagerMediaList.size) { i ->
-                            Box(
-                                Modifier
-                                    .size(if (pagerState.currentPage == i) 10.dp else 8.dp)
-                                    .padding(2.dp)
-                                    .background(
-                                        if (pagerState.currentPage == i) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
-                                        shape = CircleShape
-                                    )
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Save group (right)
+        // Save group (right)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f, fill = false)
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -358,6 +365,7 @@ fun FollowingPostCard(
                 }
             }
         }
+        }
 
         if (commentList.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -376,7 +384,7 @@ fun FollowingPostCard(
                 val isLiked = currentUserId != null && likedBy.contains(currentUserId)
                 val likeCount = likedBy.size
                 var localLiked by remember(commentId) { mutableStateOf(isLiked) }
-                var localLikeCount by remember(commentId) { mutableStateOf(likeCount) }
+                var localLikeCount by remember(commentId) { mutableIntStateOf(likeCount) }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
