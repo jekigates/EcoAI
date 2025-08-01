@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bluejack242.ecoai.model.WasteHistoryItem
+import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.ProgressViewModel
 
 @Composable
@@ -69,7 +70,7 @@ fun WasteDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "🌍 Carbon Footprint",
+                        text = LanguageManager.getString("carbon_footprint"),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.primary
@@ -83,7 +84,7 @@ fun WasteDetailScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "♻️ Disposal Method",
+                        text = LanguageManager.getString("disposal_method"),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.secondary
@@ -105,7 +106,7 @@ fun WasteDetailScreen(
                     .height(48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Done", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(LanguageManager.getString("back"), color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     } ?: run {

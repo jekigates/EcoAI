@@ -130,14 +130,18 @@ object LanguageManager {
             "recently_uploaded" to "Recently uploaded",
             "no_items_uploaded" to "No items uploaded yet.",
             "add_waste" to "Add Waste",
+            "carbon_footprint" to "Carbon Footprint",
+            "items_uploaded" to "items uploaded",
+            "scan_waste" to "Scan Waste",
+            "waste_database" to "Waste Database",
             
             // Create Post Screen
             "back" to "Back",
             "create_new_post" to "Create New Post",
             "no_media_yet" to "No media yet",
             "remove_image" to "Remove image",
-            "headline_optional" to "Headline (optional)",
-            "caption_and_tags_optional" to "Caption and tags (optional)",
+            "headline_optional" to "Headline",
+            "caption_and_tags_optional" to "Caption and tags",
             "uploading" to "Uploading...",
             "add_image" to "Add Image",
             "post_button" to "Post",
@@ -154,7 +158,16 @@ object LanguageManager {
             "open_gallery" to "Open Gallery",
             "open_history" to "Open History",
             "error_occurred" to "An error occurred",
-            
+
+            // Waste Detail
+            "disposal_method" to "Disposal Method",
+
+            // History Screen
+            "history" to "History",
+            "search_history" to "Search history...",
+            "no_history_yet" to "No history yet",
+            "no_results_found" to "No results found",
+
             // Bottom Navigation Bar
             "home" to "Home",
             "progress" to "Progress",
@@ -301,14 +314,18 @@ object LanguageManager {
             "recently_uploaded" to "Baru diunggah",
             "no_items_uploaded" to "Belum ada item yang diunggah.",
             "add_waste" to "Tambah Sampah",
-            
+            "carbon_footprint" to "Jejak Karbon",
+            "items_uploaded" to "item yang diunggah",
+            "scan_waste" to "Pindai Sampah",
+            "waste_database" to "Database Sampah",
+
             // Create Post Screen
             "back" to "Kembali",
             "create_new_post" to "Buat Postingan Baru",
             "no_media_yet" to "Belum ada media",
             "remove_image" to "Hapus gambar",
-            "headline_optional" to "Judul (opsional)",
-            "caption_and_tags_optional" to "Keterangan dan tag (opsional)",
+            "headline_optional" to "Judul",
+            "caption_and_tags_optional" to "Keterangan dan tag",
             "uploading" to "Mengunggah...",
             "add_image" to "Tambah Gambar",
             "post_button" to "Unggah",
@@ -325,7 +342,17 @@ object LanguageManager {
             "open_gallery" to "Buka Galeri",
             "open_history" to "Buka Riwayat",
             "error_occurred" to "Terjadi kesalahan",
-            
+
+            // Waste Detail
+            "disposal_method" to "Metode Pembuangan",
+
+            // History Screen
+            "history" to "Riwayat",
+            "search_history" to "Cari riwayat...",
+            "no_history_yet" to "No history yet",
+            "no_results_found" to "No results found",
+
+
             // Bottom Navigation Bar
             "home" to "Beranda",
             "progress" to "Progres",

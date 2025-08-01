@@ -354,7 +354,10 @@ fun PostDetailScreen(
 
             ClickableText(
                 text = annotatedCaption,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
                 onClick = { offset ->
                     annotatedCaption.getStringAnnotations("TAG", offset, offset)
                         .firstOrNull()?.let { annotation ->

@@ -75,5 +75,15 @@ class WasteViewModel(
         }
     }
 
+    fun fetchHistory(userId: String) {
+        viewModelScope.launch {
+            try {
+                val items = repository.getWasteHistoryItems().filter { it.uploadedBy == userId }
+                _recentlyUploadedWaste.postValue(items)
+            } catch (e: Exception) {
+                Log.e("WasteViewModel", "Fetch history error: ${e.message}", e)
+            }
+        }
+    }
 
 }

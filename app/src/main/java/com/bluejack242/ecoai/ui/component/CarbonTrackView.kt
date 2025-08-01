@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
 fun CarbonTrackView(carbonFootprint: Int, itemsUploaded: Int) {
@@ -25,7 +26,7 @@ fun CarbonTrackView(carbonFootprint: Int, itemsUploaded: Int) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Carbon Footprint",
+                LanguageManager.getString("carbon_footprint"),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -38,7 +39,7 @@ fun CarbonTrackView(carbonFootprint: Int, itemsUploaded: Int) {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "$itemsUploaded items uploaded",
+                "$itemsUploaded ${LanguageManager.getString("items_uploaded")}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -1,64 +1,110 @@
 package com.bluejack242.ecoai.ui.screen
 
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bluejack242.ecoai.model.WasteHistoryItem
-
+import com.bluejack242.ecoai.utils.LanguageManager
+import com.bluejack242.ecoai.viewmodel.WasteViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun HistoryScreen(
-//    historyList: List<WasteHistoryItem>,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    viewModel: WasteViewModel = viewModel()
 ) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    val historyList by viewModel.recentlyUploadedWaste.observeAsState(emptyList())
+    var searchQuery by remember { mutableStateOf("") }
+
+    LaunchedEffect(userId) {
+        viewModel.fetchHistory(userId)
+    }
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .statusBarsPadding()
     ) {
         Text(
-            "History",
-            style = MaterialTheme.typography.h3,
-            fontWeight = FontWeight.Bold
+            text = LanguageManager.getString("history"),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Black,
+            modifier = Modifier.weight(1f)
         )
 
-//        if (historyList.isEmpty()) {
-//            Spacer(Modifier.height(32.dp))
-//            Text("No history yet", color = Color.Gray)
-//        } else {
-//            LazyColumn(modifier = Modifier.fillMaxSize()) {
-//                items(historyList) { item ->
-//                    HistoryItemRow(item, onItemClick)
-//                }
-//            }
-//        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            placeholder = { Text(LanguageManager.getString("search_history")) },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        val filteredHistory = historyList.filter { item ->
+            item.name.contains(searchQuery, ignoreCase = true) ||
+                    item.date.toString().contains(searchQuery, ignoreCase = true)
+        }
+
+        if (filteredHistory.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (searchQuery.isEmpty()) LanguageManager.getString("no_history_yet") else LanguageManager.getString("no_results_found"),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filteredHistory) { item ->
+                    HistoryItemRow(item, onItemClick)
+                }
+            }
+        }
     }
 }
+
 @Composable
 fun HistoryItemRow(item: WasteHistoryItem, onItemClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
             .clickable { onItemClick(item.id) },
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -68,18 +114,30 @@ fun HistoryItemRow(item: WasteHistoryItem, onItemClick: (String) -> Unit) {
                 model = item.imageRes,
                 contentDescription = item.name,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
+                    .size(80.dp)
+                    .graphicsLayer {
+                        shape = RoundedCornerShape(8.dp)
+                        clip = true
+                    }
             )
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(item.name, fontWeight = FontWeight.Bold)
-                Text("${item.co2e} gram CO2e", style = MaterialTheme.typography.body2)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${item.co2e} gram CO2e",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = item.date.toDate().toString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            Text(
-                item.date.toString(),
-                style = MaterialTheme.typography.body2.copy(fontWeight = FontWeight.Bold)
-            )
         }
     }
 }
