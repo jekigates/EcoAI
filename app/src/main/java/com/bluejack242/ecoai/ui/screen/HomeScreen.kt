@@ -91,7 +91,6 @@ fun HomeScreen(
         ) {
 
 
-            // Eco AI top bar styled like bottom navigation bar
             val topBarBg = MaterialTheme.colorScheme.surface
             val topBarText = MaterialTheme.colorScheme.onSurface
             val tabSelectedBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
@@ -116,7 +115,6 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 2.sp),
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                     )
-                    // Tabs row centered
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

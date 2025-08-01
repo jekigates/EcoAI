@@ -4,11 +4,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.toColorInt
 
 
-// define your colors for dark theme
 val clear_dark = Color(0xFFA05162)
 val dark_btn = Color(0xFF222427)
 
-// define your colors for light theme
 val light_btn = Color("#E9F0F4".toColorInt())
 val light_bg = Color("#F6F8F9".toColorInt())
 val clear_light = Color(0xFFF1C8D1)
@@ -19,13 +17,11 @@ val dark_surface = Color(0xFF232826)
 val light_background = Color(0xFFF6F8F9)
 val light_surface = Color(0xFFE9F0F4)
 
-// surfaceVariant for M3 compatibility
 val surface_variant_light = Color(0xFFE7E9EC)
 val surface_variant_dark = Color(0xFF35383B)
 
-// Subtle outline colors for card borders
-val outline_light = Color(0x1A000000) // 10% black
-val outline_dark = Color(0x33FFFFFF) // 20% white
+val outline_light = Color(0x1A000000) 
+val outline_dark = Color(0x33FFFFFF) 
 
 sealed class ThemeColors(
     val background: Color,

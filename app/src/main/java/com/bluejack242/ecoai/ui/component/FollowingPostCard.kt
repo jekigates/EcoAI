@@ -144,7 +144,6 @@ fun FollowingPostCard(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Multi-photo pager like PostDetailScreen
         val pagerMediaList = if (mediaList.isNotEmpty()) mediaList else if (!imageUrl.isNullOrEmpty()) listOf(mapOf("url" to imageUrl)) else emptyList()
         val pagerState = if (pagerMediaList.isNotEmpty()) androidx.compose.foundation.pager.rememberPagerState(pageCount = { pagerMediaList.size }) else null
         var showPagerIndicator by remember { mutableStateOf(false) }
@@ -175,7 +174,6 @@ fun FollowingPostCard(
                         Text("No Image", color = Color.DarkGray)
                     }
                 }
-                // Number indicator at top right
                 if (pagerMediaList.size > 1 && showPagerIndicator) {
                     Text(
                         text = "${pagerState.currentPage + 1}/${pagerMediaList.size}",
@@ -192,7 +190,6 @@ fun FollowingPostCard(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     )
                 }
-                // Dots indicator moved to action row below
             }
             Spacer(modifier = Modifier.height(8.dp))
         } else {
@@ -310,7 +307,6 @@ fun FollowingPostCard(
             }
         }
 
-        // Dots indicator (center)
         Box(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.Center
@@ -336,7 +332,6 @@ fun FollowingPostCard(
             }
         }
 
-        // Save group (right)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f, fill = false)
@@ -419,7 +414,6 @@ fun FollowingPostCard(
                         fontSize = 12.sp,
                         modifier = Modifier.weight(1f)
                     )
-                    // Like button and count (right)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -472,7 +466,6 @@ fun FollowingPostCard(
             }
         }
 
-        // Delete Confirmation Dialog
         if (showDeleteDialog) {
             CustomDialog(
                 title = LanguageManager.getString("delete_confirmation"),

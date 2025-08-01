@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
             }
             var isNotificationEnabled by rememberSaveable { mutableStateOf(true) }
 
-            // Load language from prefs if available
             val initialLang = prefs.getString("language", "EN") ?: "EN"
             LaunchedEffect(Unit) {
                 com.bluejack242.ecoai.utils.LanguageManager.setLanguage(initialLang)

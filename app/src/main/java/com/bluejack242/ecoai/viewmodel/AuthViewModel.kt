@@ -86,21 +86,7 @@ class AuthViewModel(
             }
         }
     }
-//
-//    fun saveProfile(
-//        form: ProfileForm,
-//        onSuccess: () -> Unit
-//    ) {
-//        val error = ValidationUtil.validateProfile(form)
-//        if (error != null) {
-//            errorMessage.value = error
-//            return
-//        }
-//
-//        // Lanjut simpan ke Firestore atau database
-//        onSuccess()
-//    }
-
+    
     fun sendResetEmail(email: String, onSuccess: () -> Unit) {
         val error = ValidationUtil.validateEmailOnly(email)
         if (error != null) {

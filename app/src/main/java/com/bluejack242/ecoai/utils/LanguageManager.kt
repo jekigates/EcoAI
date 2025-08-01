@@ -167,6 +167,7 @@ object LanguageManager {
             "search_history" to "Search history...",
             "no_history_yet" to "No history yet",
             "no_results_found" to "No results found",
+            "no_items_available" to "No items available",
 
             // Bottom Navigation Bar
             "home" to "Home",
@@ -351,7 +352,7 @@ object LanguageManager {
             "search_history" to "Cari riwayat...",
             "no_history_yet" to "No history yet",
             "no_results_found" to "No results found",
-
+            "no_items_available" to "Tidak ada item tersedia",
 
             // Bottom Navigation Bar
             "home" to "Beranda",

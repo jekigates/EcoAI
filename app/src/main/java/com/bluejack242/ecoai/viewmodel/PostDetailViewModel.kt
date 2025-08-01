@@ -54,7 +54,6 @@ class PostDetailViewModel : ViewModel() {
             if (creatorId.isNotBlank()) {
                 db.collection("users").document(creatorId).get().addOnSuccessListener { userDoc ->
                     creator = userDoc.data
-                    // Check if current user is following the creator
                     if (userId != null) {
                         db.collection("users").document(userId).get().addOnSuccessListener { currentUserDoc ->
                             val following = (currentUserDoc.get("following") as? List<*>)?.map { it.toString() } ?: emptyList()

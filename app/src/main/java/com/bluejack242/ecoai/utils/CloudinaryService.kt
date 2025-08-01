@@ -18,7 +18,7 @@ import java.util.*
 class CloudinaryService {
     companion object {
         private const val CLOUD_NAME = "dh75d6acd"
-        private const val UPLOAD_PRESET = "post" // Diperbarui ke nama preset yang sesuai
+        private const val UPLOAD_PRESET = "post"
         private const val API_KEY = "691169198888262"
         private const val API_SECRET = "94OGlC1XnCmzk9k8EvOXrVkosUg"
 
@@ -36,7 +36,6 @@ class CloudinaryService {
                 val endpoint = if (isVideo) "video/upload" else "image/upload"
                 val timestamp = (System.currentTimeMillis() / 1000).toString()
 
-                // Generate signature for signed upload
                 val params = "timestamp=$timestamp&upload_preset=$UPLOAD_PRESET"
                 val signature = generateSignature(params)
                 val apiKey = API_KEY
@@ -114,7 +113,6 @@ class CloudinaryService {
         }
     }
 
-    // Generate signature for signed upload
     private fun generateSignature(params: String): String {
         val message = "$params$API_SECRET"
         val digest = MessageDigest.getInstance("SHA-1").digest(message.toByteArray())

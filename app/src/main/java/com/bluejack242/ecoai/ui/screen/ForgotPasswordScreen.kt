@@ -36,7 +36,7 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp), // typical app bar height
+                .height(56.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(

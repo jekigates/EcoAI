@@ -17,7 +17,6 @@ object ValidationUtil {
 
             if (firstName.length < 4) return "First name must be at least 4 characters long."
             if (lastName.length < 4) return "Last name must be at least 4 characters long."
-//            if (fullName.length > 30) return "Full name must be at most 30 characters long."
             if (!email.endsWith("@gmail.com")) return "Email address must end with @gmail.com."
             if (email != confirmEmail) return "Confirm email must match the email."
             if (password.length < 8) return "Password must be at least 8 characters long."

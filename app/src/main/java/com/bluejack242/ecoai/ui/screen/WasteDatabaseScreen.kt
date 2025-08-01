@@ -11,6 +11,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +29,7 @@ fun WasteDatabaseScreen(
     viewModel: WasteViewModel = viewModel()
 ) {
     val wasteItems by viewModel.wasteDatabaseItems.observeAsState(emptyList())
+    var searchQuery by remember { mutableStateOf("") }
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
     LaunchedEffect(Unit) {
@@ -42,13 +44,25 @@ fun WasteDatabaseScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = {
+                searchQuery = it
+                viewModel.searchWasteDatabaseItems(it)
+            },
+            placeholder = { Text(LanguageManager.getString("search")) },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (wasteItems.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = LanguageManager.getString("no_items_available"),
+                    text = if (searchQuery.isEmpty()) LanguageManager.getString("no_items_available")
+                    else LanguageManager.getString("no_results_found"),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -83,7 +97,10 @@ fun WasteItemRow(item: WasteItem, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -92,6 +109,7 @@ fun WasteItemRow(item: WasteItem, onClick: () -> Unit) {
             AsyncImage(
                 model = item.imageRes,
                 contentDescription = item.name,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
                     .graphicsLayer {
@@ -103,9 +121,11 @@ fun WasteItemRow(item: WasteItem, onClick: () -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${item.co2e} gram CO2e",
                     style = MaterialTheme.typography.bodyMedium,

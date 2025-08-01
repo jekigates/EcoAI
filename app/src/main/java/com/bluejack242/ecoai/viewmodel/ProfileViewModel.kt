@@ -115,9 +115,7 @@ class UserProfileViewModel : ViewModel() {
             followers = (doc.get("followers") as? List<String>) ?: emptyList()
             following = (doc.get("following") as? List<String>) ?: emptyList()
             isProfileLoaded = true
-            // Check if current user is following
             isFollowing = currentUser?.uid?.let { followers.contains(it) } == true
-            // Fetch likes count
             db.collection("posts").whereEqualTo("userId", uid).get().addOnSuccessListener { posts ->
                 likes = posts.documents.sumOf { (it.get("likes") as? Long)?.toInt() ?: 0 }
                 isLoading = false

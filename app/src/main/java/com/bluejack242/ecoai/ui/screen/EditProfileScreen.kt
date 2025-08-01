@@ -77,7 +77,6 @@ fun EditProfileScreen(navController: NavHostController) {
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
     val errorColor = MaterialTheme.colorScheme.error
     val buttonColor = MaterialTheme.colorScheme.primary
-    // Use luminance to determine if theme is light or dark
     val isLightTheme = backgroundColor.luminance() > 0.5f
     val profilePictureBg = if (isLightTheme) MaterialTheme.colorScheme.surfaceVariant else onSurfaceVariantColor.copy(alpha = 0.2f)
 

@@ -39,7 +39,6 @@ fun SettingsScreen(
                     isLoading = false
                 }
                 .addOnFailureListener {
-                    // kalau gagal load, pakai default true
                     isNotificationEnabled = true
                     isLoading = false
                 }

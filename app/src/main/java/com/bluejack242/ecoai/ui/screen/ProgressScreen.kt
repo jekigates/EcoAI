@@ -56,7 +56,6 @@ fun ProgressScreen(
     val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
     val fabColor = MaterialTheme.colorScheme.primary
     val fabIconColor = Color.White
-    // val emptyTextColor = onSurfaceVariantColor
 
     var fabExpanded by remember { mutableStateOf(false) }
 
@@ -151,7 +150,6 @@ fun ProgressScreen(
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.weight(1f)
                 )
-                // Streak indicator styled like language selector
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -182,12 +180,12 @@ fun ProgressScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Weekly progress row (custom)
+            // Weekly progress row
             WeeklyProgressRow()
 
             Spacer(Modifier.height(24.dp))
 
-            // Carbon track (items left)
+            // Carbon track
             CarbonTrackView(carbonFootprint = carbonTrack, itemsUploaded = recentlyUploaded.size)
 
             Spacer(Modifier.height(24.dp))
