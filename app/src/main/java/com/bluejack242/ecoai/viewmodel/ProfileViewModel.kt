@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.bluejack242.ecoai.utils.sendNotificationWithType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -144,6 +145,11 @@ class UserProfileViewModel : ViewModel() {
             } else {
                 batch.update(userRef, "followers", com.google.firebase.firestore.FieldValue.arrayUnion(myUid))
                 batch.update(myRef, "following", com.google.firebase.firestore.FieldValue.arrayUnion(uid))
+                sendNotificationWithType(
+                    fromUserId = myUid,
+                    toUserId = uid,
+                    type = "follow"
+                )
             }
         }.addOnSuccessListener {
             isFollowing = !isFollowing

@@ -131,8 +131,8 @@ class PostDetailViewModel : ViewModel() {
                 batch.update(currentUserRef, "following", FieldValue.arrayUnion(creatorId))
                 batch.update(creatorRef, "followers", FieldValue.arrayUnion(userId))
                 sendNotificationWithType(
-                    fromUserId = creatorId,
-                    toUserId = userId,
+                    fromUserId = userId,
+                    toUserId = creatorId,
                     type = "follow"
                 )
 

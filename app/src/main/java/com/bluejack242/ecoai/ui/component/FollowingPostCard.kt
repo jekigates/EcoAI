@@ -267,8 +267,6 @@ fun FollowingPostCard(
                 .padding(horizontal = 4.dp, vertical = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Like and comment groups (left)
-        // Like and comment groups (left)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)

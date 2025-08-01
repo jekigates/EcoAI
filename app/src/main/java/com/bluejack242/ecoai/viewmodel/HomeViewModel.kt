@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bluejack242.ecoai.utils.sendNotificationWithType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -232,6 +233,12 @@ class HomeViewModel : ViewModel() {
                             "likedBy" to likedBy,
                             "likes" to likes + 1
                         )
+                    )
+                    sendNotificationWithType(
+                        fromUserId = currentUser.uid.toString(),
+                        toUserId = postData["userId"].toString(),
+                        type = "like",
+                        postId = postId
                     )
                 }
 

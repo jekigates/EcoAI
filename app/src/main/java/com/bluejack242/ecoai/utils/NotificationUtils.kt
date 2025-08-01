@@ -15,6 +15,13 @@ fun sendNotificationWithType(
 ) {
     if (fromUserId == toUserId) return
 
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").document(toUserId).get()
+        .addOnSuccessListener { userDoc ->
+            val notificationsEnabled = userDoc.getBoolean("notificationsEnabled") ?: true
+            if (!notificationsEnabled) return@addOnSuccessListener
+        }
+
     val notification = Notification(
         fromUserId = fromUserId,
         toUserId = toUserId,
@@ -23,7 +30,6 @@ fun sendNotificationWithType(
         createdAt = Timestamp.now()
     )
 
-    val db = FirebaseFirestore.getInstance()
     db.collection("notifications").add(notification)
 
     val timestamp = Timestamp.now()
