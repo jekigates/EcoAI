@@ -186,7 +186,7 @@ fun ProgressScreen(
             Spacer(Modifier.height(24.dp))
 
             // Carbon track
-            CarbonTrackView(carbonFootprint = carbonTrack, itemsUploaded = recentlyUploaded.size)
+            CarbonTrackView(carbonFootprint = carbonTrack)
 
             Spacer(Modifier.height(24.dp))
 
