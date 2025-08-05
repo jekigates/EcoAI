@@ -93,22 +93,35 @@ class WasteRepository() {
             .await()
             .toObjects(WasteHistoryItem::class.java)
 
-        val now = Calendar.getInstance()
+        // Ambil semua tanggal upload, diubah ke hari (tanpa jam)
+        val uploadDays = items.mapNotNull { item ->
+            val cal = Calendar.getInstance()
+            item.date.toDate().let { cal.time = it }
+            // Set jam ke 0 supaya hanya tanggal
+            cal.set(Calendar.HOUR_OF_DAY, 0)
+            cal.set(Calendar.MINUTE, 0)
+            cal.set(Calendar.SECOND, 0)
+            cal.set(Calendar.MILLISECOND, 0)
+            cal.timeInMillis
+        }.toSet()
 
-        val last7days = items.filter { item ->
-            val itemDate = item.date.toDate()
-            val diffInMillis = now.timeInMillis - itemDate.time
-            diffInMillis <= (7 * 24 * 60 * 60 * 1000)
-        }
+        // Hitung streak berturut-turut mundur dari hari ini
+        var streak = 0
+        val today = Calendar.getInstance()
+        today.set(Calendar.HOUR_OF_DAY, 0)
+        today.set(Calendar.MINUTE, 0)
+        today.set(Calendar.SECOND, 0)
+        today.set(Calendar.MILLISECOND, 0)
 
-        return last7days
-            .mapNotNull { item ->
-                val cal = java.util.Calendar.getInstance()
-                item.date.toDate().let { cal.time = it }
-                "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+        for (i in 0 until 7) { // maksimal streak 7 hari
+            if (uploadDays.contains(today.timeInMillis)) {
+                streak++
+            } else {
+                break
             }
-            .distinct()
-            .size
+            today.add(Calendar.DAY_OF_YEAR, -1)
+        }
+        return streak
     }
 
     suspend fun addWasteItemFromDatabase(
