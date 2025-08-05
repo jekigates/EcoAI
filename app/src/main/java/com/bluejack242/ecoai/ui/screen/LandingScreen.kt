@@ -36,7 +36,7 @@ fun LandingScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) {
                 Image(
-                    painter = painterResource(id = R.drawable.download),
+                    painter = painterResource(id = R.drawable.waste_image),
                     contentDescription = "Landing Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

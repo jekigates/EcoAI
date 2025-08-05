@@ -37,7 +37,6 @@ fun MediaCard(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        // Card with border and rounded corners
         Column(
             modifier = Modifier
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
@@ -49,7 +48,6 @@ fun MediaCard(
                 )
                 .fillMaxWidth()
         ) {
-            // Div A: Image
             EcoAsyncImage(
                 imageUrl = imageUrl,
                 contentDescription = title,
@@ -58,7 +56,6 @@ fun MediaCard(
                     .height(120.dp)
             )
 
-            // Div B: Stats row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,7 +97,6 @@ fun MediaCard(
             }
         }
 
-        // Profile row below the card
         Row(
             modifier = Modifier
                 .padding(top = 8.dp)

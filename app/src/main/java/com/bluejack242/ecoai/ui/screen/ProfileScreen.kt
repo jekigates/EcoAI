@@ -44,7 +44,6 @@ fun ProfileScreen(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) { viewModel.fetchProfile() }
-    // Always reset posts and loading state when switching tab, to force reload
     LaunchedEffect(selectedTab) {
         viewModel.resetPostsForTab(selectedTab)
         viewModel.fetchPostsForTab(selectedTab)
@@ -216,7 +215,6 @@ fun ProfileScreen(
                 }
 
 
-                // Tab content
                 when (selectedTab) {
                     0 -> {
                         if (viewModel.isLoadingPosts) {

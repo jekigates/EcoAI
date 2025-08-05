@@ -145,4 +145,14 @@ class WasteRepository() {
             }
     }
 
+    suspend fun searchWasteDatabaseItems(query: String): List<WasteItem> {
+        return firestore.collection("wasteDatabaseItems")
+            .whereGreaterThanOrEqualTo("name", query)
+            .whereLessThanOrEqualTo("name", query + "\uf8ff")
+            .get()
+            .await()
+            .documents.mapNotNull { document ->
+                document.toObject(WasteItem::class.java)?.copy(id = document.id)
+            }
+    }
 }

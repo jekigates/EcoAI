@@ -61,14 +61,12 @@ fun LoginScreen(
             .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
     ) {
-        // Language Selector at absolute top right
         LanguageSelector(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 16.dp, end = 16.dp)
         )
 
-        // Main content centered
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,7 +75,6 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Lottie Animation (Trash Can) - much larger
             val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.becket_trash_can))
             LottieAnimation(
                 composition = composition,

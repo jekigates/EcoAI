@@ -1,6 +1,5 @@
 package com.bluejack242.ecoai.ui.screen
 
-// AndroidX Compose
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,13 +26,11 @@ import com.bluejack242.ecoai.model.MediaType
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.CreatePostViewModel
 
-// Accompanist Pager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 
-// Coil
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalPagerApi::class)
@@ -47,7 +44,6 @@ fun CreatePostScreen(
     val isUploading by viewModel.isUploading.collectAsState()
     val isPosting by viewModel.isPosting.collectAsState()
 
-    // Launcher for picking media
     val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { pickedUri ->
             if (post.mediaList.count { it.type == MediaType.IMAGE } < 10) {
@@ -86,7 +82,7 @@ fun CreatePostScreen(
                 Icon(Icons.Default.Close, contentDescription = LanguageManager.getString("back"), tint = onSurfaceVariantColor)
             }
             Text(LanguageManager.getString("create_new_post"), fontWeight = FontWeight.Bold, color = onSurfaceColor, style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.width(48.dp)) // Placeholder for alignment
+            Spacer(modifier = Modifier.width(48.dp))
         }
 
         // Media Carousel
@@ -183,7 +179,6 @@ fun CreatePostScreen(
         )
         Spacer(Modifier.height(16.dp))
 
-        // Add Image Button only
         Button(
             onClick = { imageLauncher.launch("image/*") },
             enabled = !isUploading && imageCount < 10,
@@ -201,7 +196,6 @@ fun CreatePostScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Update Post Button enable logic: must have at least 1 image
         Button(
             onClick = {
                 viewModel.createPost(

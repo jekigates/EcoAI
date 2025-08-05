@@ -124,4 +124,16 @@ class WasteViewModel(
             }
         }
     }
+
+    fun searchWasteDatabaseItems(query: String) {
+        viewModelScope.launch {
+            try {
+                val items = repository.searchWasteDatabaseItems(query)
+                _wasteDatabaseItems.postValue(items)
+            } catch (e: Exception) {
+                Log.e("WasteViewModel", "Search waste database error: ${e.message}", e)
+            }
+        }
+    }
+
 }

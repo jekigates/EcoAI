@@ -16,6 +16,7 @@ navigationCompose = "2.9.1"
 firebaseAuthKtx = "23.2.1"
 firebaseFirestoreKtx = "25.1.4"
 firebaseFunctionsKtx = "21.2.1"
+firebaseDatabaseKtx = "20.3.0"
 
 [libraries]
 androidanimatednavigationbar = { module = "com.github.Exyte:AndroidAnimatedNavigationBar", version.ref = "androidanimatednavigationbar" }
@@ -49,6 +50,7 @@ ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-functions-ktx = { group = "com.google.firebase", name = "firebase-functions-ktx", version.ref = "firebaseFunctionsKtx" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

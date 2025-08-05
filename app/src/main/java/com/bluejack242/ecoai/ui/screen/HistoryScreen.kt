@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,6 +23,8 @@ import com.bluejack242.ecoai.model.WasteHistoryItem
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.WasteViewModel
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun HistoryScreen(
@@ -99,12 +102,18 @@ fun HistoryScreen(
 
 @Composable
 fun HistoryItemRow(item: WasteHistoryItem, onItemClick: (String) -> Unit) {
+    val dateFormat = SimpleDateFormat("EEEE, dd MMM", Locale.getDefault())
+    val formattedDate = dateFormat.format(item.date.toDate())
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onItemClick(item.id) },
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -113,8 +122,9 @@ fun HistoryItemRow(item: WasteHistoryItem, onItemClick: (String) -> Unit) {
             AsyncImage(
                 model = item.imageRes,
                 contentDescription = item.name,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(64.dp)
                     .graphicsLayer {
                         shape = RoundedCornerShape(8.dp)
                         clip = true
@@ -124,19 +134,22 @@ fun HistoryItemRow(item: WasteHistoryItem, onItemClick: (String) -> Unit) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${item.co2e} gram CO2e",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = item.date.toDate().toString(),
+                    text = formattedDate,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
             }
         }
     }

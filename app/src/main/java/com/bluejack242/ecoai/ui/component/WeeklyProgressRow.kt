@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun WeeklyProgressRow() {
-    // Generate last 30 days ending with today
     val dayLetters = listOf("S", "M", "T", "W", "T", "F", "S")
     val days = mutableListOf<String>()
     val dates = mutableListOf<Int>()

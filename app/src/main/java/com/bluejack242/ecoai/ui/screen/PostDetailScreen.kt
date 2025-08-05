@@ -253,7 +253,6 @@ fun PostDetailScreen(
                             )
                         }
                     }
-                    // Pagination indicator at top right, only if more than 1 photo and while sliding
                     if (mediaList.size > 1 && viewModel.showPagerIndicator) {
                         Text(
                             text = "${pagerState.currentPage + 1}/${mediaList.size}",
@@ -270,7 +269,6 @@ fun PostDetailScreen(
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
-                    // Dots indicator only if more than 1 photo
                     if (mediaList.size > 1) {
                         Row(
                             Modifier
@@ -674,7 +672,6 @@ fun PostDetailScreen(
                     }
                 )
                 Spacer(Modifier.height(12.dp))
-                // Arrow up icon button
                 Box(
                     Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterEnd
@@ -707,7 +704,6 @@ fun PostDetailScreen(
             }
         }
     }
-    // BottomSheet for self post
     if (viewModel.showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.showBottomSheet = false },
@@ -732,7 +728,6 @@ fun PostDetailScreen(
                     leadingContent = { Icon(Icons.Default.Edit, contentDescription = null) },
                     modifier = Modifier.clickable {
                         viewModel.showBottomSheet = false
-                        // TODO: Edit action
                     }
                 )
                 // Delete

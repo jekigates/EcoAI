@@ -19,6 +19,10 @@ import com.bluejack242.ecoai.ui.component.BottomNavigationBar
 import com.bluejack242.ecoai.ui.component.NotificationCard
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
@@ -35,6 +39,10 @@ fun NotificationScreen(
     val users = remember { mutableStateMapOf<String, User>() }
     var isLoading by remember { mutableStateOf(true) }
 
+    val realtimeRef = FirebaseDatabase.getInstance()
+        .getReference("notifications")
+        .child(currentUserId ?: "")
+
     LaunchedEffect(currentUserId) {
         if (currentUserId == null) {
             isLoading = false
@@ -42,30 +50,49 @@ fun NotificationScreen(
             return@LaunchedEffect
         }
 
-        db.collection("notifications")
-            .whereEqualTo("toUserId", currentUserId)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, _ ->
+        realtimeRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 isLoading = false
-                val temp = snapshot?.documents?.mapNotNull { it.toObject(Notification::class.java) }
-                    ?: emptyList()
-                notifications = temp
+                val temp = snapshot.children.mapNotNull { snap ->
+                    val map = snap.value as? Map<String, Any> ?: return@mapNotNull null
+                    val createdAtMap = map["createdAt"] as? Map<String, Any>
+                    val timestamp = if (createdAtMap != null) {
+                        val seconds = (createdAtMap["seconds"] as? Number)?.toLong() ?: 0L
+                        val nanos = (createdAtMap["nanoseconds"] as? Number)?.toInt() ?: 0
+                        com.google.firebase.Timestamp(seconds, nanos)
+                    } else {
+                        com.google.firebase.Timestamp.now()
+                    }
+                    Notification(
+                        fromUserId = map["fromUserId"] as? String ?: "",
+                        toUserId = map["toUserId"] as? String ?: "",
+                        postId = map["postId"] as? String ?: "",
+                        type = map["type"] as? String ?: "",
+                        createdAt = timestamp
+                    )
+                }
 
-                // Fetch related users
+                notifications = temp.sortedByDescending { it.createdAt.toDate().time }
+
                 temp.forEach { notif ->
-                    val fromId = notif.fromUserId
-                    if (!users.containsKey(fromId)) {
-                        Log.d("NotificationScreen", "Fetching user: $fromId")
-                        db.collection("users").document(fromId)
-                            .get().addOnSuccessListener { userDoc ->
-                                userDoc.toObject(User::class.java)?.let {
-                                    users[fromId] = it
-                                }
+                    if (!users.containsKey(notif.fromUserId)) {
+                        FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(notif.fromUserId)
+                            .get()
+                            .addOnSuccessListener { userDoc ->
+                                userDoc.toObject(User::class.java)?.let { users[notif.fromUserId] = it }
                             }
                     }
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                isLoading = false
+            }
+        })
     }
+
 
     Scaffold(
         bottomBar = {
