@@ -34,6 +34,7 @@ import com.bluejack242.ecoai.model.mapPostToUiModel
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
@@ -255,6 +256,7 @@ fun HomeScreen(
                             contentPadding = PaddingValues(vertical = 8.dp)
                         ) {
                             items(followingPosts, key = { it.first }) { (postId, post) ->
+                                @Suppress("UNCHECKED_CAST")
                                 val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
                                 val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
                                 val userId = post["userId"] as? String ?: ""

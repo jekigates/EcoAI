@@ -19,6 +19,7 @@ data class PostUiModel(
 )
 
 fun mapPostToUiModel(postId: String, post: Map<String, Any>, fullNameFallback: String = "", profilePictureUrlFallback: String = "", commentsCount: Int = 0): PostUiModel {
+    @Suppress("UNCHECKED_CAST")
     val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
     val imageUrl = mediaList.firstOrNull()?.get("url") as? String ?: ""
     val title = post["headline"] as? String ?: ""

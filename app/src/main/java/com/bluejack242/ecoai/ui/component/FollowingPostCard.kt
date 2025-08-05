@@ -56,8 +56,7 @@ fun FollowingPostCard(
     onCommentClick: (String) -> Unit,
     onDelete: (String) -> Unit,
     navController: NavHostController,
-    viewModel: HomeViewModel,
-    modifier: Modifier = Modifier
+    viewModel: HomeViewModel
 ) {
     var currentLikes by remember { mutableIntStateOf(likes) }
     var currentSaves by remember { mutableIntStateOf(saves) }
@@ -83,7 +82,7 @@ fun FollowingPostCard(
     }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
     ) {
@@ -374,9 +373,9 @@ fun FollowingPostCard(
             commentList.take(3).forEach { comment ->
                 val commentId = comment["id"] as? String
                 val likedBy = comment["likedBy"] as? List<*> ?: emptyList<Any>()
-                val isLiked = currentUserId != null && likedBy.contains(currentUserId)
+                val isCommentLiked = currentUserId != null && likedBy.contains(currentUserId)
                 val likeCount = likedBy.size
-                var localLiked by remember(commentId) { mutableStateOf(isLiked) }
+                var localLiked by remember(commentId) { mutableStateOf(isCommentLiked) }
                 var localLikeCount by remember(commentId) { mutableIntStateOf(likeCount) }
                 Row(
                     modifier = Modifier
