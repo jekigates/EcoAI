@@ -48,6 +48,7 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
             val caption = doc.getString("caption") ?: ""
             val headline = doc.getString("headline") ?: ""
             val likes = doc.getLong("likes")?.toInt() ?: 0
+            @Suppress("UNCHECKED_CAST")
             val media = doc.get("media") as? List<Map<String, Any>>
             val thumbnail = media?.firstOrNull()?.get("url") as? String ?: ""
 

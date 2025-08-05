@@ -68,6 +68,7 @@ class HomeViewModel : ViewModel() {
                         val currentUser = auth.currentUser
                         if (currentUser != null) {
                             val userDoc = firestore.collection("users").document(currentUser.uid).get().await()
+                            @Suppress("UNCHECKED_CAST")
                             val following = userDoc.get("following") as? List<String> ?: emptyList()
                             val followingWithSelf = (following + currentUser.uid).distinct().take(10)
                             if (followingWithSelf.contains(userId)) {
@@ -124,6 +125,7 @@ class HomeViewModel : ViewModel() {
 
             val currentUser = auth.currentUser ?: return@launch
             val userDoc = firestore.collection("users").document(currentUser.uid).get().await()
+            @Suppress("UNCHECKED_CAST")
             val following = userDoc.get("following") as? List<String> ?: emptyList()
 
             val followingWithSelf = (following + currentUser.uid).distinct().take(10)
@@ -232,7 +234,7 @@ class HomeViewModel : ViewModel() {
                         )
                     )
                     sendNotificationWithType(
-                        fromUserId = currentUser.uid.toString(),
+                        fromUserId = currentUser.uid,
                         toUserId = postData["userId"].toString(),
                         type = "like",
                         postId = postId

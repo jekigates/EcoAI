@@ -4,9 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.bluejack242.ecoai.data.AuthRepository
 import com.bluejack242.ecoai.model.LoginRequest
-import com.bluejack242.ecoai.model.ProfileForm
 import com.bluejack242.ecoai.model.RegisterRequest
-import com.bluejack242.ecoai.model.ResetPasswordRequest
 import com.bluejack242.ecoai.utils.PasswordUtil
 import com.bluejack242.ecoai.utils.ValidationUtil
 import com.google.firebase.auth.FirebaseAuth
@@ -27,7 +25,7 @@ class AuthViewModel(
         }
 
         isLoading.value = true
-        repository.login(request.email, request.password) { success, err ->
+        repository.login(request.email, request.password) { success, _ ->
             if (success) {
                 val user = FirebaseAuth.getInstance().currentUser
                 if (user != null && user.isEmailVerified) {
@@ -71,8 +69,6 @@ class AuthViewModel(
                     fullName = fullName,
                     email = request.email,
                     password = request.password,
-                    confirmEmail = request.confirmEmail,
-                    confirmPassword = request.confirmPassword,
                     hashedPassword = hashedPassword
                 ) { success, err ->
                     isLoading.value = false
@@ -105,27 +101,4 @@ class AuthViewModel(
             }
         }
     }
-
-    fun resetPassword(
-        request: ResetPasswordRequest,
-        onSuccess: () -> Unit
-    ) {
-        val error = ValidationUtil.validatePasswordReset(request)
-        if (error != null) {
-            errorMessage.value = error
-            return
-        }
-
-        isLoading.value = true
-        repository.updatePassword(request.newPassword) { success, err ->
-            isLoading.value = false
-            if (success) {
-                errorMessage.value = null
-                onSuccess()
-            } else {
-                errorMessage.value = err
-            }
-        }
-    }
-
 }

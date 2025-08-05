@@ -46,7 +46,9 @@ class ProfileViewModel : ViewModel() {
                 bio = doc.getString("bio") ?: ""
                 profilePictureUrl = doc.getString("profilePictureUrl")
                 isProfileLoaded = true
+                @Suppress("UNCHECKED_CAST")
                 followers = (doc.get("followers") as? List<String>) ?: emptyList()
+                @Suppress("UNCHECKED_CAST")
                 following = (doc.get("following") as? List<String>) ?: emptyList()
                 db.collection("posts").whereEqualTo("userId", userId).get().addOnSuccessListener { posts ->
                     likes = posts.documents.sumOf { (it.get("likes") as? Long)?.toInt() ?: 0 }
@@ -61,18 +63,21 @@ class ProfileViewModel : ViewModel() {
         when (tab) {
             0 -> {
                 db.collection("posts").whereEqualTo("userId", userId).get().addOnSuccessListener { result ->
+                    @Suppress("UNCHECKED_CAST")
                     ownPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
                     isLoadingPosts = false
                 }
             }
             1 -> {
                 db.collection("posts").whereArrayContains("savedBy", userId ?: "").get().addOnSuccessListener { result ->
+                    @Suppress("UNCHECKED_CAST")
                     savedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
                     isLoadingPosts = false
                 }
             }
             2 -> {
                 db.collection("posts").whereArrayContains("likedBy", userId ?: "").get().addOnSuccessListener { result ->
+                    @Suppress("UNCHECKED_CAST")
                     likedPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
                     isLoadingPosts = false
                 }
@@ -86,14 +91,14 @@ class UserProfileViewModel : ViewModel() {
     private val currentUser = FirebaseAuth.getInstance().currentUser
     var userId: String? by mutableStateOf(null)
 
-    var isProfileLoaded by mutableStateOf(false)
+    private var isProfileLoaded by mutableStateOf(false)
     var username by mutableStateOf("")
     var bio by mutableStateOf("")
     var profilePictureUrl by mutableStateOf<String?>(null)
     var fullName by mutableStateOf("")
     var followers by mutableStateOf<List<String>>(emptyList())
     var following by mutableStateOf<List<String>>(emptyList())
-    var likes by mutableStateOf(0)
+    var likes by mutableIntStateOf(0)
     var isFollowing by mutableStateOf(false)
     var isLoading by mutableStateOf(false)
     var userPosts by mutableStateOf<List<Pair<String, Map<String, Any>>>>(emptyList())
@@ -104,7 +109,7 @@ class UserProfileViewModel : ViewModel() {
         fetchUserPosts(userId)
     }
 
-    fun fetchProfile() {
+    private fun fetchProfile() {
         val uid = userId ?: return
         isLoading = true
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
@@ -112,7 +117,9 @@ class UserProfileViewModel : ViewModel() {
             username = doc.getString("username") ?: ""
             bio = doc.getString("bio") ?: ""
             profilePictureUrl = doc.getString("profilePictureUrl")
+            @Suppress("UNCHECKED_CAST")
             followers = (doc.get("followers") as? List<String>) ?: emptyList()
+            @Suppress("UNCHECKED_CAST")
             following = (doc.get("following") as? List<String>) ?: emptyList()
             isProfileLoaded = true
             isFollowing = currentUser?.uid?.let { followers.contains(it) } == true
@@ -125,8 +132,9 @@ class UserProfileViewModel : ViewModel() {
         }
     }
 
-    fun fetchUserPosts(userId: String) {
+    private fun fetchUserPosts(userId: String) {
         db.collection("posts").whereEqualTo("userId", userId).get().addOnSuccessListener { result ->
+            @Suppress("UNCHECKED_CAST")
             userPosts = result.documents.mapNotNull { doc -> doc.id to (doc.data as? Map<String, Any>) }.filter { it.second != null } as List<Pair<String, Map<String, Any>>>
         }
     }
@@ -151,11 +159,7 @@ class UserProfileViewModel : ViewModel() {
             }
         }.addOnSuccessListener {
             isFollowing = !isFollowing
-            if (isFollowing) {
-                followers = followers + myUid
-            } else {
-                followers = followers - myUid
-            }
+            followers = if (isFollowing) followers + myUid else followers - myUid
         }
     }
 } 
