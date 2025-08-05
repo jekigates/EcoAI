@@ -3,6 +3,7 @@ package com.bluejack242.ecoai.ui.component
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import com.exyte.animatednavbar.AnimatedNavigationBar
@@ -63,7 +64,8 @@ fun BottomNavigationBar(navController: NavHostController, currentRoute: String) 
         selectedIndex = selectedIndex,
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
-            .height(85.dp),
+            .height(85.dp)
+            .navigationBarsPadding(),
         barColor = colorScheme.surface,
         ballColor = colorScheme.primary,
         cornerRadius = shapeCornerRadius(25.dp),
