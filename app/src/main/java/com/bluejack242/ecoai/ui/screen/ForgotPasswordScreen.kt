@@ -7,19 +7,17 @@ import com.bluejack242.ecoai.ui.component.DialogType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.navigation.NavHostController
 import androidx.compose.runtime.rememberCoroutineScope
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController) {
+fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavHostController) {
     val email = remember { mutableStateOf("") }
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
@@ -29,32 +27,13 @@ fun ForgotPasswordScreen(viewModel: AuthViewModel, navController: NavController)
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(16.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = LanguageManager.getString("forgot_password_title"),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center
-            )
-            IconButton(
-                onClick = { navController.navigate("login") },
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = LanguageManager.getString("back")
-                )
-            }
-        }
+        BackHeaderBar(
+            title = LanguageManager.getString("forgot_password_title"),
+            navController = navController
+        )
         Spacer(Modifier.height(24.dp))
 
         OutlinedTextField(

@@ -1,10 +1,7 @@
 package com.bluejack242.ecoai.ui.screen
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 import com.bluejack242.ecoai.ui.component.LanguageSelector
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.google.firebase.auth.FirebaseAuth
@@ -58,24 +56,10 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             // Header
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-            ) {
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.align(Alignment.CenterStart)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
-
-                Text(
-                    text = LanguageManager.getString("settings"),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
+            BackHeaderBar(
+                title = LanguageManager.getString("settings"),
+                navController = navController
+            )
             // Push notifications
             SettingItem {
                 Column(Modifier.weight(1f)) {

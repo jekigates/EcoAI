@@ -14,13 +14,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bluejack242.ecoai.model.WasteItem
 import com.bluejack242.ecoai.viewmodel.WasteViewModel
 import com.google.firebase.auth.FirebaseAuth
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 import com.bluejack242.ecoai.utils.LanguageManager
 
 @Composable
@@ -36,11 +36,14 @@ fun WasteDatabaseScreen(
         viewModel.fetchWasteDatabaseItems()
     }
 
-    Column(Modifier.fillMaxSize().padding(16.dp).statusBarsPadding()) {
-        Text(
-            text = LanguageManager.getString("waste_database"),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        BackHeaderBar(
+            title = LanguageManager.getString("waste_database"),
+            navController = navController
         )
         Spacer(modifier = Modifier.height(8.dp))
 

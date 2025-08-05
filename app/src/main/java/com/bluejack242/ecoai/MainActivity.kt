@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.bluejack242.ecoai.ui.theme.EcoAITheme
 import com.google.firebase.auth.FirebaseAuth
+import androidx.core.content.edit
 
 class MainActivity : AppCompatActivity() {
     private fun requestNotificationPermission() {
@@ -42,18 +43,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestNotificationPermission()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "NOTIF_CHANNEL_ID",
-                "EcoAI Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "EcoAI app notifications"
-            }
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            "NOTIF_CHANNEL_ID",
+            "EcoAI Notifications",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "EcoAI app notifications"
         }
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
         enableEdgeToEdge()
 
         setContent {
@@ -62,8 +61,6 @@ class MainActivity : AppCompatActivity() {
             var isDarkTheme by rememberSaveable {
                 mutableStateOf(prefs.getBoolean("isDarkTheme", false))
             }
-            var isNotificationEnabled by rememberSaveable { mutableStateOf(true) }
-
             val initialLang = prefs.getString("language", "EN") ?: "EN"
             LaunchedEffect(Unit) {
                 com.bluejack242.ecoai.utils.LanguageManager.setLanguage(initialLang)
@@ -81,10 +78,8 @@ class MainActivity : AppCompatActivity() {
                         isDarkTheme = isDarkTheme,
                         onThemeChange = {
                             isDarkTheme = it
-                            prefs.edit().putBoolean("isDarkTheme", it).apply()
+                            prefs.edit { putBoolean("isDarkTheme", it) }
                         },
-                        isNotificationEnabled = isNotificationEnabled,
-                        onNotificationChange = { isNotificationEnabled = it },
                         onLogout = {
                             FirebaseAuth.getInstance().signOut()
                             navController.navigate("landing") {

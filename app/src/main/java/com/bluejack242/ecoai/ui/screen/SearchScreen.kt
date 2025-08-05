@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.bluejack242.ecoai.ui.component.BottomNavigationBar
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -25,9 +24,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 
 @Composable
-fun SearchScreen(navController: NavHostController, currentRoute: String = "search", query: String = "") {
+fun SearchScreen(navController: NavHostController, query: String = "") {
     val db = FirebaseFirestore.getInstance()
     var searchText by rememberSaveable { mutableStateOf(query) }
     var topTags by remember { mutableStateOf(listOf<String>()) }
@@ -78,66 +78,104 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
         isLoading = false
     }
 
-    Scaffold(
-        bottomBar = {
-            BottomNavigationBar(navController = navController, currentRoute = currentRoute)
-        }
-    ) { paddingValues ->
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        BackHeaderBar(
+            title = LanguageManager.getString("search"),
+            navController = navController
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        // Search bar
+        Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Search bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.Search, contentDescription = LanguageManager.getString("search"), tint = Color.Gray)
-                Spacer(Modifier.width(8.dp))
-                TextField(
-                    value = searchText,
-                    onValueChange = { searchText = it },
-                    placeholder = { Text(LanguageManager.getString("search_placeholder")) },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent
-                    )
+            Icon(Icons.Default.Search, contentDescription = LanguageManager.getString("search"), tint = Color.Gray)
+            Spacer(Modifier.width(8.dp))
+            TextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                placeholder = { Text(LanguageManager.getString("search_placeholder")) },
+                singleLine = true,
+                modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent
                 )
-            }
+            )
+        }
 
-            if (isLoading) {
+        if (isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (searchText.isNotBlank()) {
+            if (searchResults.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    Text("No results found", color = Color.Gray)
                 }
-            } else if (searchText.isNotBlank()) {
-                if (searchResults.isEmpty()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No results found", color = Color.Gray)
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    contentPadding = PaddingValues(2.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(searchResults) { (postId, thumbnailUrl) ->
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .padding(2.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.LightGray)
+                                .clickable { navController.navigate("post_detail/$postId") }
+                        ) {
+                            if (thumbnailUrl.isNotBlank()) {
+                                AsyncImage(
+                                    model = thumbnailUrl,
+                                    contentDescription = LanguageManager.getString("post_thumbnail"),
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
                     }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        contentPadding = PaddingValues(2.dp),
-                        modifier = Modifier.fillMaxSize()
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                items(topTags) { tag ->
+                    Text(
+                        text = tag,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.clickable {
+                            searchText = tag
+                        }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(searchResults) { (postId, thumbnailUrl) ->
-                            Box(
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .padding(2.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Color.LightGray)
-                                    .clickable { navController.navigate("post_detail/$postId") }
-                            ) {
-                                if (thumbnailUrl.isNotBlank()) {
+                        tagPosts[tag]?.forEach { (postId, thumbnailUrl) ->
+                            if (thumbnailUrl.isNotBlank()) {
+                                Box(
+                                    Modifier
+                                        .size(80.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color.LightGray)
+                                        .clickable { navController.navigate("post_detail/$postId") }
+                                ) {
                                     AsyncImage(
                                         model = thumbnailUrl,
                                         contentDescription = LanguageManager.getString("post_thumbnail"),
@@ -147,46 +185,7 @@ fun SearchScreen(navController: NavHostController, currentRoute: String = "searc
                             }
                         }
                     }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    items(topTags) { tag ->
-                        Text(
-                            text = tag,
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.clickable {
-                                searchText = tag
-                            }
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            tagPosts[tag]?.forEach { (postId, thumbnailUrl) ->
-                                if (thumbnailUrl.isNotBlank()) {
-                                    Box(
-                                        Modifier
-                                            .size(80.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(Color.LightGray)
-                                            .clickable { navController.navigate("post_detail/$postId") }
-                                    ) {
-                                        AsyncImage(
-                                            model = thumbnailUrl,
-                                            contentDescription = LanguageManager.getString("post_thumbnail"),
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(20.dp))
-                    }
+                    Spacer(Modifier.height(20.dp))
                 }
             }
         }

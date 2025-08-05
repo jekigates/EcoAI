@@ -7,7 +7,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bluejack242.ecoai.model.WasteHistoryItem
 import com.bluejack242.ecoai.ui.screen.UserListScreen
 import com.bluejack242.ecoai.ui.screen.AddWasteScreen
 import com.bluejack242.ecoai.ui.screen.CreatePostScreen
@@ -37,8 +36,6 @@ fun NavGraph(
     navController: NavHostController,
     isDarkTheme: Boolean,
     onThemeChange: (Boolean) -> Unit,
-    isNotificationEnabled: Boolean,
-    onNotificationChange: (Boolean) -> Unit,
     onLogout: () -> Unit
 ) {
 
@@ -107,7 +104,7 @@ fun NavGraph(
 
         composable("search/{query}") { backStackEntry ->
             val query = backStackEntry.arguments?.getString("query") ?: ""
-            SearchScreen(navController = navController, currentRoute = "search", query = query)
+            SearchScreen(navController = navController, query = query)
         }
 
         composable("user_profile/{userId}") { backStackEntry ->
@@ -170,6 +167,7 @@ fun NavGraph(
 
         composable("history") {
             HistoryScreen(
+                navController = navController,
                 onItemClick = { itemId -> navController.navigate("wasteDetail/$itemId") }
             )
         }

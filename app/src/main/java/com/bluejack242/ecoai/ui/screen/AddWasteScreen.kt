@@ -10,7 +10,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Image
@@ -30,7 +29,7 @@ import java.io.File
 import com.bluejack242.ecoai.utils.LanguageManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.compose.ui.text.font.FontWeight
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 
 @Composable
 fun AddWasteScreen(
@@ -98,108 +97,85 @@ fun AddWasteScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-            ) {
-                IconButton(
-                    onClick = { navController.navigateUp() },
-                    modifier = Modifier.align(Alignment.CenterStart)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = LanguageManager.getString("back")
-                    )
-                }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            BackHeaderBar(
+                title = LanguageManager.getString("add_waste_title"),
+                navController = navController
+            )
+            if (errorMessage.isNotEmpty()) {
                 Text(
-                    text = LanguageManager.getString("add_waste_title"),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.align(Alignment.Center)
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-        }
-    ) { paddingValues ->
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
+            Button(
+                onClick = {
+                    if (ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        val imageFile = File.createTempFile("photo_", ".jpg", context.cacheDir)
+                        tempUri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.provider",
+                            imageFile
+                        )
+                        tempUri?.let { cameraLauncher.launch(it) }
+                    } else {
+                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
-                CircularProgressIndicator()
+                Icon(Icons.Default.Camera, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(LanguageManager.getString("open_camera"))
             }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            OutlinedButton(
+                onClick = { galleryLauncher.launch("image/*") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
             ) {
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
-                Button(
-                    onClick = {
-                        if (ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.CAMERA
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            val imageFile = File.createTempFile("photo_", ".jpg", context.cacheDir)
-                            tempUri = FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.provider",
-                                imageFile
-                            )
-                            tempUri?.let { cameraLauncher.launch(it) }
-                        } else {
-                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Icon(Icons.Default.Camera, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(LanguageManager.getString("open_camera"))
-                }
-                OutlinedButton(
-                    onClick = { galleryLauncher.launch("image/*") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder(enabled = true)
-                ) {
-                    Icon(Icons.Default.Image, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(LanguageManager.getString("open_gallery"))
-                }
-                OutlinedButton(
-                    onClick = { navController.navigate("history") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder(enabled = true)
-                ) {
-                    Icon(Icons.Filled.AccessTimeFilled, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(LanguageManager.getString("open_history"))
-                }
+                Icon(Icons.Default.Image, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(LanguageManager.getString("open_gallery"))
+            }
+            OutlinedButton(
+                onClick = { navController.navigate("history") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+            ) {
+                Icon(Icons.Filled.AccessTimeFilled, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(LanguageManager.getString("open_history"))
             }
         }
     }

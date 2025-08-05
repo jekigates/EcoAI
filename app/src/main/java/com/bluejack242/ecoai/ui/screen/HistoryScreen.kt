@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bluejack242.ecoai.model.WasteHistoryItem
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.WasteViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +28,7 @@ import java.util.Locale
 
 @Composable
 fun HistoryScreen(
+    navController: androidx.navigation.NavHostController,
     onItemClick: (String) -> Unit,
     viewModel: WasteViewModel = viewModel()
 ) {
@@ -41,16 +42,13 @@ fun HistoryScreen(
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
-            .statusBarsPadding()
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Text(
-            text = LanguageManager.getString("history"),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.weight(1f)
+        BackHeaderBar(
+            title = LanguageManager.getString("history"),
+            navController = navController
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // Search Bar
