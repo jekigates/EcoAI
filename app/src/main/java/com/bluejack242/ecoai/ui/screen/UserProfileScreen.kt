@@ -18,6 +18,7 @@ import com.bluejack242.ecoai.viewmodel.UserProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.bluejack242.ecoai.ui.component.ProfileCount
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -146,9 +147,17 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .padding(horizontal = 24.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = if (viewModel.isFollowing) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary)
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (viewModel.isFollowing) Color.Gray else MaterialTheme.colorScheme.primary
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
                     ) {
-                        Text(if (viewModel.isFollowing) "Unfollow" else "Follow", color = if (viewModel.isFollowing) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary)
+                        Text(
+                            if (viewModel.isFollowing) com.bluejack242.ecoai.utils.LanguageManager.getString("unfollow") else com.bluejack242.ecoai.utils.LanguageManager.getString("follow"),
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }
