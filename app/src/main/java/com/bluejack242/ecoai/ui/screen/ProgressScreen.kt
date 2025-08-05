@@ -194,7 +194,8 @@ fun ProgressScreen(
             Text(
                 LanguageManager.getString("recently_uploaded"),
                 style = MaterialTheme.typography.titleMedium,
-                color = onSurfaceVariantColor
+                color = onSurfaceVariantColor,
+                fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(8.dp))
 

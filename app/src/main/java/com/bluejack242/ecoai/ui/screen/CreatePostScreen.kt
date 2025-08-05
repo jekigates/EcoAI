@@ -18,10 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.bluejack242.ecoai.model.MediaType
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.viewmodel.CreatePostViewModel
@@ -32,11 +31,12 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 
 import coil.compose.AsyncImage
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun CreatePostScreen(
-    navController: NavController
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     val viewModel: CreatePostViewModel = viewModel()
@@ -70,20 +70,13 @@ fun CreatePostScreen(
         Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(Icons.Default.Close, contentDescription = LanguageManager.getString("back"), tint = onSurfaceVariantColor)
-            }
-            Text(LanguageManager.getString("create_new_post"), fontWeight = FontWeight.Bold, color = onSurfaceColor, style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.width(48.dp))
-        }
+        BackHeaderBar(
+            title = LanguageManager.getString("create_new_post"),
+            navController = navController
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Media Carousel
         Box(

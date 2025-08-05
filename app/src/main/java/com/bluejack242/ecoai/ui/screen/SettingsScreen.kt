@@ -137,6 +137,7 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
+                    .navigationBarsPadding()
             ) {
                 Text(LanguageManager.getString("logout"), color = Color.Red)
             }
