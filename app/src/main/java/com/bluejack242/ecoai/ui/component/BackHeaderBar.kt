@@ -23,7 +23,7 @@ fun BackHeaderBar(
     androidx.compose.foundation.layout.Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
+            .padding(vertical = 10.dp)
     ) {
         IconButton(
             onClick = { navController.popBackStack() },

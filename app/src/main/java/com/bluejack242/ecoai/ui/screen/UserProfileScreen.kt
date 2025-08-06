@@ -3,7 +3,6 @@ package com.bluejack242.ecoai.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import coil.compose.AsyncImage
 import com.bluejack242.ecoai.viewmodel.UserProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.bluejack242.ecoai.ui.component.ProfileCount
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,6 +24,7 @@ import com.bluejack242.ecoai.ui.component.MediaCard
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import com.bluejack242.ecoai.model.mapPostToUiModel
+import com.bluejack242.ecoai.ui.component.BackHeaderBar
 
 @Composable
 fun UserProfileScreen(userId: String, navController: NavHostController, viewModel: UserProfileViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
@@ -50,18 +49,12 @@ fun UserProfileScreen(userId: String, navController: NavHostController, viewMode
                     .height(56.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "@${viewModel.username}",
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                val username = viewModel.username
+                BackHeaderBar(
+                    title = username.ifBlank { "" },
+                    navController = navController
                 )
-                IconButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.align(Alignment.CenterStart)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
         item { Spacer(Modifier.height(24.dp)) }

@@ -260,7 +260,7 @@ fun HomeScreen(
                                 val mediaList = post["media"] as? List<Map<String, Any>> ?: emptyList()
                                 val firstMedia = mediaList.firstOrNull()?.get("url") as? String ?: ""
                                 val userId = post["userId"] as? String ?: ""
-                                val username = post["username"] as? String ?: ""
+                                val fullName = post["fullName"] as? String ?: ""
                                 val profilePictureUrl = post["profilePictureUrl"] as? String ?: ""
                                 val likes = (post["likes"] as? Long)?.toInt() ?: 0
                                 val saves = (post["saves"] as? Long)?.toInt() ?: 0
@@ -275,7 +275,7 @@ fun HomeScreen(
                                     postId = postId,
                                     profilePictureUrl = profilePictureUrl,
                                     userId = userId,
-                                    username = username,
+                                    fullName = fullName,
                                     title = post["headline"] as? String ?: "",
                                     imageUrl = firstMedia,
                                     mediaList = mediaList,

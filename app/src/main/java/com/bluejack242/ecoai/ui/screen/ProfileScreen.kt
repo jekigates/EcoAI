@@ -1,5 +1,6 @@
 package com.bluejack242.ecoai.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -36,6 +37,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.getValue
 
 
+@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
@@ -109,17 +111,26 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(
-                            "@${viewModel.username}",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = onSurfaceColor
-                        )
-                        Text(
-                            viewModel.fullName.take(30),
-                            fontSize = 16.sp,
-                            color = onSurfaceVariantColor
-                        )
+                        if (viewModel.username.isNotBlank()) {
+                            Text(
+                                "@${viewModel.username}",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = onSurfaceColor
+                            )
+                            Text(
+                                viewModel.fullName.take(30),
+                                fontSize = 16.sp,
+                                color = onSurfaceVariantColor
+                            )
+                        } else {
+                            Text(
+                                viewModel.fullName.take(30),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = onSurfaceColor
+                            )
+                        }
                     }
                     IconButton(onClick = { navController.navigate("settings") }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = onSurfaceVariantColor)

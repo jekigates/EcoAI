@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
@@ -23,7 +24,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
@@ -41,7 +41,7 @@ fun FollowingPostCard(
     postId: String,
     profilePictureUrl: String? = null,
     userId: String,
-    username: String,
+    fullName: String,
     title: String,
     createdAt: Any? = null,
     imageUrl: String? = null,
@@ -116,7 +116,7 @@ fun FollowingPostCard(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
-                    Text("@$username", fontWeight = FontWeight.Bold)
+                Text(fullName, fontWeight = FontWeight.Bold)
                     val dateString = remember(createdAt) {
                         createdAt?.let {
                             try {

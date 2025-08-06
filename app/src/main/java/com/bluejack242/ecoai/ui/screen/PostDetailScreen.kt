@@ -145,7 +145,8 @@ fun PostDetailScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+                .padding(end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { navController.popBackStack() }) {
@@ -167,11 +168,7 @@ fun PostDetailScreen(
                     if (!profilePictureUrl.isNullOrBlank()) {
                         AsyncImage(
                             model = profilePictureUrl,
-                            contentDescription = "${LanguageManager.getString("profile_picture")} ${
-                                viewModel.creator?.get(
-                                    "fullName"
-                                ) ?: ""
-                            }",
+                            contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
@@ -180,11 +177,7 @@ fun PostDetailScreen(
                     } else {
                         Icon(
                             imageVector = Icons.Default.Person,
-                            contentDescription = "${LanguageManager.getString("profile_picture")} ${
-                                viewModel.creator?.get(
-                                    "fullName"
-                                ) ?: ""
-                            }",
+                            contentDescription = "${LanguageManager.getString("profile_picture")} ${viewModel.creator?.get("fullName") ?: ""}",
                             tint = Color.Gray,
                             modifier = Modifier.size(28.dp)
                         )
@@ -208,9 +201,7 @@ fun PostDetailScreen(
                         modifier = Modifier.height(32.dp)
                     ) {
                         Text(
-                            if (viewModel.isFollowing) LanguageManager.getString("unfollow") else LanguageManager.getString(
-                                "follow"
-                            ),
+                            if (viewModel.isFollowing) LanguageManager.getString("unfollow") else LanguageManager.getString("follow"),
                             color = Color.White,
                             fontSize = 14.sp
                         )
@@ -398,7 +389,7 @@ fun PostDetailScreen(
                     var commenterName by remember(commentId) { mutableStateOf("") }
                     var commenterProfilePic by remember(commentId) { mutableStateOf<String?>(null) }
                     val createdAt = comment["createdAt"] as? com.google.firebase.Timestamp
-                    val createdDateString = remember(createdAt) {
+                    val commentCreatedDateString = remember(createdAt) {
                         createdAt?.let {
                             val date = java.util.Date(it.seconds * 1000)
                             java.text.SimpleDateFormat("MM/dd/yyyy", java.util.Locale.getDefault())
@@ -474,7 +465,7 @@ fun PostDetailScreen(
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                createdDateString,
+                                commentCreatedDateString,
                                 fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
@@ -485,19 +476,22 @@ fun PostDetailScreen(
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.surface,
                                 shadowElevation = 2.dp,
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(28.dp)
                             ) {
-                                Icon(
-                                    imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                    contentDescription = LanguageManager.getString("like_comment"),
-                                    tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = 0.7f
-                                    ),
-                                    modifier = Modifier
-                                        .size(20.dp)
-                                        .clickable { toggleCommentLike(commentId, liked) }
-                                )
+                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                    Icon(
+                                        imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                        contentDescription = LanguageManager.getString("like_comment"),
+                                        tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface.copy(
+                                            alpha = 0.7f
+                                        ),
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .clickable { toggleCommentLike(commentId, liked) }
+                                    )
+                                }
                             }
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 likeCount.toString(),
                                 fontSize = 13.sp,
