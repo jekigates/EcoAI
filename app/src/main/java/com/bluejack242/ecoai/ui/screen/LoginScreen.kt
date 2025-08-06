@@ -124,10 +124,12 @@ fun LoginScreen(
             }
 
             Button(
-                onClick = { viewModel.login(LoginRequest(email, password)) {
-                    Toast.makeText(context, LanguageManager.getString("login_success"), Toast.LENGTH_SHORT).show()
-                    onLoginSuccess()
-                } },
+                onClick = {
+                    viewModel.login(LoginRequest(email, password)) {
+                        Toast.makeText(context, LanguageManager.getString("login_success"), Toast.LENGTH_SHORT).show()
+                        onLoginSuccess()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
@@ -135,14 +137,18 @@ fun LoginScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(6.dp)
             ) {
-                Text(LanguageManager.getString("log_in"), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(LanguageManager.getString("log_in"), color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                }
             }
             if (error != null) {
                 Text(error, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 4.dp))
-            }
-
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.padding(top = 8.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
