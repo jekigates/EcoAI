@@ -2,10 +2,8 @@ package com.bluejack242.ecoai.utils
 
 import com.bluejack242.ecoai.model.Notification
 import com.google.firebase.Timestamp
-import com.google.firebase.Firebase
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 
 fun sendNotificationWithType(
     fromUserId: String,
