@@ -24,10 +24,22 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${dotenv["CLOUDINARY_CLOUD_NAME"]}\"")
-        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${dotenv["CLOUDINARY_UPLOAD_PRESET"]}\"")
+        buildConfigField(
+            "String",
+            "CLOUDINARY_CLOUD_NAME",
+            "\"${dotenv["CLOUDINARY_CLOUD_NAME"]}\""
+        )
+        buildConfigField(
+            "String",
+            "CLOUDINARY_UPLOAD_PRESET",
+            "\"${dotenv["CLOUDINARY_UPLOAD_PRESET"]}\""
+        )
         buildConfigField("String", "CLOUDINARY_API_KEY", "\"${dotenv["CLOUDINARY_API_KEY"]}\"")
-        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${dotenv["CLOUDINARY_API_SECRET"]}\"")
+        buildConfigField(
+            "String",
+            "CLOUDINARY_API_SECRET",
+            "\"${dotenv["CLOUDINARY_API_SECRET"]}\""
+        )
     }
 
     buildTypes {
@@ -92,12 +104,12 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
 
-    implementation ("io.coil-kt:coil-compose:2.1.0")
+    implementation("io.coil-kt:coil-compose:2.1.0")
 
     // Accompanist Pager untuk carousel
-    implementation ("com.google.accompanist:accompanist-pager:0.28.0")
-    implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
-    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.google.accompanist:accompanist-pager:0.28.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("com.composables:icons-lucide:1.0.0")
 
     implementation("androidx.compose.material:material-icons-extended")
@@ -114,4 +126,8 @@ dependencies {
     implementation("androidx.camera:camera-extensions:1.3.3")
 
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation("androidx.media3:media3-common:1.3.1")
+
 }

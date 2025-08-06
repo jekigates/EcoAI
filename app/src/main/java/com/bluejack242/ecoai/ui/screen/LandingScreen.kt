@@ -1,5 +1,7 @@
 package com.bluejack242.ecoai.ui.screen
 
+import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,31 +18,68 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import com.bluejack242.ecoai.R
 import com.bluejack242.ecoai.utils.LanguageManager
 import com.bluejack242.ecoai.ui.component.LanguageSelector
+import androidx.core.net.toUri
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
 
+@OptIn(UnstableApi::class)
 @Composable
 fun LandingScreen(
     onLoginClick: () -> Unit,
     onGetStartedClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            val videoUri = "android.resource://${context.packageName}/${R.raw.video_light}".toUri()
+            val mediaItem = MediaItem.fromUri(videoUri)
+            setMediaItem(mediaItem)
+            repeatMode = ExoPlayer.REPEAT_MODE_ALL
+            volume = 0f
+            prepare()
+            playWhenReady = true
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            exoPlayer.run {
+                stop()
+                release()
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) {
-                Image(
-                    painter = painterResource(id = R.drawable.waste_image),
-                    contentDescription = "Landing Image",
-                    contentScale = ContentScale.Crop,
+                AndroidView(
+                    factory = { ctx ->
+                        PlayerView(ctx).apply {
+                            player = exoPlayer
+                            useController = false
+                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                        }
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
+
                 // Language Selector
                 LanguageSelector(
                     modifier = Modifier
