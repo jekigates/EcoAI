@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import java.util.Calendar
+import com.bluejack242.ecoai.utils.LanguageManager
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
@@ -19,7 +20,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun WeeklyProgressRow() {
-    val dayLetters = listOf("S", "M", "T", "W", "T", "F", "S")
+    val dayLettersEn = listOf("S", "M", "T", "W", "T", "F", "S")
+    val dayLettersId = listOf("M", "S", "S", "R", "K", "J", "S") // Minggu, Senin, Selasa, Rabu, Kamis, Jumat, Sabtu
+    val dayLetters = if (LanguageManager.currentLanguage.value == "ID") dayLettersId else dayLettersEn
     val days = mutableListOf<String>()
     val dates = mutableListOf<Int>()
     for (i in 27 downTo 0) {

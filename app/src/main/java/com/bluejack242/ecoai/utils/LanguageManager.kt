@@ -1,9 +1,19 @@
 package com.bluejack242.ecoai.utils
 
 import androidx.compose.runtime.mutableStateOf
+import java.util.Locale
 
 object LanguageManager {
-    val currentLanguage = mutableStateOf("EN")
+    fun getSystemDefaultLanguage(): String {
+        val lang = Locale.getDefault().language.lowercase(Locale.ROOT)
+        return when (lang) {
+            "id" -> "ID"
+            "en" -> "EN"
+            else -> "EN"
+        }
+    }
+
+    val currentLanguage = mutableStateOf(getSystemDefaultLanguage())
     
     private val translations = mapOf(
         "EN" to mapOf(

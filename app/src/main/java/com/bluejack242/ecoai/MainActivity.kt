@@ -61,9 +61,15 @@ class MainActivity : AppCompatActivity() {
             var isDarkTheme by rememberSaveable {
                 mutableStateOf(prefs.getBoolean("isDarkTheme", false))
             }
-            val initialLang = prefs.getString("language", "EN") ?: "EN"
+            val initialLang = prefs.getString("language", null)
             LaunchedEffect(Unit) {
-                com.bluejack242.ecoai.utils.LanguageManager.setLanguage(initialLang)
+                if (initialLang == null) {
+                    com.bluejack242.ecoai.utils.LanguageManager.setLanguage(
+                        com.bluejack242.ecoai.utils.LanguageManager.getSystemDefaultLanguage()
+                    )
+                } else {
+                    com.bluejack242.ecoai.utils.LanguageManager.setLanguage(initialLang)
+                }
             }
 
             val navController = rememberNavController()
