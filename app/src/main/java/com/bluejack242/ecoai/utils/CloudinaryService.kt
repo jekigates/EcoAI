@@ -14,15 +14,16 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.security.MessageDigest
 import java.util.*
+import com.bluejack242.ecoai.BuildConfig
 
 class CloudinaryService {
     companion object {
-        private const val CLOUD_NAME = "dh75d6acd"
-        private const val UPLOAD_PRESET = "post"
-        private const val API_KEY = "691169198888262"
-        private const val API_SECRET = "94OGlC1XnCmzk9k8EvOXrVkosUg"
+        private val CLOUD_NAME = BuildConfig.CLOUDINARY_CLOUD_NAME
+        private val UPLOAD_PRESET = BuildConfig.CLOUDINARY_UPLOAD_PRESET
+        private val API_KEY = BuildConfig.CLOUDINARY_API_KEY
+        private val API_SECRET = BuildConfig.CLOUDINARY_API_SECRET
 
-        private const val BASE_URL = "https://api.cloudinary.com/v1_1/$CLOUD_NAME"
+        private val BASE_URL = "https://api.cloudinary.com/v1_1/$CLOUD_NAME"
         private const val TAG = "CloudinaryService"
     }
 

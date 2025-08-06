@@ -1,8 +1,14 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     id("com.google.gms.google-services")
+}
+
+val dotenv = Properties().apply {
+    file(".env").inputStream().use { load(it) }
 }
 
 android {
@@ -17,6 +23,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${dotenv["CLOUDINARY_CLOUD_NAME"]}\"")
+        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${dotenv["CLOUDINARY_UPLOAD_PRESET"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${dotenv["CLOUDINARY_API_KEY"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${dotenv["CLOUDINARY_API_SECRET"]}\"")
     }
 
     buildTypes {
@@ -36,6 +47,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -100,4 +112,6 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.3")
     implementation("androidx.camera:camera-view:1.3.3")
     implementation("androidx.camera:camera-extensions:1.3.3")
+
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 }
