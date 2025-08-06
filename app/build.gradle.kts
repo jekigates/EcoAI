@@ -94,4 +94,10 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:6.4.0")
 
     implementation("com.exyte:animated-navigation-bar:1.0.0")
+
+    // CameraX for camera preview background
+    implementation("androidx.camera:camera-camera2:1.3.3")
+    implementation("androidx.camera:camera-lifecycle:1.3.3")
+    implementation("androidx.camera:camera-view:1.3.3")
+    implementation("androidx.camera:camera-extensions:1.3.3")
 }
