@@ -67,147 +67,152 @@ fun CreatePostScreen(
     val cardBgColor = if (backgroundColor.luminance() > 0.5f) MaterialTheme.colorScheme.surfaceVariant else onSurfaceVariantColor.copy(alpha = 0.2f)
 
     Column(
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         BackHeaderBar(
             title = LanguageManager.getString("create_new_post"),
             navController = navController
         )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Media Carousel
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(if (post.mediaList.isEmpty()) cardBgColor else Color.Transparent)
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            if (post.mediaList.isEmpty()) {
-                Text(
-                    LanguageManager.getString("no_media_yet"),
-                    color = onSurfaceVariantColor,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                val pagerState = rememberPagerState()
-                HorizontalPager(
-                    count = post.mediaList.size,
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { index ->
-                    val media = post.mediaList[index]
-                    Box(Modifier.fillMaxSize()) {
-                        AsyncImage(
-                            model = media.url,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                        IconButton(
-                            onClick = { viewModel.removeMediaAt(index) },
-                            modifier = Modifier.align(Alignment.TopEnd)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = LanguageManager.getString("remove_image"),
-                                tint = MaterialTheme.colorScheme.onSurface
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Media Carousel
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(if (post.mediaList.isEmpty()) cardBgColor else Color.Transparent)
+            ) {
+                if (post.mediaList.isEmpty()) {
+                    Text(
+                        LanguageManager.getString("no_media_yet"),
+                        color = onSurfaceVariantColor,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    val pagerState = rememberPagerState()
+                    HorizontalPager(
+                        count = post.mediaList.size,
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { index ->
+                        val media = post.mediaList[index]
+                        Box(Modifier.fillMaxSize()) {
+                            AsyncImage(
+                                model = media.url,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
                             )
+                            IconButton(
+                                onClick = { viewModel.removeMediaAt(index) },
+                                modifier = Modifier.align(Alignment.TopEnd)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = LanguageManager.getString("remove_image"),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
+                    HorizontalPagerIndicator(
+                        pagerState = pagerState,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(8.dp),
+                        activeColor = onSurfaceColor,
+                        inactiveColor = onSurfaceVariantColor
+                    )
                 }
-                HorizontalPagerIndicator(
-                    pagerState = pagerState,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(8.dp),
-                    activeColor = onSurfaceColor,
-                    inactiveColor = onSurfaceVariantColor
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Headline
+            val headlineSupportingText = "${post.headline.length}/50"
+            OutlinedTextField(
+                value = post.headline,
+                onValueChange = {
+                    if (it.length <= 50) viewModel.updateHeadline(it)
+                },
+                label = { Text(LanguageManager.getString("headline_optional"), color = onSurfaceVariantColor) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                trailingIcon = {
+                    Text(headlineSupportingText, color = onSurfaceVariantColor)
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = onSurfaceColor,
+                    unfocusedTextColor = onSurfaceColor,
+                    focusedBorderColor = onSurfaceVariantColor,
+                    unfocusedBorderColor = onSurfaceVariantColor,
+                    cursorColor = onSurfaceColor
+                )
+            )
+            Spacer(Modifier.height(8.dp))
+
+            // Caption and Tags
+            OutlinedTextField(
+                value = post.caption,
+                onValueChange = { value -> viewModel.updateCaption(value) },
+                label = { Text(LanguageManager.getString("caption_and_tags_optional"), color = onSurfaceVariantColor) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = false,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = onSurfaceColor,
+                    unfocusedTextColor = onSurfaceColor,
+                    focusedBorderColor = onSurfaceVariantColor,
+                    unfocusedBorderColor = onSurfaceVariantColor,
+                    cursorColor = onSurfaceColor
+                )
+            )
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = { imageLauncher.launch("image/*") },
+                enabled = !isUploading && imageCount < 10,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
+            ) {
+                Text(
+                    color = buttonTextColor,
+                    text = if (isUploading)
+                        LanguageManager.getString("uploading")
+                    else
+                        "${LanguageManager.getString("add_image")} (${imageCount}/10)"
                 )
             }
-        }
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-        // Headline
-        val headlineSupportingText = "${post.headline.length}/50"
-        OutlinedTextField(
-            value = post.headline,
-            onValueChange = {
-                if (it.length <= 50) viewModel.updateHeadline(it)
-            },
-            label = { Text(LanguageManager.getString("headline_optional"), color = onSurfaceVariantColor) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            trailingIcon = {
-                Text(headlineSupportingText, color = onSurfaceVariantColor)
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = onSurfaceColor,
-                unfocusedTextColor = onSurfaceColor,
-                focusedBorderColor = onSurfaceVariantColor,
-                unfocusedBorderColor = onSurfaceVariantColor,
-                cursorColor = onSurfaceColor
-            )
-        )
-        Spacer(Modifier.height(8.dp))
-
-        // Caption and Tags
-        OutlinedTextField(
-            value = post.caption,
-            onValueChange = { value -> viewModel.updateCaption(value) },
-            label = { Text(LanguageManager.getString("caption_and_tags_optional"), color = onSurfaceVariantColor) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = false,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = onSurfaceColor,
-                unfocusedTextColor = onSurfaceColor,
-                focusedBorderColor = onSurfaceVariantColor,
-                unfocusedBorderColor = onSurfaceVariantColor,
-                cursorColor = onSurfaceColor
-            )
-        )
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = { imageLauncher.launch("image/*") },
-            enabled = !isUploading && imageCount < 10,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
-        ) {
-            Text(
-                color = buttonTextColor,
-                text = if (isUploading)
-                    LanguageManager.getString("uploading")
-                else
-                    "${LanguageManager.getString("add_image")} (${imageCount}/10)"
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                viewModel.createPost(
-                    onSuccess = {
-                        Toast.makeText(context, LanguageManager.getString("post_created"), Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
-                    },
-                    onError = { errMsg ->
-                        Toast.makeText(context, errMsg, Toast.LENGTH_SHORT).show()
-                    }
-                )
-            },
-            enabled = !isPosting,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
-        ) {
-            Text(LanguageManager.getString("post_button"), color = buttonTextColor)
+            Button(
+                onClick = {
+                    viewModel.createPost(
+                        onSuccess = {
+                            Toast.makeText(context, LanguageManager.getString("post_created"), Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
+                        },
+                        onError = { errMsg ->
+                            Toast.makeText(context, errMsg, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                },
+                enabled = !isPosting,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
+            ) {
+                Text(LanguageManager.getString("post_button"), color = buttonTextColor)
+            }
         }
     }
 }

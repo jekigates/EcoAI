@@ -80,154 +80,158 @@ fun EditProfileScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(backgroundColor)
     ) {
-        Spacer(Modifier.height(16.dp))
         BackHeaderBar(
             title = LanguageManager.getString("edit_profile"),
             navController = navController
         )
-
-        Spacer(Modifier.height(24.dp))
-        // Profile Picture
-        Box(
-            modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
-                .clip(CircleShape).background(profilePictureBg)
-                .clickable { imagePickerLauncher.launch("image/*") },
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            AsyncImage(model = profilePictureUri ?: profilePictureUrl, contentDescription = null)
-        }
+            Spacer(Modifier.height(24.dp))
+            // Profile Picture
+            Box(
+                modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
+                    .clip(CircleShape).background(profilePictureBg)
+                    .clickable { imagePickerLauncher.launch("image/*") },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(model = profilePictureUri ?: profilePictureUrl, contentDescription = null)
+            }
 
-        Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-        // Full name
-        OutlinedTextField(
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = { Text(LanguageManager.getString("full_name"), color = onSurfaceVariantColor) },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            isError = fullNameError != null,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = onSurfaceColor,
-                unfocusedTextColor = onSurfaceColor,
-                focusedBorderColor = onSurfaceVariantColor,
-                unfocusedBorderColor = onSurfaceVariantColor,
-                errorBorderColor = errorColor,
-                errorLabelColor = errorColor
+            // Full name
+            OutlinedTextField(
+                value = fullName,
+                onValueChange = { fullName = it },
+                label = { Text(LanguageManager.getString("full_name"), color = onSurfaceVariantColor) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                isError = fullNameError != null,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = onSurfaceColor,
+                    unfocusedTextColor = onSurfaceColor,
+                    focusedBorderColor = onSurfaceVariantColor,
+                    unfocusedBorderColor = onSurfaceVariantColor,
+                    errorBorderColor = errorColor,
+                    errorLabelColor = errorColor
+                )
             )
-        )
-        if (fullNameError != null) {
-            Text(fullNameError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
-        }
+            if (fullNameError != null) {
+                Text(fullNameError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
+            }
 
-        Spacer(Modifier.height(12.dp))
-        // Username
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text(LanguageManager.getString("username"), color = onSurfaceVariantColor) },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            isError = usernameError != null,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = onSurfaceColor,
-                unfocusedTextColor = onSurfaceColor,
-                focusedBorderColor = onSurfaceVariantColor,
-                unfocusedBorderColor = onSurfaceVariantColor,
-                errorBorderColor = errorColor,
-                errorLabelColor = errorColor
+            Spacer(Modifier.height(12.dp))
+            // Username
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text(LanguageManager.getString("username"), color = onSurfaceVariantColor) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                isError = usernameError != null,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = onSurfaceColor,
+                    unfocusedTextColor = onSurfaceColor,
+                    focusedBorderColor = onSurfaceVariantColor,
+                    unfocusedBorderColor = onSurfaceVariantColor,
+                    errorBorderColor = errorColor,
+                    errorLabelColor = errorColor
+                )
             )
-        )
-        if (usernameError != null) {
-            Text(usernameError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
-        }
+            if (usernameError != null) {
+                Text(usernameError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
+            }
 
-        Spacer(Modifier.height(12.dp))
-        // Bio
-        OutlinedTextField(
-            value = bio,
-            onValueChange = { bio = it },
-            label = { Text(LanguageManager.getString("bio"), color = onSurfaceVariantColor) },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            isError = bioError != null,
-            maxLines = 3,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = onSurfaceColor,
-                unfocusedTextColor = onSurfaceColor,
-                focusedBorderColor = onSurfaceVariantColor,
-                unfocusedBorderColor = onSurfaceVariantColor,
-                errorBorderColor = errorColor,
-                errorLabelColor = errorColor
+            Spacer(Modifier.height(12.dp))
+            // Bio
+            OutlinedTextField(
+                value = bio,
+                onValueChange = { bio = it },
+                label = { Text(LanguageManager.getString("bio"), color = onSurfaceVariantColor) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                isError = bioError != null,
+                maxLines = 3,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = onSurfaceColor,
+                    unfocusedTextColor = onSurfaceColor,
+                    focusedBorderColor = onSurfaceVariantColor,
+                    unfocusedBorderColor = onSurfaceVariantColor,
+                    errorBorderColor = errorColor,
+                    errorLabelColor = errorColor
+                )
             )
-        )
-        if (bioError != null) {
-            Text(bioError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 24.dp))
-        }
+            if (bioError != null) {
+                Text(bioError!!, color = errorColor, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
+            }
 
-        Spacer(Modifier.height(24.dp))
-        Button(
-            onClick = {
-                fullNameError = null
-                usernameError = null
-                bioError = null
+            Spacer(Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    fullNameError = null
+                    usernameError = null
+                    bioError = null
 
-                var valid = true
-                if (fullName.length < 4) {
-                    fullNameError = LanguageManager.getString("name_required")
-                    valid = false
-                }
-                if (bio.trim().split("\\s+".toRegex()).size < 3) {
-                    bioError = LanguageManager.getString("bio_required")
-                    valid = false
-                }
+                    var valid = true
+                    if (fullName.length < 4) {
+                        fullNameError = LanguageManager.getString("name_required")
+                        valid = false
+                    }
+                    if (bio.trim().split("\\s+".toRegex()).size < 3) {
+                        bioError = LanguageManager.getString("bio_required")
+                        valid = false
+                    }
 
-                if (!valid || user == null) return@Button
+                    if (!valid || user == null) return@Button
 
-                isSaving = true
-                db.collection("users").whereEqualTo("username", username).get()
-                    .addOnSuccessListener { result ->
-                        val usernameTaken = result.any { it.id != user.uid }
-                        if (usernameTaken) {
-                            usernameError = LanguageManager.getString("username_taken")
-                            isSaving = false
-                        } else {
-                            coroutineScope.launch {
-                                var uploadedUrl: String? = profilePictureUrl
-                                if (profilePictureUri != null) {
-                                    val uploadResult = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
-                                    uploadResult.onSuccess { url -> uploadedUrl = url }
-                                    uploadResult.onFailure {
-                                        Toast.makeText(context, LanguageManager.getString("upload_failed") + it.message, Toast.LENGTH_SHORT).show()
-                                        isSaving = false
-                                        return@launch
-                                    }
-                                }
-                                val userMap = hashMapOf(
-                                    "fullName" to fullName,
-                                    "username" to username,
-                                    "bio" to bio,
-                                    "profilePictureUrl" to (uploadedUrl ?: "")
-                                )
-                                db.collection("users").document(user.uid)
-                                    .update(userMap as Map<String, Any>)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(context, LanguageManager.getString("profile_updated"), Toast.LENGTH_SHORT).show()
-                                        navController.popBackStack()
-                                    }
-                                    .addOnFailureListener {
-                                        Toast.makeText(context, LanguageManager.getString("failed_update") + it.message, Toast.LENGTH_SHORT).show()
-                                    }
+                    isSaving = true
+                    db.collection("users").whereEqualTo("username", username).get()
+                        .addOnSuccessListener { result ->
+                            val usernameTaken = result.any { it.id != user.uid }
+                            if (usernameTaken) {
+                                usernameError = LanguageManager.getString("username_taken")
                                 isSaving = false
+                            } else {
+                                coroutineScope.launch {
+                                    var uploadedUrl: String? = profilePictureUrl
+                                    if (profilePictureUri != null) {
+                                        val uploadResult = cloudinaryService.uploadProfileImage(context, profilePictureUri!!)
+                                        uploadResult.onSuccess { url -> uploadedUrl = url }
+                                        uploadResult.onFailure {
+                                            Toast.makeText(context, LanguageManager.getString("upload_failed") + it.message, Toast.LENGTH_SHORT).show()
+                                            isSaving = false
+                                            return@launch
+                                        }
+                                    }
+                                    val userMap = hashMapOf(
+                                        "fullName" to fullName,
+                                        "username" to username,
+                                        "bio" to bio,
+                                        "profilePictureUrl" to (uploadedUrl ?: "")
+                                    )
+                                    db.collection("users").document(user.uid)
+                                        .update(userMap as Map<String, Any>)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(context, LanguageManager.getString("profile_updated"), Toast.LENGTH_SHORT).show()
+                                            navController.popBackStack()
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(context, LanguageManager.getString("failed_update") + it.message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    isSaving = false
+                                }
                             }
                         }
-                    }
-            },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-            enabled = !isSaving
-        ) {
-            Text(
-                if (isSaving) LanguageManager.getString("saving") else LanguageManager.getString("save"),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                enabled = !isSaving
+            ) {
+                Text(
+                    if (isSaving) LanguageManager.getString("saving") else LanguageManager.getString("save"),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     }
 }

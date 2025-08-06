@@ -45,103 +45,104 @@ fun SettingsScreen(
         }
     }
 
-    if (isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        BackHeaderBar(
+            title = LanguageManager.getString("settings"),
+            navController = navController
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // Header
-            BackHeaderBar(
-                title = LanguageManager.getString("settings"),
-                navController = navController
-            )
-            // Push notifications
-            SettingItem {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        LanguageManager.getString("push_notifications"),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        LanguageManager.getString("push_notifications_desc"),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            if (isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                // Push notifications
+                SettingItem {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            LanguageManager.getString("push_notifications"),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            LanguageManager.getString("push_notifications_desc"),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        )
+                    }
+                    Switch(
+                        checked = isNotificationEnabled,
+                        onCheckedChange = { enabled ->
+                            isNotificationEnabled = enabled
+                            if (currentUserId != null) {
+                                db.collection("users")
+                                    .document(currentUserId)
+                                    .update("notificationsEnabled", enabled)
+                            }
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                         )
                     )
                 }
-                Switch(
-                    checked = isNotificationEnabled,
-                    onCheckedChange = { enabled ->
-                        isNotificationEnabled = enabled
-                        if (currentUserId != null) {
-                            db.collection("users")
-                                .document(currentUserId)
-                                .update("notificationsEnabled", enabled)
-                        }
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                    )
-                )
 
-            }
-
-
-            // Appearance
-            SettingItem {
-                Column(Modifier.weight(1f)) {
-                    Text(LanguageManager.getString("appearance"), fontWeight = FontWeight.Bold)
-                    Text(
-                        LanguageManager.getString("appearance_desc"),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                // Appearance
+                SettingItem {
+                    Column(Modifier.weight(1f)) {
+                        Text(LanguageManager.getString("appearance"), fontWeight = FontWeight.Bold)
+                        Text(
+                            LanguageManager.getString("appearance_desc"),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
                         )
-                    )
-                }
-                TextButton(onClick = { onThemeChange(!isDarkTheme) }) {
-                    Text(
-                        if (isDarkTheme) LanguageManager.getString("dark_mode") else LanguageManager.getString(
-                            "light_mode"
-                        ),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-
-            // Language
-            SettingItem {
-                Column(Modifier.weight(1f)) {
-                    Text(LanguageManager.getString("language"), fontWeight = FontWeight.Bold)
-                    Text(
-                        LanguageManager.getString("select_language"),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    }
+                    TextButton(onClick = { onThemeChange(!isDarkTheme) }) {
+                        Text(
+                            if (isDarkTheme) LanguageManager.getString("dark_mode") else LanguageManager.getString(
+                                "light_mode"
+                            ),
+                            color = MaterialTheme.colorScheme.primary
                         )
-                    )
+                    }
                 }
-                LanguageSelector()
+
+                // Language
+                SettingItem {
+                    Column(Modifier.weight(1f)) {
+                        Text(LanguageManager.getString("language"), fontWeight = FontWeight.Bold)
+                        Text(
+                            LanguageManager.getString("select_language"),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        )
+                    }
+                    LanguageSelector()
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Log Out
+                TextButton(
+                    onClick = onLogout,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .navigationBarsPadding()
+                ) {
+                    Text(LanguageManager.getString("logout"), color = Color.Red)
+                }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Log Out
-            TextButton(
-                onClick = onLogout,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .navigationBarsPadding()
-            ) {
-                Text(LanguageManager.getString("logout"), color = Color.Red)
-            }
-
         }
     }
 }

@@ -81,101 +81,67 @@ fun SearchScreen(navController: NavHostController, query: String = "") {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
         BackHeaderBar(
             title = LanguageManager.getString("search"),
             navController = navController
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        // Search bar
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Icon(Icons.Default.Search, contentDescription = LanguageManager.getString("search"), tint = Color.Gray)
-            Spacer(Modifier.width(8.dp))
-            TextField(
-                value = searchText,
-                onValueChange = { searchText = it },
-                placeholder = { Text(LanguageManager.getString("search_placeholder")) },
-                singleLine = true,
-                modifier = Modifier.weight(1f),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent
-                )
-            )
-        }
-
-        if (isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (searchText.isNotBlank()) {
-            if (searchResults.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No results found", color = Color.Gray)
-                }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(2.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(searchResults) { (postId, thumbnailUrl) ->
-                        Box(
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .padding(2.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color.LightGray)
-                                .clickable { navController.navigate("post_detail/$postId") }
-                        ) {
-                            if (thumbnailUrl.isNotBlank()) {
-                                AsyncImage(
-                                    model = thumbnailUrl,
-                                    contentDescription = LanguageManager.getString("post_thumbnail"),
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+            // Search bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(topTags) { tag ->
-                    Text(
-                        text = tag,
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.clickable {
-                            searchText = tag
-                        }
+                Icon(Icons.Default.Search, contentDescription = LanguageManager.getString("search"), tint = Color.Gray)
+                Spacer(Modifier.width(8.dp))
+                TextField(
+                    value = searchText,
+                    onValueChange = { searchText = it },
+                    placeholder = { Text(LanguageManager.getString("search_placeholder")) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent
                     )
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (searchText.isNotBlank()) {
+                if (searchResults.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No results found", color = Color.Gray)
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        contentPadding = PaddingValues(2.dp),
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        tagPosts[tag]?.forEach { (postId, thumbnailUrl) ->
-                            if (thumbnailUrl.isNotBlank()) {
-                                Box(
-                                    Modifier
-                                        .size(80.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(Color.LightGray)
-                                        .clickable { navController.navigate("post_detail/$postId") }
-                                ) {
+                        items(searchResults) { (postId, thumbnailUrl) ->
+                            Box(
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .padding(2.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color.LightGray)
+                                    .clickable { navController.navigate("post_detail/$postId") }
+                            ) {
+                                if (thumbnailUrl.isNotBlank()) {
                                     AsyncImage(
                                         model = thumbnailUrl,
                                         contentDescription = LanguageManager.getString("post_thumbnail"),
@@ -185,7 +151,46 @@ fun SearchScreen(navController: NavHostController, query: String = "") {
                             }
                         }
                     }
-                    Spacer(Modifier.height(20.dp))
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    items(topTags) { tag ->
+                        Text(
+                            text = tag,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.clickable {
+                                searchText = tag
+                            }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            tagPosts[tag]?.forEach { (postId, thumbnailUrl) ->
+                                if (thumbnailUrl.isNotBlank()) {
+                                    Box(
+                                        Modifier
+                                            .size(80.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color.LightGray)
+                                            .clickable { navController.navigate("post_detail/$postId") }
+                                    ) {
+                                        AsyncImage(
+                                            model = thumbnailUrl,
+                                            contentDescription = LanguageManager.getString("post_thumbnail"),
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(20.dp))
+                    }
                 }
             }
         }

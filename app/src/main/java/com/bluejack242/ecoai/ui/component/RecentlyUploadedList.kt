@@ -29,7 +29,7 @@ fun RecentlyUploadedItemCard(item: WasteHistoryItem, onClick: (String) -> Unit) 
             .padding(vertical = 6.dp)
             .clickable { onClick(item.id) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(cardRadius)
     ) {
         Box(Modifier.fillMaxWidth()) {
