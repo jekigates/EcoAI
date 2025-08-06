@@ -22,8 +22,15 @@ import androidx.navigation.compose.rememberNavController
 import com.bluejack242.ecoai.ui.theme.EcoAITheme
 import com.google.firebase.auth.FirebaseAuth
 import androidx.core.content.edit
+import io.github.cdimascio.dotenv.dotenv
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        lateinit var env: io.github.cdimascio.dotenv.Dotenv
+            private set
+    }
+
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -42,6 +49,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        env = dotenv {
+            directory = "./"
+            ignoreIfMalformed = true
+            ignoreIfMissing = true
+        }
         requestNotificationPermission()
         val channel = NotificationChannel(
             "NOTIF_CHANNEL_ID",
