@@ -33,12 +33,34 @@ import androidx.compose.material.icons.filled.AccessTimeFilled
 @Composable
 fun ProgressScreen(
     navController: NavHostController,
-    onAddWasteClick: () -> Unit,
     onItemClick: (String) -> Unit,
     viewModel: ProgressViewModel = viewModel()
 ) {
-    val recentlyUploaded by viewModel.recentlyUploadedWaste.observeAsState(emptyList())
-    val carbonTrack by viewModel.carbonTrack.observeAsState(0)
+    val recentlyUploadedAll by viewModel.recentlyUploadedWaste.observeAsState(emptyList())
+    val selectedDateMillis = WeeklyProgressRowSelectedDate.value
+    // Calculate set of upload days (midnight millis) for the last 28 days
+    val uploadDays: Set<Long> = remember(recentlyUploadedAll) {
+        recentlyUploadedAll.map { item ->
+            val cal = java.util.Calendar.getInstance()
+            cal.time = item.date.toDate()
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            cal.timeInMillis
+        }.toSet()
+    }
+    val recentlyUploaded = remember(recentlyUploadedAll, selectedDateMillis) {
+        if (selectedDateMillis == null) emptyList() else {
+            val end = selectedDateMillis + 24 * 60 * 60 * 1000
+            recentlyUploadedAll.filter { item ->
+                val date = item.date.toDate().time
+                date >= selectedDateMillis && date < end
+            }
+        }
+    }
+    // Show carbon for selected date only
+    val carbonTrack = recentlyUploaded.sumOf { it.co2e }
     val weeklyStreak by viewModel.weeklyStreak.observeAsState(0)
 
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -181,7 +203,7 @@ fun ProgressScreen(
             Spacer(Modifier.height(16.dp))
 
             // Weekly progress row
-            WeeklyProgressRow()
+            WeeklyProgressRow(uploadDays = uploadDays)
 
             Spacer(Modifier.height(24.dp))
 

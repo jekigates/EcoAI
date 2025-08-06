@@ -138,9 +138,6 @@ fun NavGraph(
 
             ProgressScreen(
                 navController = navController,
-                onAddWasteClick = {
-                    navController.navigate("add_waste")
-                },
                 onItemClick = { itemId ->
                     navController.navigate("wasteDetail/$itemId")
                 },
