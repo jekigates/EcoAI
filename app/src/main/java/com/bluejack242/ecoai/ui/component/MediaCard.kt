@@ -59,6 +59,7 @@ fun MediaCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -68,31 +69,31 @@ fun MediaCard(
                     Icon(
                         imageVector = if (saved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                         contentDescription = "Saves",
-                        tint = if (saved) MaterialTheme.colorScheme.primary else iconDefaultColor,
+                        tint = if (saved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = saves.toString(), fontSize = 12.sp, color = if (saved) MaterialTheme.colorScheme.primary else iconDefaultColor)
+                    Text(text = saves.toString(), fontSize = 12.sp, color = if (saved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = "Likes",
-                        tint = if (liked) Color(0xFFE57373) else iconDefaultColor,
+                        tint = if (liked) Color(0xFFE57373) else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = likes.toString(), fontSize = 12.sp, color = iconDefaultColor)
+                    Text(text = likes.toString(), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Comment,
-                contentDescription = "Comments",
-                tint = iconDefaultColor,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(text = commentsCount.toString(), fontSize = 12.sp, color = iconDefaultColor)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Comment,
+                        contentDescription = "Comments",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = commentsCount.toString(), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

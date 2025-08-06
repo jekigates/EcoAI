@@ -93,35 +93,61 @@ class WasteRepository() {
             .await()
             .toObjects(WasteHistoryItem::class.java)
 
-        // Ambil semua tanggal upload, diubah ke hari (tanpa jam)
+        // Get all upload days as midnight millis, sorted descending (latest first)
         val uploadDays = items.mapNotNull { item ->
             val cal = Calendar.getInstance()
             item.date.toDate().let { cal.time = it }
-            // Set jam ke 0 supaya hanya tanggal
             cal.set(Calendar.HOUR_OF_DAY, 0)
             cal.set(Calendar.MINUTE, 0)
             cal.set(Calendar.SECOND, 0)
             cal.set(Calendar.MILLISECOND, 0)
             cal.timeInMillis
-        }.toSet()
+        }.toSet().toList().sortedDescending()
 
-        // Hitung streak berturut-turut mundur dari hari ini
-        var streak = 0
+        if (uploadDays.isEmpty()) return 0
+
+        // Find the latest upload day
+        val lastUploadDay = uploadDays.first()
         val today = Calendar.getInstance()
         today.set(Calendar.HOUR_OF_DAY, 0)
         today.set(Calendar.MINUTE, 0)
         today.set(Calendar.SECOND, 0)
         today.set(Calendar.MILLISECOND, 0)
+        val todayMillis = today.timeInMillis
 
-        for (i in 0 until 7) { // maksimal streak 7 hari
-            if (uploadDays.contains(today.timeInMillis)) {
-                streak++
+        // If last upload is not today, check if a day is missed
+        if (lastUploadDay < todayMillis) {
+            // Check if last upload was yesterday
+            val yesterday = Calendar.getInstance()
+            yesterday.set(Calendar.HOUR_OF_DAY, 0)
+            yesterday.set(Calendar.MINUTE, 0)
+            yesterday.set(Calendar.SECOND, 0)
+            yesterday.set(Calendar.MILLISECOND, 0)
+            yesterday.add(Calendar.DAY_OF_YEAR, -1)
+            val yesterdayMillis = yesterday.timeInMillis
+            if (lastUploadDay == yesterdayMillis) {
+                // Check for consecutive streak up to yesterday
+                var streak = 1
+                var currentDay = yesterdayMillis
+                while (uploadDays.contains(currentDay - 24 * 60 * 60 * 1000)) {
+                    streak++
+                    currentDay -= 24 * 60 * 60 * 1000
+                }
+                return streak
             } else {
-                break
+                // Missed a day, streak resets
+                return 0
             }
-            today.add(Calendar.DAY_OF_YEAR, -1)
+        } else {
+            // Last upload is today, count consecutive days up to today
+            var streak = 1
+            var currentDay = todayMillis
+            while (uploadDays.contains(currentDay - 24 * 60 * 60 * 1000)) {
+                streak++
+                currentDay -= 24 * 60 * 60 * 1000
+            }
+            return streak
         }
-        return streak
     }
 
     suspend fun addWasteItemFromDatabase(
