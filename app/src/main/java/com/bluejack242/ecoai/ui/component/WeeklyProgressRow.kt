@@ -1,8 +1,6 @@
 package com.bluejack242.ecoai.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import java.util.Calendar
@@ -47,8 +45,11 @@ fun WeeklyProgressRow() {
         val datesPage = dates.subList(start, end)
         val todayIndex = if (page == lastPage) (daysPage.size - 1) else -1
         Column {
+            val outlineColor = MaterialTheme.colorScheme.onSurfaceVariant
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 daysPage.forEachIndexed { i, day ->
@@ -57,10 +58,20 @@ fun WeeklyProgressRow() {
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(if (isToday) dayCircleBg else Color.Transparent)
-                            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), CircleShape),
+                            .background(if (isToday) dayCircleBg else Color.Transparent),
                         contentAlignment = Alignment.Center
                     ) {
+                        androidx.compose.foundation.Canvas(
+                            modifier = Modifier.matchParentSize()
+                        ) {
+                            drawCircle(
+                                color = outlineColor,
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                    width = 1.5.dp.toPx(),
+                                    pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 8f), 0f)
+                                )
+                            )
+                        }
                         Text(
                             day,
                             fontWeight = FontWeight.Bold,
@@ -72,7 +83,9 @@ fun WeeklyProgressRow() {
             }
             Spacer(Modifier.height(4.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 datesPage.forEachIndexed { i, date ->

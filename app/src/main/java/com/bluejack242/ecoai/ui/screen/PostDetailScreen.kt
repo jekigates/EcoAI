@@ -537,9 +537,8 @@ fun PostDetailScreen(
         Spacer(Modifier.weight(1f))
         // Bottom bar
         Surface(
-            tonalElevation = 2.dp,
-            shadowElevation = 2.dp,
-            color = MaterialTheme.colorScheme.surface
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.navigationBarsPadding()
         ) {
             Row(
                 Modifier
@@ -550,7 +549,7 @@ fun PostDetailScreen(
                 Box(
                     Modifier
                         .weight(1f)
-                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                         .clickable { showCommentSheet = true }
                 ) {
@@ -622,12 +621,14 @@ fun PostDetailScreen(
         ModalBottomSheet(
             onDismissRequest = { showCommentSheet = false },
             sheetState = rememberModalBottomSheetState(),
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface,
+            dragHandle = null
         ) {
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                    .navigationBarsPadding()
             ) {
                 // Emoji row
                 Row(
@@ -637,64 +638,64 @@ fun PostDetailScreen(
                     emojiList.forEach { emoji ->
                         Text(
                             text = emoji,
-                            fontSize = 28.sp,
+                            fontSize = 22.sp,
                             modifier = Modifier
-                                .padding(4.dp)
+                                .padding(2.dp)
                                 .clickable { commentInput += emoji }
                         )
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                BasicTextField(
-                    value = commentInput,
-                    onValueChange = { commentInput = it },
-                    modifier = Modifier
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    Modifier
                         .fillMaxWidth()
-                        .height(90.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    maxLines = 4,
-                    textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
-                    decorationBox = { innerTextField ->
-                        Box(Modifier.fillMaxSize()) {
-                            if (commentInput.isEmpty()) Text(
-                                LanguageManager.getString("add_comment_placeholder"),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        .height(90.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    val buttonVisible = commentInput.isNotBlank()
+                    val buttonWidth = 36.dp
+                    val gapWidth = if (buttonVisible) 16.dp else 0.dp
+                    BasicTextField(
+                        value = commentInput,
+                        onValueChange = { commentInput = it },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .background(MaterialTheme.colorScheme.surfaceVariant, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        maxLines = 4,
+                        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+                        decorationBox = { innerTextField ->
+                            Box(Modifier.fillMaxSize()) {
+                                if (commentInput.isEmpty()) Text(
+                                    LanguageManager.getString("add_comment_placeholder"),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                )
+                                innerTextField()
+                            }
+                        }
+                    )
+                    if (buttonVisible) {
+                        Spacer(Modifier.width(gapWidth))
+                        IconButton(
+                            onClick = {
+                                addComment()
+                                showCommentSheet = false
+                            },
+                            modifier = Modifier
+                                .size(buttonWidth)
+                                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Lucide.ArrowUp,
+                                contentDescription = LanguageManager.getString("send"),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(20.dp)
                             )
-                            innerTextField()
                         }
                     }
-                )
-                Spacer(Modifier.height(12.dp))
-                Box(
-                    Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    val sendEnabled = commentInput.isNotBlank()
-                    val sendBg =
-                        if (sendEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                    val sendIconColor =
-                        if (sendEnabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.5f
-                        )
-                    IconButton(
-                        onClick = {
-                            addComment()
-                            showCommentSheet = false
-                        },
-                        enabled = sendEnabled,
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(sendBg, shape = CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Lucide.ArrowUp,
-                            contentDescription = LanguageManager.getString("send"),
-                            tint = sendIconColor,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
                 }
+                // ...existing code...
             }
         }
     }
