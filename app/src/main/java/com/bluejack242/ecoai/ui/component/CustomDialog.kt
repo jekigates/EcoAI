@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 
 
 enum class DialogType {
-    Success, Confirm
+    Success, Confirm, Error
 }
 
 @Composable
@@ -42,11 +42,17 @@ fun CustomDialog(
                 val lottieRes = when (dialogType) {
                     DialogType.Success -> com.bluejack242.ecoai.R.raw.success
                     DialogType.Confirm -> com.bluejack242.ecoai.R.raw.parsa_loading
+                    DialogType.Error -> com.bluejack242.ecoai.R.raw.tomato_error
+                }
+                val lottieIterations = when (dialogType) {
+                    DialogType.Success -> 1
+                    DialogType.Confirm -> LottieConstants.IterateForever
+                    DialogType.Error -> 1
                 }
                 val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
                 val progress by animateLottieCompositionAsState(
                     composition = composition,
-                    iterations = if (dialogType == DialogType.Success) 1 else LottieConstants.IterateForever
+                    iterations = lottieIterations
                 )
                 Box(
                     modifier = Modifier

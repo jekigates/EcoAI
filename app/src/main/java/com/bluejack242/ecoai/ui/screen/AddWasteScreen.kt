@@ -101,6 +101,7 @@ fun AddWasteScreen(
 ) {
     val context = LocalContext.current
     var errorMessage by remember { mutableStateOf("") }
+    var showErrorDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var showCameraPreview by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -152,7 +153,7 @@ fun AddWasteScreen(
         if (isGranted) {
             showCameraPreview = true
         } else {
-            errorMessage = LanguageManager.getString("camera_permission_denied")
+            showErrorDialog = true
         }
     }
 
@@ -231,11 +232,14 @@ fun AddWasteScreen(
                 }
             } else {
                 // Initial state: show Open Camera and Open Gallery
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                if (showErrorDialog) {
+                    com.bluejack242.ecoai.ui.component.CustomDialog(
+                        title = LanguageManager.getString("camera_permission_error_title"),
+                        message = LanguageManager.getString("camera_permission_error_message"),
+                        confirmText = LanguageManager.getString("ok"),
+                        onConfirm = { showErrorDialog = false },
+                        onDismiss = { showErrorDialog = false },
+                        dialogType = com.bluejack242.ecoai.ui.component.DialogType.Error
                     )
                 }
                 Button(
