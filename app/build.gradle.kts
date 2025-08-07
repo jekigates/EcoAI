@@ -12,11 +12,11 @@ val dotenv = Properties().apply {
 }
 
 android {
-    namespace = "com.bluejack242.ecoai"
+    namespace = "edu.bluejack24_2.ecoai"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.bluejack242.ecoai"
+        applicationId = "edu.bluejack24_2.ecoai"
         minSdk = 33
         targetSdk = 35
         versionCode = 1
