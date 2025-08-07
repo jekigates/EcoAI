@@ -3,6 +3,7 @@ package com.bluejack242.ecoai.ui.screen
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -43,12 +44,18 @@ import androidx.media3.ui.AspectRatioFrameLayout
 @Composable
 fun LandingScreen(
     onLoginClick: () -> Unit,
-    onGetStartedClick: () -> Unit
+    onGetStartedClick: () -> Unit,
 ) {
     val context = LocalContext.current
+    val isDarkTheme = isSystemInDarkTheme()
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
-            val videoUri = "android.resource://${context.packageName}/${R.raw.video_light}".toUri()
+            val videoResource = if (isDarkTheme) {
+                R.raw.video_dark
+            } else {
+                R.raw.video_light
+            }
+            val videoUri = "android.resource://${context.packageName}/$videoResource".toUri()
             val mediaItem = MediaItem.fromUri(videoUri)
             setMediaItem(mediaItem)
             repeatMode = ExoPlayer.REPEAT_MODE_ALL
