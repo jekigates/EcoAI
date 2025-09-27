@@ -1,21 +1,20 @@
-## Acknowledgements
+# Eco AI  
 
-### Lottie Animations
-This application uses free Lottie animations from [LottieFiles](https://lottiefiles.com) under the **LottieFiles Free License**:
+[![Eco AI Banner](https://i.imgur.com/O3LTHr3.jpeg)](https://i.imgur.com/O3LTHr3.jpeg)  
 
-- [Parsa Loading](https://lottiefiles.com/free-animation/parsa-loading-IzVLVFabNZ)
-- [Becket Trash Can](https://lottiefiles.com/free-animation/becket-trash-can-ElKSXsGSS9)
-- [Success](https://lottiefiles.com/free-animation/success-IINQ21ARfo)
+**Eco AI** is a mobile social platform that promotes sustainable living by combining artificial intelligence and community-driven features. The app helps individuals and communities learn about recyclable waste, track their eco-friendly progress, and share their journey toward a zero-waste lifestyle.  
 
-These assets are **free for personal and commercial use** and do **not require attribution**, but we would like to thank the creators for making them available.  
-[View License](https://lottiefiles.com/page/license)
+The project was developed as a mobile application using modern Android technologies. Before coding, I went through ideation, feature specification, and low-fidelity design. I designed and built the app independently, focusing on AI integration with Gemini, real-time data handling with Firebase, and an engaging UI/UX using Jetpack Compose.  
+
+**Tech Stack:** Kotlin, Jetpack Compose, Firebase, Lottie, Gemini AI, Android Studio.  
 
 ---
 
-### Images
-This application also uses free images from [Pixabay](https://pixabay.com) under the **Pixabay Content License**:
+## Key Features  
 
-- [Waste – Social Documentary Iranian](https://pixabay.com/photos/waste-social-documentary-iranian-7038412/)
-
-These images are **free for personal and commercial use** and do **not require attribution**, but we would like to thank the contributors for making them available.  
-[View License](https://pixabay.com/service/license-summary/)
+- **AI-Powered Waste Insights →** Take a photo of waste and instantly get information such as material type, recyclability, and estimated carbon impact powered by Gemini AI.  
+- **Track Eco Progress →** Monitor your recycling habits with streaks, daily goals, and statistics. See how much carbon you’ve saved and share your progress.  
+- **Eco Social Feed →** Post your recycling achievements, interact with others through comments and likes, and get inspired by the community’s journey.  
+- **Gamification & Streaks →** Stay consistent with streak-based tracking and motivational reminders to build long-term eco-friendly habits.  
+- **Secure & Easy Access →** Supports Firebase authentication for seamless sign-up/login and secure data storage.  
+- **Modern Android Experience →** Built fully with Jetpack Compose and Lottie animations for smooth, modern, and engaging user experience.  
